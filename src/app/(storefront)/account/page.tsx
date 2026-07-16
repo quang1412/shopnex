@@ -1,71 +1,71 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 
 interface Order {
-  id: string;
-  createdAt: string;
-  total: number;
-  status: string;
+  id: string
+  createdAt: string
+  total: number
+  status: string
 }
 
 export default function AccountPage() {
-  const router = useRouter();
-  const { user, logout, loading } = useAuth();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
+  const router = useRouter()
+  const { user, logout, loading } = useAuth()
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/account/login");
+      router.push('/account/login')
     }
-  }, [user, loading, router]);
+  }, [user, loading, router])
 
   useEffect(() => {
     if (user) {
-      fetchOrders();
+      fetchOrders()
     }
-  }, [user]);
+  }, [user])
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("/api/orders", {
-        credentials: "include",
-      });
+      const response = await fetch('/api/orders', {
+        credentials: 'include',
+      })
 
       if (response.ok) {
-        const data = await response.json();
-        setOrders(data.docs || []);
+        const data = await response.json()
+        setOrders(data.docs || [])
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      console.error('Error fetching orders:', error)
     } finally {
-      setLoadingOrders(false);
+      setLoadingOrders(false)
     }
-  };
+  }
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/");
-  };
+    await logout()
+    router.push('/')
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg">Loading...</div>
       </div>
-    );
+    )
   }
 
   if (!user) {
-    return null;
+    return null
   }
 
   return (
@@ -85,20 +85,14 @@ export default function AccountPage() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={user.email}
-                  disabled
-                  className="mt-1"
-                />
+                <Input id="email" type="email" value={user.email} disabled className="mt-1" />
               </div>
               <div>
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
                   type="text"
-                  value={user.firstName || ""}
+                  value={user.firstName || ''}
                   disabled
                   className="mt-1"
                 />
@@ -108,7 +102,7 @@ export default function AccountPage() {
                 <Input
                   id="lastName"
                   type="text"
-                  value={user.lastName || ""}
+                  value={user.lastName || ''}
                   disabled
                   className="mt-1"
                 />
@@ -143,7 +137,7 @@ export default function AccountPage() {
           ) : orders.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p>No orders found</p>
-              <Button className="mt-4" onClick={() => router.push("/products")}>
+              <Button className="mt-4" onClick={() => router.push('/products')}>
                 Start Shopping
               </Button>
             </div>
@@ -156,16 +150,15 @@ export default function AccountPage() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-medium">Order #{order.id.slice(-8)}</p>
+                      <p className="font-medium">Order #{order.id || '?'}</p>
                       <p className="text-sm text-gray-600">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">${order.total.toFixed(2)}</p>
-                      <p className="text-sm text-gray-600 capitalize">
-                        {order.status}
-                      </p>
+                      <p className="font-medium">${order.total}</p>
+                      {/* <p className="font-medium">${order.total.toFixed(2)}</p> */}
+                      <p className="text-sm text-gray-600 capitalize">{order.status}</p>
                     </div>
                   </div>
                 </div>
@@ -175,5 +168,5 @@ export default function AccountPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

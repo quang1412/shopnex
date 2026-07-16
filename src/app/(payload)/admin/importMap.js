@@ -23,6 +23,7 @@ import { CommandBar as CommandBar_c473cfc8237cb5375a757ad784076201 } from '@shop
 import { Dashboard as Dashboard_22568d3ea793f8bcf927349509acce35 } from '@shopnex/analytics-plugin/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
+/** @type import('payload').ImportMap */
 export const importMap = {
   "@shopnex/import-export-plugin/rsc#ExportListMenuItem": ExportListMenuItem_2cddc2e1d3f965d7263141af56b26a90,
   "@shopnex/import-export-plugin/rsc#ImportListMenuItem": ImportListMenuItem_2cddc2e1d3f965d7263141af56b26a90,

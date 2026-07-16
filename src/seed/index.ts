@@ -2,6 +2,15 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { homePageData } from './home-page-data'
 
+function generateRandomString(length: number) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 const seed = async () => {
   const payload = await getPayload({ config })
 
@@ -200,6 +209,7 @@ const seed = async () => {
           price: 999,
           stockCount: 50,
           gallery: [iphone15ProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '128GB' },
             { option: 'Color', value: 'Natural Titanium' },
@@ -210,6 +220,7 @@ const seed = async () => {
           price: 1099,
           stockCount: 30,
           gallery: [iphone15ProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Color', value: 'Blue Titanium' },
@@ -220,6 +231,7 @@ const seed = async () => {
           price: 1299,
           stockCount: 20,
           gallery: [iphone15ProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '512GB' },
             { option: 'Color', value: 'White Titanium' },
@@ -265,6 +277,7 @@ const seed = async () => {
           price: 1599,
           stockCount: 25,
           gallery: [macbookProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Chip', value: 'M3' },
             { option: 'Memory', value: '8GB' },
@@ -276,6 +289,7 @@ const seed = async () => {
           price: 2399,
           stockCount: 15,
           gallery: [macbookProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Chip', value: 'M3 Pro' },
             { option: 'Memory', value: '16GB' },
@@ -318,6 +332,7 @@ const seed = async () => {
           price: 1299,
           stockCount: 40,
           gallery: [galaxyS24UltraImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Color', value: 'Titanium Gray' },
@@ -328,6 +343,7 @@ const seed = async () => {
           price: 1419,
           stockCount: 25,
           gallery: [galaxyS24UltraImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '512GB' },
             { option: 'Color', value: 'Titanium Black' },
@@ -359,6 +375,7 @@ const seed = async () => {
           price: 249,
           stockCount: 100,
           gallery: [airpodsProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [],
         },
       ],
@@ -393,6 +410,7 @@ const seed = async () => {
           price: 399,
           stockCount: 60,
           gallery: [sonyHeadphonesImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [{ option: 'Color', value: 'Black' }],
         },
         {
@@ -400,6 +418,7 @@ const seed = async () => {
           price: 399,
           stockCount: 40,
           gallery: [sonyHeadphonesImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [{ option: 'Color', value: 'Silver' }],
         },
       ],
@@ -438,6 +457,7 @@ const seed = async () => {
           price: 1099,
           stockCount: 35,
           gallery: [ipadProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '128GB' },
             { option: 'Connectivity', value: 'Wi-Fi' },
@@ -448,6 +468,7 @@ const seed = async () => {
           price: 1349,
           stockCount: 20,
           gallery: [ipadProImage.id],
+          vid: `VID-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Connectivity', value: 'Wi-Fi + Cellular' },
@@ -473,7 +494,8 @@ const seed = async () => {
         {
           blockType: 'manual',
           methodType: 'cod',
-          instructions: 'Pay with cash when your order is delivered to your doorstep. Our delivery partner will collect the payment upon delivery.',
+          instructions:
+            'Pay with cash when your order is delivered to your doorstep. Our delivery partner will collect the payment upon delivery.',
         },
       ],
     },
@@ -488,7 +510,8 @@ const seed = async () => {
         {
           blockType: 'manual',
           methodType: 'bankTransfer',
-          instructions: 'Transfer the total amount to our bank account. Your order will be processed once payment is confirmed.',
+          instructions:
+            'Transfer the total amount to our bank account. Your order will be processed once payment is confirmed.',
           details: [
             { label: 'Bank Name', value: 'First National Bank' },
             { label: 'Account Number', value: '1234567890' },
@@ -509,7 +532,8 @@ const seed = async () => {
         {
           blockType: 'manual',
           methodType: 'inStore',
-          instructions: 'Visit our store to pay in person. You can pay with cash, card, or check at our location.',
+          instructions:
+            'Visit our store to pay in person. You can pay with cash, card, or check at our location.',
         },
       ],
     },
@@ -528,7 +552,8 @@ const seed = async () => {
           baseRate: 9.99,
           freeShippingMinOrder: 100,
           estimatedDeliveryDays: '5-7 business days',
-          notes: 'Free shipping on orders over $100. Tracking information will be provided once your order ships.',
+          notes:
+            'Free shipping on orders over $100. Tracking information will be provided once your order ships.',
         },
       ],
     },
@@ -560,7 +585,8 @@ const seed = async () => {
           blockType: 'custom-shipping',
           baseRate: 39.99,
           estimatedDeliveryDays: '1 business day',
-          notes: 'Next day delivery available for orders placed before 2 PM. Not available on weekends and holidays.',
+          notes:
+            'Next day delivery available for orders placed before 2 PM. Not available on weekends and holidays.',
         },
       ],
     },
@@ -576,7 +602,8 @@ const seed = async () => {
           blockType: 'custom-shipping',
           baseRate: 0,
           estimatedDeliveryDays: 'Same day',
-          notes: 'Pick up your order from our store. We will notify you when your order is ready for pickup.',
+          notes:
+            'Pick up your order from our store. We will notify you when your order is ready for pickup.',
         },
       ],
     },

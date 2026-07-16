@@ -14,6 +14,6 @@ export const readOrderAccess: Access<Order> = ({ req }) => {
   }
 
   return {
-    sessionId: session,
+    or: [{ sessionId: session }],
   }
 }
