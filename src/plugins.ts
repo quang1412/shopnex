@@ -1,6 +1,8 @@
 import type { Plugin } from 'payload'
 
-import { cjPlugin } from '@shopnex/cj-plugin'
+
+import { s3Storage } from '@payloadcms/storage-s3';
+// import { cjPlugin } from '@shopnex/cj-plugin'
 import { importExportPlugin } from '@shopnex/import-export-plugin'
 import { stripePlugin } from '@shopnex/stripe-plugin'
 import { admins } from './access/roles'
@@ -60,6 +62,23 @@ export const plugins: Plugin[] = [
       return resultFields
     },
   }),
+  s3Storage({
+    collections: {
+      media: true, // Áp dụng lưu trữ S3 cho collection 'media'
+    },
+    bucket: process.env.SUPABASE_S3_BUCKET || '',
+    config: {
+      forcePathStyle:true,
+      credentials: {
+        accessKeyId: process.env.SUPABASE_S3_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.SUPABASE_S3_SECRET_ACCESS_KEY || '',
+      },
+      region: process.env.SUPABASE_S3_REGION || 'us-east-1',
+      // Thêm endpoint nếu bạn dùng S3-compatible như Cloudflare R2, MinIO, hoặc Supabase
+      endpoint: process.env.SUPABASE_S3_ENDPOINT || '',
+    },
+  }),
   analyticsPlugin({}),
   sidebarPlugin(),
+
 ]

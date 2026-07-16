@@ -1,7 +1,7 @@
 import type { RowLabelProps } from '@payloadcms/ui'
 import type { ArrayFieldServerProps } from 'payload'
 
-import Image from 'next/image'
+// import Image from 'next/image'
 
 const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & RowLabelProps) => {
   if (!props.data.variants) {
@@ -14,19 +14,21 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
     return <p>{props.rowLabel}</p>
   }
 
+  // console.log('currentRow?.gallery', currentRow?.gallery);
+
   const variantValues = currentRow.options.map((option: any) => option.value)
-  const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl
+  // const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl || currentRow.image?.url
   return (
     <div style={{ display: 'flex', gap: '1rem' }}>
-      <Image
+      {/* <Image
         alt={currentRow.name || 'variant image'}
         height={0}
         sizes="100vw" // Optional hint for responsive images
         src={imageUrl}
         style={{ height: '25px', width: 'auto' }}
         width={0} // Required for layout="intrinsic"
-      />
-      <p>{variantValues.join(' / ') + ` - $${currentRow.price} - ${currentRow.vid}`}</p>
+      /> */}
+      <p>{variantValues.join(' / ') + ` - $${currentRow.price}`}</p>
     </div>
   )
 }
