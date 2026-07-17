@@ -24,6 +24,7 @@ export const createCartSession: Endpoint = {
             quantity: item.quantity,
           },
         ],
+        customer: req.user
       },
       req,
     })

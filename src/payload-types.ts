@@ -161,7 +161,7 @@ export interface Order {
   totalAmount: number;
   user?: (number | null) | User;
   cart?: (number | null) | Cart;
-  source?: 'manual' | null;
+  source?: ('manual' | 'api') | null;
   currency: string;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   orderStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'canceled';

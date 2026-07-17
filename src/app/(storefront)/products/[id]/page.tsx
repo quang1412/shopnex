@@ -43,8 +43,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
-  console.log({product});
-  
+  console.log({ product });
 
   const structuredData = generateProductJsonLd({
     title: product.name,

@@ -47,7 +47,7 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
   const variantValues = currentRow.options.map((option: any) => option.value)
   // const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl || currentRow.image?.url
   return (
-    <div style={{ display: 'flex', gap: '1rem' }}>
+    <div style={{width:'100%', display: 'flex', gap: '1rem', justifyContent:'space-between', justifyItems:'center' }}>
       {/* <Image
         alt={currentRow.name || 'variant image'}
         height={0}
@@ -56,9 +56,8 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
         style={{ height: '25px', width: 'auto' }}
         width={0} // Required for layout="intrinsic"
       /> */}
-      <p>
-        {props.rowLabel}: {variantValues.join(' / ') + ` - $${currentRow.price}`}
-      </p>
+      <p>{props.rowLabel}: {variantValues.join(' / ')}</p>
+      <p>${currentRow.price}</p>
     </div>
   )
 }

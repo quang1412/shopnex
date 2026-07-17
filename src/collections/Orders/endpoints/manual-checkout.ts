@@ -4,6 +4,7 @@ import { PayloadRequest } from 'payload'
 type ManualCheckoutProps = {
   req: PayloadRequest
   customer: any
+  cart: any
   payment: any
   shipping: any
   total: number
@@ -19,6 +20,7 @@ type ManualCheckoutProps = {
 export async function manualCheckout({
   req,
   customer,
+  cart,
   payment,
   shipping,
   total,
@@ -67,7 +69,11 @@ export async function manualCheckout({
 
   await req.payload.create({
     collection: 'orders',
-    data: orderData,
+    data: {
+      ...orderData,
+      user: req.user,
+      cart: cart
+    },
     req,
   })
 

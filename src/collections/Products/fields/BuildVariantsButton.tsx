@@ -85,8 +85,8 @@ function generateVariantCombinations(options: Option[]): Variant[] {
       options: combo,
       originalPrice: null,
       price: 0,
-      // vid: null,
-      vid: `VID-${generateRandomString(10)}`,
+      vid: null,
+      // vid: `VID-${generateRandomString(10)}`,
     }))
   } catch (error) {
     console.error('Error generating variant combinations:', error)
@@ -132,20 +132,20 @@ const VariantGenerator = ({ path }: { path: string } & ClientFieldProps) => {
           rowIndex: index,
         })
 
-        ;[
-          { path: `variants.${index}.vid`, value: variant.vid },
-          {
-            path: `variants.${index}.imageUrl`,
-            value: variant.imageUrl,
-          },
-          { path: `variants.${index}.price`, value: variant.price },
-          {
-            path: `variants.${index}.originalPrice`,
-            value: variant.originalPrice,
-          },
-        ].forEach(({ path, value }) => {
-          fieldDispatch({ type: 'UPDATE', path, value })
-        })
+          ;[
+            { path: `variants.${index}.vid`, value: variant.vid },
+            {
+              path: `variants.${index}.imageUrl`,
+              value: variant.imageUrl,
+            },
+            { path: `variants.${index}.price`, value: variant.price },
+            {
+              path: `variants.${index}.originalPrice`,
+              value: variant.originalPrice,
+            },
+          ].forEach(({ path, value }) => {
+            fieldDispatch({ type: 'UPDATE', path, value })
+          })
 
         variant.options.forEach((option, optionIndex) => {
           fieldDispatch({

@@ -19,6 +19,7 @@ export const Orders: CollectionConfig = {
   admin: {
     group: groups.orders.name,
     useAsTitle: 'orderId',
+    defaultColumns: ['orderId', 'user', 'source', 'totalAmount']
   },
   endpoints: [checkoutEndpoint],
   fields: [
@@ -65,7 +66,10 @@ export const Orders: CollectionConfig = {
         position: 'sidebar',
       },
       defaultValue: 'manual',
-      options: [{ label: 'Manual', value: 'manual' }],
+      options: [
+        { label: 'Manual (web)', value: 'manual' },
+        { label: 'Api', value: 'api' },
+      ],
     },
     {
       name: 'currency',
