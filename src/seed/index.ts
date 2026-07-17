@@ -14,6 +14,17 @@ function generateRandomString(length: number) {
 const seed = async () => {
   const payload = await getPayload({ config })
 
+  await payload.create({
+    collection: 'users',
+    data: {
+      email: 'trinhdacquang@gmail.com',
+      password: 'Matkhau123@',
+      lastName: 'quang',
+      firstName: 'dac',
+      roles: ['admin'],
+    },
+  })
+
   // Create product images
   console.log('Creating product images...')
   const iphone15ProImage = await payload.create({

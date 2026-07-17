@@ -2,6 +2,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import path from 'path'
 import { buildConfig } from 'payload'
+
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 

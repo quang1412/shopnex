@@ -20,6 +20,7 @@ import { Nav as Nav_843028945cda50810eba35c5314c6296 } from '@shopnex/sidebar-pl
 import { QuickActions as QuickActions_c473cfc8237cb5375a757ad784076201 } from '@shopnex/quick-actions-plugin/client'
 import { ImportExportProvider as ImportExportProvider_2cddc2e1d3f965d7263141af56b26a90 } from '@shopnex/import-export-plugin/rsc'
 import { CommandBar as CommandBar_c473cfc8237cb5375a757ad784076201 } from '@shopnex/quick-actions-plugin/client'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { Dashboard as Dashboard_22568d3ea793f8bcf927349509acce35 } from '@shopnex/analytics-plugin/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -47,6 +48,7 @@ export const importMap = {
   "@shopnex/quick-actions-plugin/client#QuickActions": QuickActions_c473cfc8237cb5375a757ad784076201,
   "@shopnex/import-export-plugin/rsc#ImportExportProvider": ImportExportProvider_2cddc2e1d3f965d7263141af56b26a90,
   "@shopnex/quick-actions-plugin/client#CommandBar": CommandBar_c473cfc8237cb5375a757ad784076201,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "@shopnex/analytics-plugin/rsc#Dashboard": Dashboard_22568d3ea793f8bcf927349509acce35,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

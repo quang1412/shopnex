@@ -1,5 +1,6 @@
 import type { Plugin } from 'payload'
 
+import { s3Storage } from '@payloadcms/storage-s3'
 import { cjPlugin } from '@shopnex/cj-plugin'
 import { importExportPlugin } from '@shopnex/import-export-plugin'
 import { stripePlugin } from '@shopnex/stripe-plugin'
@@ -58,6 +59,21 @@ export const plugins: Plugin[] = [
     fields: ({ defaultFields }) => {
       const resultFields = defaultFields.filter((field) => (field as any).name !== 'image')
       return resultFields
+    },
+  }),
+  s3Storage({
+    collections: {
+      media: true, // Apply to media collection
+    },
+    bucket: process.env.S3_BUCKET_NAME || '',
+    config: {
+      forcePathStyle: true,
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      },
+      region: process.env.S3_REGION || '',
+      endpoint: process.env.S3_ENDPOINT || '',
     },
   }),
   analyticsPlugin({}),
