@@ -14,19 +14,6 @@ function generateRandomString(length: number) {
 const seed = async () => {
   const payload = await getPayload({ config })
 
-<<<<<<< HEAD
-  // create admin user
-  const admin = await payload.create({
-    collection:'users',
-    data:{
-      email:'trinhdacquang@gmail.com',
-      password:'Matkhau123@',
-      roles:['admin'],
-      firstName:'Quang',
-      lastName:'Dac'
-    }
-  }) 
-=======
   await payload.create({
     collection: 'users',
     data: {
@@ -37,7 +24,6 @@ const seed = async () => {
       roles: ['admin'],
     },
   })
->>>>>>> 36384db83b197a1b0d75023f873b29f40653ba16
 
   // Create product images
   console.log('Creating product images...')

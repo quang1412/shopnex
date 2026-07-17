@@ -56,13 +56,9 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
         style={{ height: '25px', width: 'auto' }}
         width={0} // Required for layout="intrinsic"
       /> */}
-<<<<<<< HEAD
-      <p>{variantValues.join(' / ') + ` - $${currentRow.price}`}</p>
-=======
       <p>
         {props.rowLabel}: {variantValues.join(' / ') + ` - $${currentRow.price}`}
       </p>
->>>>>>> 36384db83b197a1b0d75023f873b29f40653ba16
     </div>
   )
 }
