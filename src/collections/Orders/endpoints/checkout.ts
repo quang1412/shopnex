@@ -86,7 +86,7 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     const itemTotal = new Decimal(variant.price).times(item.quantity)
     calculatedSubtotal = calculatedSubtotal.plus(itemTotal)
 
-    console.log('🔴 variant', variant)
+    // console.log('🔴 variant', variant)
 
     validatedItems.push({
       ...item,
@@ -205,7 +205,7 @@ export const checkoutEndpoint: Endpoint = {
       // Validate items with current stock and pricing
       const { subtotal, validatedItems } = await validateAndCalculateOrderTotals(items, req)
 
-      console.log({ validatedItems })
+      // console.log({ validatedItems })
 
       // Calculate shipping cost based on subtotal
       const shippingCost = await calculateShippingCost(shippingMethodId, subtotal, req)

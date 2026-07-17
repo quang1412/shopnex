@@ -220,7 +220,7 @@ const seed = async () => {
           price: 999,
           stockCount: 50,
           gallery: [iphone15ProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '128GB' },
             { option: 'Color', value: 'Natural Titanium' },
@@ -231,7 +231,7 @@ const seed = async () => {
           price: 1099,
           stockCount: 30,
           gallery: [iphone15ProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Color', value: 'Blue Titanium' },
@@ -242,7 +242,7 @@ const seed = async () => {
           price: 1299,
           stockCount: 20,
           gallery: [iphone15ProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '512GB' },
             { option: 'Color', value: 'White Titanium' },
@@ -288,7 +288,7 @@ const seed = async () => {
           price: 1599,
           stockCount: 25,
           gallery: [macbookProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Chip', value: 'M3' },
             { option: 'Memory', value: '8GB' },
@@ -300,7 +300,7 @@ const seed = async () => {
           price: 2399,
           stockCount: 15,
           gallery: [macbookProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Chip', value: 'M3 Pro' },
             { option: 'Memory', value: '16GB' },
@@ -343,7 +343,7 @@ const seed = async () => {
           price: 1299,
           stockCount: 40,
           gallery: [galaxyS24UltraImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Color', value: 'Titanium Gray' },
@@ -354,7 +354,7 @@ const seed = async () => {
           price: 1419,
           stockCount: 25,
           gallery: [galaxyS24UltraImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '512GB' },
             { option: 'Color', value: 'Titanium Black' },
@@ -386,7 +386,7 @@ const seed = async () => {
           price: 249,
           stockCount: 100,
           gallery: [airpodsProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [],
         },
       ],
@@ -421,7 +421,7 @@ const seed = async () => {
           price: 399,
           stockCount: 60,
           gallery: [sonyHeadphonesImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [{ option: 'Color', value: 'Black' }],
         },
         {
@@ -429,7 +429,7 @@ const seed = async () => {
           price: 399,
           stockCount: 40,
           gallery: [sonyHeadphonesImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [{ option: 'Color', value: 'Silver' }],
         },
       ],
@@ -468,7 +468,7 @@ const seed = async () => {
           price: 1099,
           stockCount: 35,
           gallery: [ipadProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '128GB' },
             { option: 'Connectivity', value: 'Wi-Fi' },
@@ -479,7 +479,7 @@ const seed = async () => {
           price: 1349,
           stockCount: 20,
           gallery: [ipadProImage.id],
-          vid: `VID-${generateRandomString(10)}`,
+          vid: `VAR-${generateRandomString(10)}`,
           options: [
             { option: 'Storage', value: '256GB' },
             { option: 'Connectivity', value: 'Wi-Fi + Cellular' },
