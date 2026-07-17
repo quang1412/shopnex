@@ -1,7 +1,5 @@
 'use client'
 
-// import crypto from 'crypto'
-
 import type { ClientFieldProps } from 'payload'
 
 import { Button, toast, useField, useFormFields } from '@payloadcms/ui'
@@ -29,7 +27,7 @@ type Variant = {
 }
 
 function generateRandomString(length: number) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length))
