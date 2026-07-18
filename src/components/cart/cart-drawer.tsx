@@ -27,20 +27,22 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
         setOpen(val)
       }}
     >
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <ShoppingCart className="h-5 w-5" />
-          {totalItems > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-            >
-              {totalItems}
-            </Badge>
-          )}
-          <span className="sr-only">Shopping cart</span>
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          <Button variant="ghost" size="icon" className="relative">
+            <ShoppingCart className="h-5 w-5" />
+            {totalItems > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+              >
+                {totalItems}
+              </Badge>
+            )}
+            <span className="sr-only">Shopping cart</span>
+          </Button>
+        }
+      />
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">

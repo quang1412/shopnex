@@ -51,7 +51,7 @@ export function CartItem({ item }: CartItemProps) {
           </div>
           <div className="text-right">
             <div className="font-semibold">${(item.price * item.quantity).toFixed(2)}</div>
-            <div className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</div>
+            <div className="text-xs text-muted-foreground">${item.price.toFixed(2)} each</div>
           </div>
         </div>
 

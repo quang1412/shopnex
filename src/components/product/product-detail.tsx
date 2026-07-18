@@ -188,7 +188,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 size="lg"
                 onClick={handleAddToCart}
                 disabled={!product.inStock || isLoading}
-                className="flex-1"
+                className="sm:flex-1"
               >
                 {isLoading ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />

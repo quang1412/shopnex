@@ -1,29 +1,31 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Home, Package, Grid3X3, Info, Search } from "lucide-react"
+import { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Menu, Home, Package, Grid3X3, Info, Search } from 'lucide-react'
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
 
   const navItems = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/products", label: "Products", icon: Package },
-    { href: "/categories", label: "Categories", icon: Grid3X3 },
-    { href: "/about", label: "About", icon: Info },
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/products', label: 'Products', icon: Package },
+    { href: '/categories', label: 'Categories', icon: Grid3X3 },
+    { href: '/about', label: 'About', icon: Info },
   ]
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Menu</span>
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Menu</span>
+          </Button>
+        }
+      />
       <SheetContent side="left" className="w-80">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
@@ -65,7 +67,9 @@ export function MobileNav() {
 
           {/* Quick Actions */}
           <div className="pt-4 border-t space-y-2">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Quick Actions</h3>
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              Quick Actions
+            </h3>
             <Link href="/cart" onClick={() => setIsOpen(false)}>
               <Button variant="outline" className="w-full justify-start bg-transparent">
                 View Cart

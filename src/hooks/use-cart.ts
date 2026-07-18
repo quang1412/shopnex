@@ -29,8 +29,6 @@ export const useCart = create<CartStore>()(
       items: [],
 
       addItem: (item) => {
-        console.log({ item })
-
         const items = get().items
         const existingItem = items.find((i) => i.id === item.id && i.variantId === item.variantId)
 
