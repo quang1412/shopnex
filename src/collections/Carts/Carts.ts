@@ -13,7 +13,8 @@ export const Carts: CollectionConfig = {
   },
   admin: {
     group: groups.customers,
-    useAsTitle: 'id',
+    useAsTitle: 'sessionId',
+    // useAsTitle: 'id',
   },
   endpoints: [createCartSession, updateCartSession],
   fields: [
@@ -24,6 +25,7 @@ export const Carts: CollectionConfig = {
         position: 'sidebar',
         readOnly: true,
       },
+      required: true,
     },
     {
       name: 'customer',

@@ -63,8 +63,8 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
 
     let variant
     if (item.variantId) {
-      variant = currentProduct.variants.find((v: any) => v.id === item.variantId)
-      // variant = currentProduct.variants.find((v: any) => v.vid === item.variantId)
+      // variant = currentProduct.variants.find((v: any) => v.id === item.variantId)
+      variant = currentProduct.variants.find((v: any) => v.vid === item.variantId)
 
       if (!variant) {
         throw new Error(`Variant ${item.variantId} not found for product "${currentProduct.title}"`)
@@ -80,8 +80,8 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     // Validate stock availability
     if (variant.stockCount == null || variant.stockCount < item.quantity) {
       throw new Error(
-        `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
-        // `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.vid}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
+        // `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
+        `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.vid}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
       )
     }
 

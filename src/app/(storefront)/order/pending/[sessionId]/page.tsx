@@ -164,6 +164,8 @@ export default function OrderPendingPage() {
               </CardContent>
             </Card>
 
+            {/* <p>{JSON.stringify(order)}</p> */}
+
             <div className="flex justify-center">
               <Link href="/products">
                 <Button>Continue Shopping</Button>

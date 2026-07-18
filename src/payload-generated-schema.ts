@@ -36,7 +36,7 @@ export const enum_orders_timeline_type = pgEnum('enum_orders_timeline_type', [
   'return_completed',
   'other',
 ])
-export const enum_orders_source = pgEnum('enum_orders_source', ['manual'])
+export const enum_orders_source = pgEnum('enum_orders_source', ['manual', 'api'])
 export const enum_orders_payment_status = pgEnum('enum_orders_payment_status', [
   'pending',
   'paid',
@@ -57,14 +57,10 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
-export const enum_users_roles = pgEnum('enum_users_roles', ['admin', 'customer'])
+export const enum_users_roles = pgEnum('enum_users_roles', ['super-admin', 'admin', 'customer'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
   ['cod', 'bankTransfer', 'inStore', 'other'],
-)
-export const enum_payments_blocks_stripe_method_type = pgEnum(
-  'enum_payments_blocks_stripe_method_type',
-  ['card', 'ach', 'auto'],
 )
 export const enum_exports_format = pgEnum('enum_exports_format', ['csv', 'json'])
 export const enum_exports_drafts = pgEnum('enum_exports_drafts', ['yes', 'no'])
@@ -185,7 +181,7 @@ export const carts = pgTable(
   'carts',
   {
     id: serial('id').primaryKey(),
-    sessionId: varchar('session_id'),
+    sessionId: varchar('session_id').notNull(),
     customer: integer('customer_id').references(() => users.id, {
       onDelete: 'set null',
     }),
@@ -623,33 +619,6 @@ export const payments_blocks_manual = pgTable(
       columns: [columns['_parentID']],
       foreignColumns: [payments.id],
       name: 'payments_blocks_manual_parent_id_fk',
-    }).onDelete('cascade'),
-  ],
-)
-
-export const payments_blocks_stripe = pgTable(
-  'payments_blocks_stripe',
-  {
-    _order: integer('_order').notNull(),
-    _parentID: integer('_parent_id').notNull(),
-    _path: text('_path').notNull(),
-    id: varchar('id').primaryKey(),
-    providerName: varchar('provider_name').notNull().default('Stripe'),
-    testMode: boolean('test_mode'),
-    methodType: enum_payments_blocks_stripe_method_type('method_type').default('auto'),
-    stripeSecretKey: varchar('stripe_secret_key').notNull(),
-    stripeWebhooksEndpointSecret: varchar('stripe_webhooks_endpoint_secret').notNull(),
-    publishableKey: varchar('publishable_key').notNull(),
-    blockName: varchar('block_name'),
-  },
-  (columns) => [
-    index('payments_blocks_stripe_order_idx').on(columns._order),
-    index('payments_blocks_stripe_parent_id_idx').on(columns._parentID),
-    index('payments_blocks_stripe_path_idx').on(columns._path),
-    foreignKey({
-      columns: [columns['_parentID']],
-      foreignColumns: [payments.id],
-      name: 'payments_blocks_stripe_parent_id_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -1281,19 +1250,9 @@ export const relations_payments_blocks_manual = relations(
     }),
   }),
 )
-export const relations_payments_blocks_stripe = relations(payments_blocks_stripe, ({ one }) => ({
-  _parentID: one(payments, {
-    fields: [payments_blocks_stripe._parentID],
-    references: [payments.id],
-    relationName: '_blocks_stripe',
-  }),
-}))
 export const relations_payments = relations(payments, ({ many }) => ({
   _blocks_manual: many(payments_blocks_manual, {
     relationName: '_blocks_manual',
-  }),
-  _blocks_stripe: many(payments_blocks_stripe, {
-    relationName: '_blocks_stripe',
   }),
 }))
 export const relations_locations = relations(locations, () => ({}))
@@ -1456,7 +1415,6 @@ type DatabaseSchema = {
   enum_products_source: typeof enum_products_source
   enum_users_roles: typeof enum_users_roles
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
-  enum_payments_blocks_stripe_method_type: typeof enum_payments_blocks_stripe_method_type
   enum_exports_format: typeof enum_exports_format
   enum_exports_drafts: typeof enum_exports_drafts
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug
@@ -1484,7 +1442,6 @@ type DatabaseSchema = {
   pages: typeof pages
   payments_blocks_manual_details: typeof payments_blocks_manual_details
   payments_blocks_manual: typeof payments_blocks_manual
-  payments_blocks_stripe: typeof payments_blocks_stripe
   payments: typeof payments
   locations: typeof locations
   shipping_blocks_custom_shipping: typeof shipping_blocks_custom_shipping
@@ -1521,7 +1478,6 @@ type DatabaseSchema = {
   relations_pages: typeof relations_pages
   relations_payments_blocks_manual_details: typeof relations_payments_blocks_manual_details
   relations_payments_blocks_manual: typeof relations_payments_blocks_manual
-  relations_payments_blocks_stripe: typeof relations_payments_blocks_stripe
   relations_payments: typeof relations_payments
   relations_locations: typeof relations_locations
   relations_shipping_blocks_custom_shipping: typeof relations_shipping_blocks_custom_shipping

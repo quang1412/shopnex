@@ -68,7 +68,7 @@ export const Orders: CollectionConfig = {
       defaultValue: 'manual',
       options: [
         { label: 'Manual (web)', value: 'manual' },
-        { label: 'Api', value: 'api' },
+        { label: 'Api (fb)', value: 'api' },
       ],
     },
     {

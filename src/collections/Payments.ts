@@ -5,103 +5,103 @@ import { admins, anyone } from "@/access/roles";
 import { groups } from "./groups";
 
 export const ManualProvider: Block = {
-    slug: "manual",
-    admin: {
-        disableBlockName: true,
+  slug: "manual",
+  admin: {
+    disableBlockName: true,
+  },
+  fields: [
+    {
+      name: "methodType",
+      type: "select",
+      label: "Manual Payment Type",
+      options: [
+        { label: "Cash on Delivery", value: "cod" },
+        { label: "Bank Transfer", value: "bankTransfer" },
+        { label: "In-Store Payment", value: "inStore" },
+        { label: "Other", value: "other" },
+      ],
+      required: true,
     },
-    fields: [
-        {
-            name: "methodType",
-            type: "select",
-            label: "Manual Payment Type",
-            options: [
-                { label: "Cash on Delivery", value: "cod" },
-                { label: "Bank Transfer", value: "bankTransfer" },
-                { label: "In-Store Payment", value: "inStore" },
-                { label: "Other", value: "other" },
-            ],
-            required: true,
-        },
-        {
-            name: "instructions",
-            type: "textarea",
-            admin: {
-                description: "Shown to customers at checkout.",
-            },
-            label: "Payment Instructions",
-            required: true,
-        },
-        {
-            name: "details",
-            type: "array",
-            admin: {
-                condition: (data) => {
-                    const manualProvider = data?.providers.find(
-                        (provider: any) =>
-                            provider.blockType === "manualProvider"
-                    );
-                    return manualProvider?.methodType === "bankTransfer";
-                },
-            },
-            fields: [
-                {
-                    type: "row",
-                    fields: [
-                        {
-                            name: "label",
-                            type: "text",
-                            required: true,
-                        },
-                        {
-                            name: "value",
-                            type: "text",
-                            required: true,
-                        },
-                    ],
-                },
-            ],
-            label: "Details",
-        },
-    ],
-    imageURL: "/manual-payment.png",
-    labels: {
-        plural: "Manual Providers",
-        singular: "Manual Provider",
+    {
+      name: "instructions",
+      type: "textarea",
+      admin: {
+        description: "Shown to customers at checkout.",
+      },
+      label: "Payment Instructions",
+      required: true,
     },
+    {
+      name: "details",
+      type: "array",
+      admin: {
+        condition: (data) => {
+          const manualProvider = data?.providers.find(
+            (provider: any) =>
+              provider.blockType === "manual"
+          );
+          return manualProvider?.methodType === "bankTransfer";
+        },
+      },
+      fields: [
+        {
+          type: "row",
+          fields: [
+            {
+              name: "label",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "value",
+              type: "text",
+              required: true,
+            },
+          ],
+        },
+      ],
+      label: "Details",
+    },
+  ],
+  imageURL: "/placeholder.svg",
+  labels: {
+    plural: "Manual Providers",
+    singular: "Manual Provider",
+  },
 };
 
 export const Payments: CollectionConfig = {
-    slug: "payments",
-    access: {
-        create: admins,
-        delete: admins,
-        read: anyone,
-        update: admins,
+  slug: "payments",
+  access: {
+    create: admins,
+    delete: admins,
+    read: anyone,
+    update: admins,
+  },
+  admin: {
+    group: groups.settings.name,
+    useAsTitle: "name",
+  },
+  fields: [
+    {
+      name: "name",
+      type: "text",
+      required: true,
     },
-    admin: {
-        group: groups.settings.name,
-        useAsTitle: "name",
+    {
+      name: "enabled",
+      type: "checkbox",
+      admin: {
+        position: "sidebar",
+      },
+      defaultValue: true,
     },
-    fields: [
-        {
-            name: "name",
-            type: "text",
-            required: true,
-        },
-        {
-            name: "enabled",
-            type: "checkbox",
-            admin: {
-                position: "sidebar",
-            },
-            defaultValue: true,
-        },
-        {
-            name: "providers",
-            label: "Provider",
-            type: "blocks",
-            blocks: [ManualProvider],
-            maxRows: 1,
-        },
-    ],
+    {
+      name: "providers",
+      label: "Provider",
+      type: "blocks",
+      blocks: [ManualProvider],
+      maxRows: 1,
+    },
+  ],
 };

@@ -17,21 +17,21 @@ export const plugins: Plugin[] = [
   //     cjEmailAddress: process.env.CJ_EMAIL_ADDRESS || '',
   //     cjRefreshToken: process.env.CJ_REFRESH_TOKEN,
   //   }),
-  stripePlugin({
-    isTestKey: Boolean(process.env.NEXT_PUBLIC_STRIPE_IS_TEST_KEY),
-    logs: true,
-    paymentCollectionSlug: 'payments',
-    secretAccess: {
-      create: admins,
-      read: admins,
-      update: admins,
-    },
-    stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
-    stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET,
-    webhooks: {
-      'checkout.session.completed': handleCheckoutSessionCompleted,
-    },
-  }),
+  // stripePlugin({
+  //   isTestKey: Boolean(process.env.NEXT_PUBLIC_STRIPE_IS_TEST_KEY),
+  //   logs: true,
+  //   paymentCollectionSlug: 'payments',
+  //   secretAccess: {
+  //     create: admins,
+  //     read: admins,
+  //     update: admins,
+  //   },
+  //   stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+  //   stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET,
+  //   webhooks: {
+  //     'checkout.session.completed': handleCheckoutSessionCompleted,
+  //   },
+  // }),
   importExportPlugin({
     collections: ['products', 'orders'],
     disableJobsQueue: true,

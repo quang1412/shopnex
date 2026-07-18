@@ -246,7 +246,7 @@ export interface User {
   id: number;
   firstName?: string | null;
   lastName?: string | null;
-  roles?: ('admin' | 'customer')[] | null;
+  roles?: ('super-admin' | 'admin' | 'customer')[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -272,7 +272,7 @@ export interface User {
  */
 export interface Cart {
   id: number;
-  sessionId?: string | null;
+  sessionId: string;
   customer?: (number | null) | User;
   cartItems?:
     | {
@@ -413,36 +413,23 @@ export interface Payment {
   name: string;
   enabled?: boolean | null;
   providers?:
-    | (
-        | {
-            methodType: 'cod' | 'bankTransfer' | 'inStore' | 'other';
-            /**
-             * Shown to customers at checkout.
-             */
-            instructions: string;
-            details?:
-              | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'manual';
-          }
-        | {
-            providerName: string;
-            testMode?: boolean | null;
-            methodType?: ('card' | 'ach' | 'auto') | null;
-            stripeSecretKey: string;
-            stripeWebhooksEndpointSecret: string;
-            publishableKey: string;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'stripe';
-          }
-      )[]
+    | {
+        methodType: 'cod' | 'bankTransfer' | 'inStore' | 'other';
+        /**
+         * Shown to customers at checkout.
+         */
+        instructions: string;
+        details?:
+          | {
+              label: string;
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'manual';
+      }[]
     | null;
   updatedAt: string;
   createdAt: string;
@@ -1029,18 +1016,6 @@ export interface PaymentsSelect<T extends boolean = true> {
                     value?: T;
                     id?: T;
                   };
-              id?: T;
-              blockName?: T;
-            };
-        stripe?:
-          | T
-          | {
-              providerName?: T;
-              testMode?: T;
-              methodType?: T;
-              stripeSecretKey?: T;
-              stripeWebhooksEndpointSecret?: T;
-              publishableKey?: T;
               id?: T;
               blockName?: T;
             };

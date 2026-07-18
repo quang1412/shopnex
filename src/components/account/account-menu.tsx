@@ -33,9 +33,16 @@ export function AccountMenu() {
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
-        <Link href="/account/login">
+
+        <Button nativeButton={false} variant="ghost" size="sm" render={
+          <Link href="/account/login">
+            <User className="h-4 w-4" />
+          </Link>
+        }></Button>
+
+        {/* <Link href="/account/login">
           <Button variant="ghost" size="sm" render={<User className="h-4 w-4" />}></Button>
-        </Link>
+        </Link> */}
       </div>
     )
   }
