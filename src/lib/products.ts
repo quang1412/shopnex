@@ -12,7 +12,8 @@ export interface Product {
   category: string
   inStock: boolean
   featured?: boolean
-  variants?: any[]
+  variants: PayloadProduct['variants']
+  // variant?: string
 }
 
 // Transform Payload product to shop product format
@@ -42,7 +43,7 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
       : 'Uncategorized',
     inStock: (firstVariant?.stockCount || 0) > 0,
     featured: payloadProduct.visible || false,
-    variants: payloadProduct.variants
+    variants: payloadProduct.variants,
   }
 }
 

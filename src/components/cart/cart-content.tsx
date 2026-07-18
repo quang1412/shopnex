@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useCart } from "@/hooks/use-cart"
-import { CartItem } from "./cart-item"
-import { CartSummary } from "./cart-summary"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-import { ShoppingBag, ArrowLeft } from "lucide-react"
+import { useCart } from '@/hooks/use-cart'
+import { CartItem } from './cart-item'
+import { CartSummary } from './cart-summary'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
+import { ShoppingBag, ArrowLeft } from 'lucide-react'
 
 export function CartContent() {
   const { items, clearCart } = useCart()
@@ -37,14 +37,19 @@ export function CartContent() {
       <div className="lg:col-span-2 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Items ({items.length})</h2>
-          <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive hover:text-destructive">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearCart}
+            className="text-destructive hover:text-destructive"
+          >
             Clear Cart
           </Button>
         </div>
 
         <div className="space-y-3">
           {items.map((item, index) => (
-            <div key={item.id}>
+            <div key={item.id + item.variantId}>
               <CartItem item={item} />
               {index < items.length - 1 && <Separator className="mt-3 opacity-50" />}
             </div>

@@ -36,7 +36,7 @@ export async function manualCheckout({
 
   const orderData = {
     orderId,
-    currency: 'usd',
+    currency: 'vnd',
     orderStatus: 'pending' as const,
     paymentMethod: payment?.providers?.[0]?.blockType || 'manual',
     payment: payment?.id,
@@ -50,6 +50,7 @@ export async function manualCheckout({
       items: items.map((item) => ({
         productId: item.id,
         variantId: item.variantId,
+        variantLabel: item.variantLabel,
         name: item.name,
         price: item.currentPrice || item.price,
         quantity: item.quantity,
@@ -72,7 +73,7 @@ export async function manualCheckout({
     data: {
       ...orderData,
       user: req.user,
-      cart: cart
+      cart: cart,
     },
     req,
   })

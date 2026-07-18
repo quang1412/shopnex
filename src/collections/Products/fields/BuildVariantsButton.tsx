@@ -85,8 +85,8 @@ function generateVariantCombinations(options: Option[]): Variant[] {
       options: combo,
       originalPrice: null,
       price: 0,
-      vid: null,
-      // vid: `VID-${generateRandomString(10)}`,
+      // vid: null,
+      vid: `VAR-${generateRandomString(10)}`,
     }))
   } catch (error) {
     console.error('Error generating variant combinations:', error)

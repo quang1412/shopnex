@@ -1,52 +1,52 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/hooks/use-cart";
-import type { Product } from "@/lib/products";
-import {
-  ShoppingCart,
-  Heart,
-  Share2,
-  Truck,
-  Shield,
-  RotateCcw,
-  Star,
-} from "lucide-react";
+import { useState } from 'react'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { useCart } from '@/hooks/use-cart'
+import type { Product } from '@/lib/products'
+import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star } from 'lucide-react'
 
 interface ProductDetailProps {
-  product: Product;
+  product: Product
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const { addItem } = useCart();
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const { addItem } = useCart()
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [quantity, setQuantity] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [variantSelected, setVariantSelected] = useState<string>(product.variants?.[0]?.id);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null | undefined>(
+    product.variants?.[0]?.vid,
+  )
 
   const handleAddToCart = async () => {
-    setIsLoading(true);
+    let variant: Product['variants'][number] | null | undefined
+    if (selectedVariantId) {
+      variant = product.variants.find((v) => v.vid == selectedVariantId)
+    }
+
+    setIsLoading(true)
 
     // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: variant?.price || product.price,
         image: product.image,
-        variant: variantSelected
-      });
+        variantId: variant?.vid ?? undefined,
+        variantLabel: variant?.options?.map((o) => o.value).join(', ') ?? undefined,
+      })
     }
 
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -71,13 +71,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index
-                    ? "border-primary"
-                    : "border-transparent"
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
                     }`}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
+                    src={image || '/placeholder.svg'}
                     alt={`${product.name} ${index + 1}`}
                     width={80}
                     height={80}
@@ -95,12 +93,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
-                <Badge variant="secondary">
-                  {product.category}
-                </Badge>
-                <h1 className="text-3xl sm:text-4xl font-bold text-balance">
-                  {product.name}
-                </h1>
+                <Badge variant="secondary">{product.category}</Badge>
+                <h1 className="text-3xl sm:text-4xl font-bold text-balance">{product.name}</h1>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon">
@@ -127,9 +121,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                             </span>
                         </div> */}
 
-            <div className="text-3xl font-bold">
-              ${product.price}
-            </div>
+            <div className="text-3xl font-bold">${product.price}</div>
           </div>
 
           <Separator />
@@ -148,49 +140,45 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           <Separator />
 
-          {/* Add to Cart */}
-          <div className="space-y-4">
+          {selectedVariantId && <div>{selectedVariantId}</div>}
 
-            {variantSelected && <div>{variantSelected}</div>}
-
-            {product.variants && (product.variants.length > 1) && <div>
-              <select onChange={(e) => {
-                e.preventDefault();
-                setVariantSelected(e.target.value || '')
-              }}>
-                {product.variants.map(variant => (
-                  <option key={variant.id} value={variant.id} >{variant.options.map((option: any) => option.value)?.join('/')}</option>
+          {/* variants */}
+          {product.variants?.length > 1 && (
+            <div>
+              <select
+                onChange={(e) => {
+                  e.preventDefault()
+                  setSelectedVariantId(e.target.value)
+                }}
+              >
+                {product.variants.map((variant, index) => (
+                  <option key={variant.vid || index} value={variant.vid || ''}>
+                    {variant.options?.map((op) => op.value).join(' / ')}
+                  </option>
                 ))}
               </select>
-            </div>}
+            </div>
+          )}
 
-            {product.variants && <div>{JSON.stringify(product.variants)}</div>}
-
+          {/* Add to Cart */}
+          <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center border rounded-lg">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
-                    setQuantity(Math.max(1, quantity - 1))
-                  }
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
                 >
                   -
                 </Button>
-                <span className="px-4 py-2 min-w-[3rem] text-center">
-                  {quantity}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setQuantity(quantity + 1)}
-                >
+                <span className="px-4 py-2 min-w-[3rem] text-center">{quantity}</span>
+                <Button variant="ghost" size="sm" onClick={() => setQuantity(quantity + 1)}>
                   +
                 </Button>
               </div>
               <span className="text-sm text-muted-foreground">
-                {product.inStock ? "In Stock" : "Out of Stock"}
+                {product.inStock ? 'In Stock' : 'Out of Stock'}
               </span>
             </div>
 
@@ -206,13 +194,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 ) : (
                   <ShoppingCart className="h-5 w-5 mr-2" />
                 )}
-                {isLoading ? "Adding..." : "Add to Cart"}
+                {isLoading ? 'Adding...' : 'Add to Cart'}
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="sm:w-auto bg-transparent"
-              >
+              <Button variant="outline" size="lg" className="sm:w-auto bg-transparent">
                 Buy Now
               </Button>
             </div>
@@ -222,41 +206,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Features */}
           <div className="space-y-4">
-            <h3 className="font-semibold">
-              Why Choose This Product
-            </h3>
+            <h3 className="font-semibold">Why Choose This Product</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Truck className="h-5 w-5 text-primary" />
                 <div className="text-sm">
-                  <div className="font-medium">
-                    Free Shipping
-                  </div>
-                  <div className="text-muted-foreground">
-                    On orders over $50
-                  </div>
+                  <div className="font-medium">Free Shipping</div>
+                  <div className="text-muted-foreground">On orders over $50</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Shield className="h-5 w-5 text-primary" />
                 <div className="text-sm">
-                  <div className="font-medium">
-                    2 Year Warranty
-                  </div>
-                  <div className="text-muted-foreground">
-                    Full coverage
-                  </div>
+                  <div className="font-medium">2 Year Warranty</div>
+                  <div className="text-muted-foreground">Full coverage</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <RotateCcw className="h-5 w-5 text-primary" />
                 <div className="text-sm">
-                  <div className="font-medium">
-                    30-Day Returns
-                  </div>
-                  <div className="text-muted-foreground">
-                    No questions asked
-                  </div>
+                  <div className="font-medium">30-Day Returns</div>
+                  <div className="text-muted-foreground">No questions asked</div>
                 </div>
               </div>
             </div>
@@ -264,5 +234,5 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

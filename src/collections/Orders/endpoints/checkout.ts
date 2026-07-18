@@ -208,7 +208,7 @@ export const checkoutEndpoint: Endpoint = {
       // Validate items with current stock and pricing
       const { subtotal, validatedItems } = await validateAndCalculateOrderTotals(items, req)
 
-      console.log({ validatedItems })
+      // console.log({ validatedItems })
 
       // Calculate shipping cost based on subtotal
       const shippingCost = await calculateShippingCost(shippingMethodId, subtotal, req)

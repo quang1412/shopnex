@@ -1,28 +1,18 @@
-import * as React from "react";
+import * as React from 'react'
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils'
 
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
+  return (
+    <textarea
+      data-slot="textarea"
+      className={cn(
+        'flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ className, ...props }, ref) => {
-        return (
-            <textarea
-                className={cn(
-                    "flex min-h-[80px] w-full rounded-lg border-2 border-border/60 bg-background px-4 py-3 text-sm transition-all duration-200",
-                    "placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground resize-none",
-                    "hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background",
-                    "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border/60",
-                    "dark:border-border dark:bg-input/50 dark:hover:border-primary/50 dark:focus:border-primary",
-                    "aria-invalid:border-destructive aria-invalid:focus:ring-destructive/20",
-                    className
-                )}
-                ref={ref}
-                {...props}
-            />
-        );
-    }
-);
-Textarea.displayName = "Textarea";
-
-export { Textarea };
+export { Textarea }

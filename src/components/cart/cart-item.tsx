@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { useCart, type CartItem as CartItemType } from "@/hooks/use-cart"
-import { Minus, Plus, Trash2 } from "lucide-react"
+import Image from 'next/image'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { useCart, type CartItem as CartItemType } from '@/hooks/use-cart'
+import { Minus, Plus, Trash2 } from 'lucide-react'
 
 interface CartItemProps {
   item: CartItemType
@@ -15,9 +15,9 @@ export function CartItem({ item }: CartItemProps) {
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(item.id)
+      removeItem(item.id, item.variantId)
     } else {
-      updateQuantity(item.id, newQuantity)
+      updateQuantity(item.id, newQuantity, item.variantId)
     }
   }
 
@@ -27,7 +27,7 @@ export function CartItem({ item }: CartItemProps) {
       <Link href={`/products/${item.id}`} className="flex-shrink-0">
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-muted/30 border border-border/50">
           <Image
-            src={item.image || "/placeholder.svg"}
+            src={item.image || '/placeholder.svg'}
             alt={item.name}
             width={96}
             height={96}
@@ -45,11 +45,13 @@ export function CartItem({ item }: CartItemProps) {
                 {item.name}
               </h3>
             </Link>
-            {item.variant && <p className="text-xs text-muted-foreground">{item.variant}</p>}
+            {item.variantLabel && (
+              <p className="text-xs text-muted-foreground">{item.variantLabel}</p>
+            )}
           </div>
           <div className="text-right">
             <div className="font-semibold">${(item.price * item.quantity).toFixed(2)}</div>
-            <div className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</div>
+            <div className="text-xs text-muted-foreground">${item.price.toFixed(2)} each</div>
           </div>
         </div>
 
@@ -78,7 +80,7 @@ export function CartItem({ item }: CartItemProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => removeItem(item.id)}
+            onClick={() => removeItem(item.id, item.variantId)}
             className="text-destructive hover:text-destructive h-8 w-8 p-0"
           >
             <Trash2 className="h-4 w-4" />

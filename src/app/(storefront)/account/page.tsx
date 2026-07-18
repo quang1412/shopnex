@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Order } from '@/payload-types'
+import type { Order } from '@/payload-types'
 
 // interface Order {
 //   id: string
@@ -158,8 +158,7 @@ export default function AccountPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-medium">${order.totalAmount}</p>
-                      {/* <p className="font-medium">${order.total}</p> */}
-                      {/* <p className="font-medium">${order.total.toFixed(2)}</p> */}
+                      {/* <p className="font-medium">${order.totalAmount.toFixed(2)}</p> */}
                       <p className="text-sm text-gray-600 capitalize">{order.orderStatus}</p>
                     </div>
                   </div>

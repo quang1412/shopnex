@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export interface CartItem {
   id: string
@@ -9,14 +9,15 @@ export interface CartItem {
   price: number
   image: string
   quantity: number
-  variant?: string
+  variantId?: string
+  variantLabel?: string
 }
 
 interface CartStore {
   items: CartItem[]
-  addItem: (item: Omit<CartItem, "quantity">) => void
-  removeItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
+  addItem: (item: Omit<CartItem, 'quantity'>) => void
+  removeItem: (id: string, variantId?: string) => void
+  updateQuantity: (id: string, quantity: number, variantId?: string) => void
   clearCart: () => void
   getTotalPrice: () => number
   getTotalItems: () => number
@@ -29,7 +30,7 @@ export const useCart = create<CartStore>()(
 
       addItem: (item) => {
         const items = get().items
-        const existingItem = items.find((i) => i.id === item.id)
+        const existingItem = items.find((i) => i.id === item.id && i.variantId === item.variantId)
 
         if (existingItem) {
           set({
@@ -40,18 +41,24 @@ export const useCart = create<CartStore>()(
         }
       },
 
-      removeItem: (id) => {
-        set({ items: get().items.filter((item) => item.id !== id) })
+      removeItem: (id, variantId) => {
+        set({
+          items: get().items.filter((item) =>
+            variantId ? variantId != item.variantId : item.id !== id,
+          ),
+        })
       },
 
-      updateQuantity: (id, quantity) => {
+      updateQuantity: (id, quantity, variantId) => {
         if (quantity <= 0) {
           get().removeItem(id)
           return
         }
 
         set({
-          items: get().items.map((item) => (item.id === id ? { ...item, quantity } : item)),
+          items: get().items.map((item) =>
+            item.id === id && item.variantId === variantId ? { ...item, quantity } : item,
+          ),
         })
       },
 
@@ -68,7 +75,7 @@ export const useCart = create<CartStore>()(
       },
     }),
     {
-      name: "cart-storage",
+      name: 'cart-storage',
     },
   ),
 )
