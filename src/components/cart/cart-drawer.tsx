@@ -44,7 +44,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
           </Button>
         }
       />
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
