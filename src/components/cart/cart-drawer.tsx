@@ -3,6 +3,7 @@
 import { useCart } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+// import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { CartItem } from './cart-item'
@@ -29,7 +30,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
     >
       <SheetTrigger
         render={
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="default" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
               <Badge

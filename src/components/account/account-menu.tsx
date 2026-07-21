@@ -34,15 +34,17 @@ export function AccountMenu() {
     return (
       <div className="flex items-center space-x-2">
 
-        <Button nativeButton={false} variant="ghost" size="sm" render={
-          <Link href="/account/login">
-            <User className="h-4 w-4" />
+        <Button nativeButton={false} variant="default" size="icon" render={
+          // <Link href="/account/login">
+          <Link href="/auth/v2/login">
+            <User />
           </Link>
         }></Button>
 
         {/* <Link href="/account/login">
           <Button variant="ghost" size="sm" render={<User className="h-4 w-4" />}></Button>
         </Link> */}
+
       </div>
     )
   }

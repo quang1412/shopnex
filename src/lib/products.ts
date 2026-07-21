@@ -12,7 +12,7 @@ export interface Product {
   category: string
   inStock: boolean
   featured?: boolean
-  variants: PayloadProduct['variants']
+  variants?: PayloadProduct['variants']
   // variant?: string
 }
 

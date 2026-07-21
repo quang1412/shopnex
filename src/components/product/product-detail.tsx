@@ -24,9 +24,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
   )
 
   const handleAddToCart = async () => {
-    let variant: Product['variants'][number] | null | undefined
+    let variant: any | null | undefined
     if (selectedVariantId) {
-      variant = product.variants.find((v) => v.vid == selectedVariantId)
+      variant = product.variants?.find((v) => v.vid == selectedVariantId)
     }
 
     setIsLoading(true)
@@ -41,7 +41,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         price: variant?.price || product.price,
         image: product.image,
         variantId: variant?.vid ?? undefined,
-        variantLabel: variant?.options?.map((o) => o.value).join(', ') ?? undefined,
+        variantLabel: variant?.options?.map((o: any) => o.value).join(', ') ?? undefined,
       })
     }
 
@@ -143,7 +143,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {selectedVariantId && <div>{selectedVariantId}</div>}
 
           {/* variants */}
-          {product.variants?.length > 1 && (
+          {product.variants && product.variants?.length > 1 && (
             <div>
               <select
                 onChange={(e) => {

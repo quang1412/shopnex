@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const response = await fetch("/api/users/login", {
         method: "POST",
         headers: {
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       return { success: false, error: "Network error" };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      setLoading(true);
       await fetch("/api/users/logout", {
         method: "POST",
         credentials: "include",
@@ -110,6 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error logging out:", error);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
