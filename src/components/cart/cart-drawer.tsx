@@ -40,7 +40,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
                 {totalItems}
               </Badge>
             )}
-            <span className="sr-only">Shopping cart</span>
+            <span className="sr-only">Giỏ hàng</span>
           </Button>
         }
       />
@@ -48,7 +48,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            Shopping Cart ({totalItems})
+            Giỏ hàng ({totalItems})
           </SheetTitle>
         </SheetHeader>
 
@@ -58,8 +58,8 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
               <ShoppingBag className="h-8 w-8 text-muted-foreground" />
             </div>
             <div className="text-center space-y-2">
-              <p className="font-medium">Your cart is empty</p>
-              <p className="text-sm text-muted-foreground">Add some products to get started</p>
+              <p className="font-medium">Giỏ hàng trống</p>
+              <p className="text-sm text-muted-foreground">Hãy thêm một vài sản phẩm.</p>
             </div>
           </div>
         ) : (

@@ -105,7 +105,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
   }
 
   return (
-    <Link href={`/products/${product.id}`}>
+    <Link href={`/dashboard/shop/${product.id}`}>
       <Card className="py-0 group cursor-pointer overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-card">
         <CardContent className="p-0">
           {/* Image */}

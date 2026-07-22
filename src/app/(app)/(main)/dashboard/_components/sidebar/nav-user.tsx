@@ -47,7 +47,9 @@ export function NavUser({
   const activeUser = user as any;
 
   if (loading) {
-    <Separator className="w-full h-20" />
+    return <Button nativeButton={false} className="w-full" size="lg" variant="ghost" render={
+      <Separator className="w-full h-full" />
+    } />
   }
 
   if (!activeUser) {
