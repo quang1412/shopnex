@@ -38,7 +38,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const searchQuery = (await searchParams).search
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="not-last:flex flex-col gap-4 ">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
           {/* <h1 className="text-3xl leading-none tracking-tight">Store Overview</h1> */}

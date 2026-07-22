@@ -164,7 +164,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
             <ItemContent className="text-right flex flex-col justify-between">
               {/* <div className='font-semibold'>${product.price}</div> */}
               <div className='font-semibold'>${product.price}</div>
-              <Button onClick={handleAddToCart} className=" cursor-pointer" size="sm" disabled={isLoading} >
+              <Button onClick={handleAddToCart} className=" cursor-pointer" disabled={isLoading} >
                 Thêm vào giỏ
               </Button>
             </ItemContent>
@@ -177,7 +177,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
   return (
     <Item variant="outline" className='' render={
       <Link href={`/dashboard/shop/${product.id}`}>
-        <ItemHeader>
+        <ItemHeader className=' relative'>
           <Image
             src={product.image}
             alt={product.name}
@@ -185,6 +185,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
             height={128}
             className="aspect-square w-full rounded-lg object-cover"
           />
+          <Badge className="absolute top-2 right-2 bg-primary/50" >-30%</Badge>
         </ItemHeader>
         <ItemContent className='overflow-hidden'>
           <ItemTitle className='max-w-full min-w-0 block truncate'>{product.name}</ItemTitle>
@@ -193,17 +194,23 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
           </ItemDescription>
         </ItemContent>
 
-        <Separator className="mb-2" />
+        {/* <Separator className="mb-2" /> */}
 
-        <ItemContent className='w-full flex flex-row gap-1 justify-between items-center'>
+        <ItemContent className='w-full flex flex-row gap-2 justify-between items-center  '>
           <div className='font-semibold'>${product.price}</div>
-          <Button onClick={handleAddToCart} className=" cursor-pointer" size="sm" disabled={isLoading} >
-            Thêm vào giỏ
-          </Button>
+          <div className='flex-1 text-right overflow-hidden'>
+            <Button onClick={handleAddToCart} className="cursor-pointer max-w-full" disabled={isLoading} >
+              <ShoppingBasket />
+              <span className='truncate'>Thêm vào giỏ</span>
+            </Button>
+          </div>
         </ItemContent>
       </Link>
     } />
-  )
+  );
+
+
+
   // return (
   //   <Link href={`/dashboard/shop/${product.id}`}>
   //     {/* <Card size='sm' className="relative mx-auto w-full max-w-sm pt-0">

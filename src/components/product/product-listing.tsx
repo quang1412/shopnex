@@ -195,12 +195,12 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
         )}
 
         {/* Products */}
-        <div className="lg:col-span-3">
+        <div className="@container/main  lg:col-span-3">
           {filteredAndSortedProducts.length > 0 ? (
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4"
+                  ? "grid grid-cols-2 @lg/main:grid-cols-3 @2xl/main:grid-cols-4 @3xl/main:grid-cols-4  gap-4"
                   : "space-y-4 flex flex-col"
               }
             >
