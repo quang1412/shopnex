@@ -78,7 +78,7 @@ export function ProductFilters({
   }
 
   return (
-    <Card className={className + " border-0"}>
+    <Card className={className} size='sm'>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">

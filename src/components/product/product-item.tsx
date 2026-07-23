@@ -148,8 +148,8 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
               <Image
                 src={product.image}
                 alt={product.name}
-                width={128}
-                height={128}
+                width={100}
+                height={100}
                 className="object-cover aspect-square rounded-lg"
               />
             </div>
@@ -179,8 +179,9 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
       <Badge className='z-30 absolute top-2 right-2 bg-primary/50' >30% off</Badge>
       <Link href={`/dashboard/shop/${product.id}`} className='relative '>
         <Image
-          width={128}
-          height={128}
+          width={200}
+          height={200}
+          quality={100}
           src={product.image}
           alt="Event cover"
           className="z-20 w-full h-auto aspect-square object-cover"
@@ -196,8 +197,8 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
         </CardTitle>
 
         <div className='flex gap-1 items-center'>
+          <del className='text-xs text-muted-foreground'>${product.price + 10}</del>
           <span className='font-semibold'>${product.price}</span>
-          <del className='text-xs text-muted-foreground'>${product.price}</del>
         </div>
 
         <CardDescription className='line-clamp-2'>

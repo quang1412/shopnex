@@ -2,7 +2,7 @@ export const seoConfig = {
   defaultTitle: 'ShopNex - Modern E-Commerce Storefront',
   defaultDescription: 'A minimal, modern e-commerce storefront built with Next.js',
   siteName: 'ShopNex',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://shopnex.com',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://http://localhost:3000',
   defaultImage: '/og-image.jpg',
   twitterHandle: '@shopnex',
   locale: 'en_US',
