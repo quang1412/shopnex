@@ -25,7 +25,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 
-import { Separator } from "@/components/ui/separator"
+// import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NavUser({
   // user,
@@ -48,7 +49,7 @@ export function NavUser({
 
   if (loading) {
     return <Button nativeButton={false} className="w-full" size="lg" variant="ghost" render={
-      <Separator className="w-full h-full" />
+      <Skeleton className="w-full h-full" />
     } />
   }
 

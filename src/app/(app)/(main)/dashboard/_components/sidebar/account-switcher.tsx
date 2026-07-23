@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/auth-context'
 
-import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AccountSwitcher({
   // users,
@@ -52,7 +52,7 @@ export function AccountSwitcher({
 
   if (loading) {
     return (
-      <Separator className="rounded-full w-8 h-8" />
+      <Skeleton className="rounded-full w-8 h-8" />
     )
   }
 

@@ -6,6 +6,8 @@ import { getProducts, getCategories } from '@/lib/products'
 import { generatePageMetadata } from '@/lib/seo'
 import { seoConfig } from '@/lib/seo-config'
 
+import Image from 'next/image'
+
 // Enable ISR for dynamic multi-tenant pages
 export const revalidate = 3600
 
@@ -38,16 +40,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const searchQuery = (await searchParams).search
 
   return (
-    <div className="not-last:flex flex-col gap-4 ">
+    <div className="flex flex-col gap-6">
+
+      {/* Banner */}
+      {/* <div className='w-full h-40 overflow-hidden'>
+        <Image
+          width={128}
+          height={128}
+          src={'/placeholder.svg'}
+          alt="shop-banner"
+          className='object-cover'
+        />
+      </div> */}
+
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
           {/* <h1 className="text-3xl leading-none tracking-tight">Store Overview</h1> */}
           <h1 className="text-3xl leading-none tracking-tight">
-            {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
+            {searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : 'Cửa hàng'}
           </h1>
           <p className="text-muted-foreground text-sm">{searchQuery
-            ? `Found products matching "${searchQuery}"`
-            : 'Discover our complete collection of premium products'}</p>
+            ? `Tìm sản phẩm khớp với "${searchQuery}"`
+            : 'Khám phá bộ sưu tập các sản phẩm cao cấp của chúng tôi'}</p>
         </div>
 
         <div>

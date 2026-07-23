@@ -12,14 +12,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// import { Card, CardHeader, CardContent, CardAction, CardTitle } from "../ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Product } from "@/lib/products";
 import { Filter, X, Grid3X3, List } from "lucide-react";
+
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 
 interface ProductListingProps {
   products: Product[];
   categories: string[];
   initialSearchQuery?: string;
 }
+
+const sortItems = [
+  { value: 'name', label: 'Tên A-Z' },
+  { value: 'price-low', label: 'Giá: tăng dần' },
+  { value: 'price-high', label: 'Giá: giảm dần' },
+]
 
 export function ProductListing({ products, categories, initialSearchQuery }: ProductListingProps) {
   const [sortBy, setSortBy] = useState<string | null>("name");
@@ -56,8 +69,8 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
     if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500) {
       filtered = filtered.filter(
         (product) =>
-          product.price >= filters.priceRange[0] &&
-          product.price <= filters.priceRange[1]
+          Number(product.price) >= filters.priceRange[0] &&
+          Number(product.price) <= filters.priceRange[1]
       );
     }
 
@@ -96,18 +109,18 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
     setSortBy("name");
   };
 
-  const hasActiveFilters =
-    filters.categories.length > 0 ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 500 ||
-    filters.inStock ||
-    filters.featured ||
-    sortBy !== "name";
+  // const hasActiveFilters =
+  //   filters.categories.length > 0 ||
+  //   filters.priceRange[0] > 0 ||
+  //   filters.priceRange[1] < 500 ||
+  //   filters.inStock ||
+  //   filters.featured ||
+  //   sortBy !== "name";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Filters Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -116,70 +129,98 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
             className="lg:hidden"
           >
             <Filter className="h-4 w-4 mr-2" />
-            Filters
+            Bộ lọc
           </Button>
           <span className="text-sm text-muted-foreground">
-            {filteredAndSortedProducts.length} products
+            {filteredAndSortedProducts.length} sản phẩm
           </span>
         </div>
 
         <div className="flex items-center gap-4">
           {/* View Mode Toggle */}
-          <div className="hidden sm:flex border rounded-lg p-1">
+          <div className="bg-muted rounded-lg p-1">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
+              size="xs"
               onClick={() => setViewMode("grid")}
-              className="h-8 w-8 p-0"
+              className="  "
             >
-              <Grid3X3 className="h-4 w-4" />
+              <Grid3X3 className=" " />
             </Button>
             <Button
               variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
+              size="xs"
               onClick={() => setViewMode("list")}
-              className="h-8 w-8 p-0"
+              className="  "
             >
-              <List className="h-4 w-4" />
+              <List className=" " />
             </Button>
           </div>
 
+          {/* <Tabs defaultValue={viewMode} onValueChange={setViewMode}>
+            <TabsList className="">
+              <TabsTrigger value="grid" render={
+                <Button size="icon" variant={viewMode === 'grid' ? "default" : "ghost"} ><Grid3X3 /></Button>
+              } />
+              <TabsTrigger value="list" render={
+                <Button size="icon" variant={viewMode === 'list' ? "default" : "ghost"} ><List /></Button>
+              } />
+            </TabsList>
+          </Tabs> */}
+
+          {/* <ToggleGroup variant="default" defaultValue={[viewMode]} spacing={1}>
+            <ToggleGroupItem value="grid" aria-label="Toggle grid" onClick={() => setViewMode("grid")}>
+              <Grid3X3 />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="list" aria-label="Toggle list" onClick={() => setViewMode("list")}>
+              <List />
+            </ToggleGroupItem>
+          </ToggleGroup> */}
+
           {/* Sort */}
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by" />
+          <Select
+            value={sortBy}
+            onValueChange={setSortBy}
+            items={sortItems}
+          >
+            <SelectTrigger className="w-35">
+              <SelectValue placeholder="Sắp xếp" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name A-Z</SelectItem>
+              {sortItems.map(({ label, value }) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+              {/* <SelectItem value="name">Name A-Z</SelectItem>
               <SelectItem value="price-low">
                 Price: Low to High
               </SelectItem>
               <SelectItem value="price-high">
                 Price: High to Low
-              </SelectItem>
+              </SelectItem> */}
             </SelectContent>
           </Select>
 
-          {hasActiveFilters && (
+          {/* {hasActiveFilters && (
             <Button
               variant="ghost"
               size="sm"
               onClick={clearFilters}
               className="hidden sm:flex"
             >
-              <X className="h-4 w-4 mr-2" />
+              <X className="h-4 w-4 mr-1" />
               Clear
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Desktop Filters Sidebar */}
         <div className="hidden lg:block">
           <ProductFilters
             categories={categories}
             onFiltersChange={setFilters}
+            defaultFilter={filters}
             className="sticky top-8"
           />
         </div>
@@ -190,6 +231,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
             <ProductFilters
               categories={categories}
               onFiltersChange={setFilters}
+              defaultFilter={filters}
             />
           </div>
         )}

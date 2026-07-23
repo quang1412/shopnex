@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
-import { ShoppingCart, Heart, ShoppingBasket } from 'lucide-react'
+import { ShoppingCart, Heart, ShoppingBasket, Plus } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import {
   Item,
@@ -175,6 +175,45 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
   }
 
   return (
+    <Card size="sm" className="relative mx-auto w-full max-w-sm pt-0">
+      <Badge className='z-30 absolute top-2 right-2 bg-primary/50' >30% off</Badge>
+      <Link href={`/dashboard/shop/${product.id}`} className='relative '>
+        <Image
+          width={128}
+          height={128}
+          src={product.image}
+          alt="Event cover"
+          className="z-20 w-full h-auto aspect-square object-cover"
+        />
+      </Link>
+
+      <CardHeader>
+        {/* <CardAction>
+            <Badge variant="secondary">Featured</Badge>
+          </CardAction> */}
+        <CardTitle className='truncate'>
+          <Link href={`/dashboard/shop/${product.id}`}>{product.name}</Link>
+        </CardTitle>
+
+        <div className='flex gap-1 items-center'>
+          <span className='font-semibold'>${product.price}</span>
+          <del className='text-xs text-muted-foreground'>${product.price}</del>
+        </div>
+
+        <CardDescription className='line-clamp-2'>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates rem repellat suscipit perspiciatis repudiandae quaerat
+        </CardDescription>
+      </CardHeader>
+      <CardFooter className='justify-between gap-3'>
+        <Button size="icon" variant="outline" className="cursor-pointer" onClick={(e) => {
+          e.preventDefault(); e.stopPropagation()
+        }}><Heart /></Button>
+        <Button className="flex-1 cursor-pointer" disabled={isLoading} onClick={handleAddToCart}> Thêm vào giỏ</Button>
+      </CardFooter>
+    </Card>
+  )
+
+  return (
     <Item variant="outline" className='' render={
       <Link href={`/dashboard/shop/${product.id}`}>
         <ItemHeader className=' relative'>
@@ -185,7 +224,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
             height={128}
             className="aspect-square w-full rounded-lg object-cover"
           />
-          <Badge className="absolute top-2 right-2 bg-primary/50" >-30%</Badge>
+          <Badge className="absolute text-xs top-2 right-2 bg-primary/50" >-30%</Badge>
         </ItemHeader>
         <ItemContent className='overflow-hidden'>
           <ItemTitle className='max-w-full min-w-0 block truncate'>{product.name}</ItemTitle>
@@ -199,9 +238,9 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
         <ItemContent className='w-full flex flex-row gap-2 justify-between items-center  '>
           <div className='font-semibold'>${product.price}</div>
           <div className='flex-1 text-right overflow-hidden'>
-            <Button onClick={handleAddToCart} className="cursor-pointer max-w-full" disabled={isLoading} >
-              <ShoppingBasket />
-              <span className='truncate'>Thêm vào giỏ</span>
+            <Button onClick={handleAddToCart} className="cursor-pointer max-w-full" size="icon" disabled={isLoading} >
+              <Plus />
+              {/* <span className='truncate'>Thêm vào giỏ</span> */}
             </Button>
           </div>
         </ItemContent>

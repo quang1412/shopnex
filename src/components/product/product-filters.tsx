@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -8,10 +8,12 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { X, Filter } from 'lucide-react'
+import { CardAction } from '../_ui/card'
 
 interface ProductFiltersProps {
   categories: string[]
   onFiltersChange: (filters: FilterState) => void
+  defaultFilter?: Partial<FilterState>
   className?: string
 }
 
@@ -22,13 +24,27 @@ export interface FilterState {
   featured: boolean
 }
 
-export function ProductFilters({ categories, onFiltersChange, className }: ProductFiltersProps) {
+export function ProductFilters({
+  categories,
+  onFiltersChange,
+  defaultFilter,
+  className,
+
+}: ProductFiltersProps) {
+
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
     priceRange: [0, 500],
     inStock: false,
     featured: false,
-  })
+    ...defaultFilter,
+  });
+
+  React.useEffect(() => {
+    defaultFilter && setFilters((current) => ({
+      ...current, ...defaultFilter
+    }));
+  }, [defaultFilter])
 
   const updateFilters = (newFilters: Partial<FilterState>) => {
     const updated = { ...filters, ...newFilters }
@@ -62,25 +78,28 @@ export function ProductFilters({ categories, onFiltersChange, className }: Produ
   }
 
   return (
-    <Card className={className}>
+    <Card className={className + " border-0"}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            Filters
+            Bộ lọc
           </span>
+
+        </CardTitle>
+        <CardAction className='min-h-8'>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               <X className="h-4 w-4 mr-1" />
-              Clear
+              Reset
             </Button>
           )}
-        </CardTitle>
+        </CardAction>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Categories */}
         <div className="space-y-3">
-          <h3 className="font-medium">Categories</h3>
+          <h3 className="font-medium">Danh mục</h3>
           <div className="space-y-2">
             {categories.map((category) => (
               <div key={category} className="flex items-center space-x-2">
@@ -99,7 +118,7 @@ export function ProductFilters({ categories, onFiltersChange, className }: Produ
 
         {/* Price Range */}
         <div className="space-y-3">
-          <h3 className="font-medium">Price Range</h3>
+          <h3 className="font-medium">Khoảng giá</h3>
           <div className="space-y-4">
             <Slider
               value={filters.priceRange}
@@ -135,7 +154,7 @@ export function ProductFilters({ categories, onFiltersChange, className }: Produ
                 }
               />
               <Label htmlFor="in-stock" className="text-sm">
-                In Stock Only
+                Còn hàng
               </Label>
             </div>
             <div className="flex items-center space-x-2">
@@ -149,7 +168,7 @@ export function ProductFilters({ categories, onFiltersChange, className }: Produ
                 }
               />
               <Label htmlFor="featured" className="text-sm">
-                Featured Products
+                S.phẩm nổi bật
               </Label>
             </div>
           </div>
