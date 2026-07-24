@@ -163,7 +163,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
                   className="  "
                 >
                   <Grid3X3 className=" " />
-                  <span className="hidden sm:block">Grid</span>
+                  <span className="hidden sm:block">Lưới</span>
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
@@ -172,7 +172,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
                   className="  "
                 >
                   <List className=" " />
-                  <span className="hidden sm:block">List</span>
+                  <span className="hidden sm:block">Hàng</span>
                 </Button>
               </div>
 
@@ -222,17 +222,15 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 space-y-4">
+            <div className="text-center py-12 space-y-4 border border-dashed rounded-lg">
               <p className="text-muted-foreground">
-                No products found matching your criteria.
+                Không có sản phẩm trùng khớp.
               </p>
               <Button
                 variant="outline"
                 onClick={clearFilters}
                 className="bg-transparent"
-              >
-                Clear Filters
-              </Button>
+              >Reset bộ lọc</Button>
             </div>
           )}
         </div>

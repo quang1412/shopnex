@@ -13,6 +13,7 @@ export interface Product {
   inStock: boolean
   featured?: boolean
   variants?: PayloadProduct['variants']
+  options?: PayloadProduct['variantOptions']
   // variant?: string
 }
 
@@ -44,6 +45,7 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
     inStock: (firstVariant?.stockCount || 0) > 0,
     featured: payloadProduct.visible || false,
     variants: payloadProduct.variants,
+    options: payloadProduct.variantOptions,
   }
 }
 

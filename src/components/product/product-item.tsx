@@ -181,7 +181,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
         <Image
           width={200}
           height={200}
-          quality={100}
+          // quality={100}
           src={product.image}
           alt="Event cover"
           className="z-20 w-full h-auto aspect-square object-cover"
@@ -192,6 +192,10 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
         {/* <CardAction>
             <Badge variant="secondary">Featured</Badge>
           </CardAction> */}
+        <CardDescription>
+          {product.category}
+        </CardDescription>
+
         <CardTitle className='truncate'>
           <Link href={`/dashboard/shop/${product.id}`}>{product.name}</Link>
         </CardTitle>
@@ -201,9 +205,9 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
           <span className='font-semibold'>${product.price}</span>
         </div>
 
-        <CardDescription className='line-clamp-2'>
+        {/* <CardDescription className='line-clamp-2'>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates rem repellat suscipit perspiciatis repudiandae quaerat
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <CardFooter className='justify-between gap-3'>
         <Button size="icon" variant="outline" className="cursor-pointer" onClick={(e) => {

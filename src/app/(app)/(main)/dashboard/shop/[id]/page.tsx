@@ -6,6 +6,8 @@ import { ProductDetail } from '@/components/product/product-detail'
 import { getProduct } from '@/lib/products'
 import { generateProductMetadata, generateProductJsonLd } from '@/lib/seo'
 import { seoConfig } from '@/lib/seo-config'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft } from 'lucide-react'
 
 interface ProductPageProps {
   params: Promise<{
@@ -61,7 +63,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       {/* <Header /> */}
+
       <main className="flex-1">
+        {/* <div>
+          <Button className="" variant="ghost" ><ChevronLeft /> Back</Button>
+        </div> */}
+
         <ProductDetail product={product} />
       </main>
       {/* <Footer /> */}

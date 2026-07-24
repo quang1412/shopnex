@@ -1,17 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
-import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star } from 'lucide-react'
+import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRight, XIcon } from 'lucide-react'
+// import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ProductDetailProps {
   product: Product
 }
+
+const dummyGallery = Array.from({ length: 3 }).map(() => '/images/placeholder.svg')
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const { addItem } = useCart()
@@ -19,9 +22,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
 
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null | undefined>(
-    product.variants?.[0]?.vid,
-  )
+  // const [selectedVariantId, setSelectedVariantId] = useState<string | null | undefined>(
+  //   product.variants?.[0]?.vid,
+  // );
+
+  const [selectdOptions, setSelectedOptions] = useState<Record<string, string>>();
+
+  const updateOption = (option: string, value: string) => {
+    setSelectedOptions(prev => ({ ...prev, [option]: value }));
+  };
+
+  const clearOptions = () => {
+    setSelectedOptions(undefined);
+  }
+
+  const selectedVariantId: String = React.useMemo(() => {
+    // if (!selectdOptions) return '';
+
+    // const variant = product.variants?.find(v => ())
+
+    return 'xxxxxx'
+  }, [selectdOptions])
 
   const handleAddToCart = async () => {
     let variant: any | null | undefined
@@ -48,15 +69,29 @@ export function ProductDetail({ product }: ProductDetailProps) {
     setIsLoading(false)
   }
 
+  const gallery = [...product.images, ...dummyGallery,]
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto py-8">
+      {/* breadcrumb */}
+      <div className='flex items-center gap-2 mb-3 text-sm text-muted-foreground'>
+        {[
+          { label: 'Home', url: '#1' },
+          { label: 'Shop', url: '#2' }
+        ].map((path, index) => (
+          <>
+            {index > 0 && <ChevronRight className='w-4 h-4' />}
+            <a href={path.url}>{path.label}</a>
+          </>
+        ))}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Product Images */}
         <div className="space-y-4">
           {/* Main Image */}
           <div className="aspect-square rounded-lg overflow-hidden bg-muted/50">
             <Image
-              src={product.images[selectedImage] || product.image}
+              src={gallery[selectedImage] || product.image}
               alt={product.name}
               width={600}
               height={600}
@@ -65,9 +100,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div>
 
           {/* Thumbnail Images */}
-          {product.images.length > 1 && (
+          {gallery.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((image, index) => (
+              {gallery.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -91,10 +126,31 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <div className="space-y-6">
           {/* Header */}
           <div className="space-y-4">
+
             <div className="flex items-start justify-between">
               <div className="space-y-2">
-                <Badge variant="secondary">{product.category}</Badge>
-                <h1 className="text-3xl sm:text-4xl font-bold text-balance">{product.name}</h1>
+                {/* category */}
+                {/* <Badge variant="secondary">{product.category}</Badge> */}
+                <span className='text-muted-foreground'>{product.category}</span>
+                {/* product.name */}
+                <h1 className="text-2xl sm:text-3xl font-bold text-balance line-clamp-2">
+                  {product.name} Lorem ipsum dolor sit amet consectetur adipisicing elit. Reprehenderit veritatis excepturi nihil inventore deserunt esse. Itaque laborum labore, obcaecati delectus laboriosam enim quas. Iusto eaque ratione quae, fugiat nemo consequuntur.
+                </h1>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    4.0 · 127 đánh giá
+                  </span>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon">
@@ -106,20 +162,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
               </div>
             </div>
 
-            {/* Rating */}
-            {/* <div className="flex items-center gap-2">
-                            <div className="flex items-center">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={`h-4 w-4 ${i < 4 ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                                (4.0) • 127 reviews
-                            </span>
-                        </div> */}
 
             <div className="text-3xl font-bold">${product.price}</div>
           </div>
@@ -127,7 +169,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <Separator />
 
           {/* Description */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="font-semibold">Description</h3>
 
             <div
@@ -138,12 +180,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
             />
           </div>
 
-          <Separator />
+          <Separator /> */}
 
-          {selectedVariantId && <div>{selectedVariantId}</div>}
+          {/* {selectedVariantId && <div>{selectedVariantId}</div>} */}
 
           {/* variants */}
-          {product.variants && product.variants?.length > 1 && (
+          {/* {product.variants && product.variants?.length > 1 && (
             <div>
               <select
                 onChange={(e) => {
@@ -158,7 +200,41 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 ))}
               </select>
             </div>
-          )}
+          )} */}
+
+          {/* <div >
+            <pre>
+              <code>
+                {product.options && JSON.stringify(product.options)}
+              </code>
+            </pre>
+          </div> */}
+
+          {/* options */}
+          {product.options && product.options.length && <div className='relative space-y-3'>
+            {product.options.map(({ id, option, value }) => (
+              <div key={id} className='space-y-2'>
+                <div className='font-medium'>{option}</div>
+                <div className='flex gap-2 flex-wrap'>
+                  {value.map(value => (
+                    <Button
+                      key={value}
+                      size="lg"
+                      variant={selectdOptions?.[option] === value ? "default" : 'outline'}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        updateOption(option, value)
+                      }}
+                    >{value}</Button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {selectdOptions && <Button variant="ghost" size="sm" className=" absolute top-0 right-0" onClick={clearOptions}>
+              <XIcon className='h-4 w-4' /> Clear
+            </Button>}
+          </div>}
 
           {/* Add to Cart */}
           <div className="space-y-4">
