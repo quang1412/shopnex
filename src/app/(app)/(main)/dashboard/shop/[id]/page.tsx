@@ -7,7 +7,7 @@ import { getProduct } from '@/lib/products'
 import { generateProductMetadata, generateProductJsonLd } from '@/lib/seo'
 import { seoConfig } from '@/lib/seo-config'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft } from 'lucide-react'
+// import { ChevronLeft } from 'lucide-react'
 
 interface ProductPageProps {
   params: Promise<{

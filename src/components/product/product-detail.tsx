@@ -26,23 +26,32 @@ export function ProductDetail({ product }: ProductDetailProps) {
   //   product.variants?.[0]?.vid,
   // );
 
-  const [selectdOptions, setSelectedOptions] = useState<Record<string, string>>();
+  const defaultVariant = product.variants?.[0];
+
+  const [selectdOptions, setSelectedOptions] = useState<Record<string, string> | null>(() => {
+    if (!defaultVariant?.options) return null;
+    return Object.fromEntries(
+      defaultVariant.options?.map((opt) => [opt.option, opt.value])
+    );
+  });
 
   const updateOption = (option: string, value: string) => {
     setSelectedOptions(prev => ({ ...prev, [option]: value }));
   };
 
   const clearOptions = () => {
-    setSelectedOptions(undefined);
+    setSelectedOptions(null);
   }
 
-  const selectedVariantId: String = React.useMemo(() => {
-    // if (!selectdOptions) return '';
+  const selectedVariantId: String | null = React.useMemo(() => {
+    // if (!selectdOptions) return null;
+    const variant = selectdOptions ? product.variants?.find(variant => {
+      const isDeff = variant.options?.find(opt => (opt.value !== selectdOptions[opt.option]))
+      return isDeff ? 0 : 1
+    }) : defaultVariant;
+    return variant?.vid || defaultVariant?.vid || '';
 
-    // const variant = product.variants?.find(v => ())
-
-    return 'xxxxxx'
-  }, [selectdOptions])
+  }, [selectdOptions]);
 
   const handleAddToCart = async () => {
     let variant: any | null | undefined
@@ -188,7 +197,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           <Separator /> */}
 
-          {/* {selectedVariantId && <div>{selectedVariantId}</div>} */}
+          <div>{selectedVariantId || '---'}</div>
 
           {/* variants */}
           {/* {product.variants && product.variants?.length > 1 && (
