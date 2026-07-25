@@ -73,53 +73,59 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   return (
     <div className="container mx-auto py-8">
-      {/* breadcrumb */}
+
       <div className='flex items-center gap-2 mb-3 text-sm text-muted-foreground'>
+        {/* breadcrumb */}
         {[
           { label: 'Home', url: '#1' },
           { label: 'Shop', url: '#2' }
         ].map((path, index) => (
-          <>
+          <React.Fragment key={path.url}>
             {index > 0 && <ChevronRight className='w-4 h-4' />}
             <a href={path.url}>{path.label}</a>
-          </>
+          </React.Fragment>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Product Images */}
-        <div className="space-y-4">
-          {/* Main Image */}
-          <div className="aspect-square rounded-lg overflow-hidden bg-muted/50">
-            <Image
-              src={gallery[selectedImage] || product.image}
-              alt={product.name}
-              width={600}
-              height={600}
-              className="w-full h-full object-cover"
-            />
-          </div>
 
-          {/* Thumbnail Images */}
-          {gallery.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {gallery.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
-                    }`}
-                >
-                  <Image
-                    src={image || '/placeholder.svg'}
-                    alt={`${product.name} ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
+        {/* Product Images */}
+        <div className='@container/gallery'>
+          <div className="flex gap-4 flex-col @lg/gallery:flex-row-reverse">
+            {/* Main Image */}
+            <div className='flex-1'>
+              <div className="aspect-square rounded-lg overflow-hidden bg-muted/50">
+                <Image
+                  src={gallery[selectedImage] || product.image}
+                  alt={product.name}
+                  width={600}
+                  height={600}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-          )}
+
+            {/* Thumbnail Images */}
+            {gallery.length > 1 && (
+              <div className="flex gap-2 @lg/gallery:flex-col overflow-x-auto">
+                {gallery.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
+                      }`}
+                  >
+                    <Image
+                      src={image || '/placeholder.svg'}
+                      alt={`${product.name} ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Product Info */}
@@ -211,7 +217,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div> */}
 
           {/* options */}
-          {product.options && product.options.length && <div className='relative space-y-3'>
+          {product.options && product.options.length > 0 && <div className='relative space-y-3'>
             {product.options.map(({ id, option, value }) => (
               <div key={id} className='space-y-2'>
                 <div className='font-medium'>{option}</div>
