@@ -12,6 +12,7 @@ import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRig
 import { string } from 'zod'
 // import { useIsMobile } from '@/hooks/use-mobile'
 import { SizeGuidDrawer } from './size-guide-drawer'
+import Link from 'next/link'
 
 interface ProductDetailProps {
   product: Product
@@ -44,7 +45,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const updateOption = (option: string, value: string) => {
     // Fn cập nhật options
     setOptions(prev => ({ ...prev, [option]: value }));
-    // setQuantity(1);
+    setQuantity(1);
   };
 
   const toggleOption = (option: string, value: string) => {
@@ -56,7 +57,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       }
       return update;
     });
-    // setQuantity(1);
+    setQuantity(1);
   };
 
   // const clearOptions = () => {
@@ -179,13 +180,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   {/* breadcrumb   */}
                   {[
-                    { label: 'Home', url: '#1' },
-                    { label: 'Shop', url: '#2' },
-                    { label: product.category, url: '#3' }
+                    { label: 'Home', url: '/dashboard' },
+                    { label: 'Shop', url: '/dashboard/shop' },
+                    { label: product.category, url: `/dashboard/shop?category=${product.category}` }
                   ].map((path, index) => (
                     <React.Fragment key={path.url}>
                       {index > 0 && <ChevronRight className='w-4 h-4' />}
-                      <a href={path.url}>{path.label}</a>
+                      <Link href={path.url}>{path.label}</Link>
                     </React.Fragment>
                   ))}
                 </div>
@@ -327,16 +328,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 ) : (
                   <ShoppingCart className="h-5 w-5 mr-2" />
                 )}
-                {isLoading ? 'Adding...' : 'Add to Cart'}
+                {isLoading ? 'Đang thêm...' : 'Thêm vào Giỏ'}
               </Button>
 
               <Button variant="outline" size="lg" className="sm:w-auto bg-transparent">
-                Buy Now
+                Mua ngay
               </Button>
 
               <div className=' w-full '>
                 {/* after ATC button content */}
-                <p className='text-xs text-muted-foreground text-center'>Wrong size? Exchanges ship before your return arrives.</p>
+                <p className='text-xs text-muted-foreground text-center'>Bạn chọn nhầm size? chúng mình hỗ trợ đổi size miễn phí.</p>
               </div>
             </div>
           </div>

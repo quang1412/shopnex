@@ -35,7 +35,7 @@ export const useCart = create<CartStore>()(
 
         if (existingItem) {
           set({
-            items: items.map((i) => ((i.id === item.id && i.variantId === item.variantId) ? { ...i, quantity: i.quantity + 1 } : i)),
+            items: items.map((i) => (i === existingItem ? { ...i, quantity: i.quantity + 1 } : i)),
           })
         } else {
           set({ items: [...items, { ...item, quantity: 1 }] })

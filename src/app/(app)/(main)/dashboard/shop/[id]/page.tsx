@@ -59,57 +59,34 @@ export default async function ProductPage({ params }: ProductPageProps) {
   })
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      {/* <Header /> */}
+    // <div className="min-h-screen flex flex-col">
+    //   <script
+    //     type="application/ld+json"
+    //     dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    //   />
+    //   <Header /> 
+    //   <main className="flex-1"> 
+    //     <ProductDetail product={product} />  
+    //   </main>
+    //   <Footer />
+    // </div>
+
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl leading-none tracking-tight">{product.name}</h1>
+          <p className="text-muted-foreground text-sm">{product.category}</p>
+        </div>
+
+        <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
+          {/* Actions */}
+        </div>
+      </div>
 
       <main className="flex-1">
-        {/* <div>
-          <Button className="" variant="ghost" ><ChevronLeft /> Back</Button>
-        </div> */}
-
         <ProductDetail product={product} />
-
-        {/* <div className='space-y-8'>
-          <ProductDetail product={product} />
-
-          <div className='container mx-auto'>
-            <Tabs defaultValue="description" className="w-full">
-              <div className='w-full  border-b'>
-                <TabsList variant="line" className="w-full max-w-lg ">
-                  <TabsTrigger value="description">Mô tả</TabsTrigger>
-                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                  <TabsTrigger value="reports">Reports</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="description" >
-                <div className='space-y-2'>{Array.from({ length: 5 }).map((i, index) => (
-                  <div key={index} className='p-4 border rounded-lg'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugit ad quod beatae. Laborum ipsum alias iure ad quibusdam qui praesentium commodi blanditiis necessitatibus, nemo accusantium, in error facere corporis minus?.</div>
-                ))}</div>
-              </TabsContent>
-              <TabsContent value="analytics">
-                <div className='space-y-2'>{Array.from({ length: 5 }).map((i, index) => (
-                  <div key={index} className='p-4 border rounded-lg'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugit ad quod beatae. Laborum ipsum alias iure ad quibusdam qui praesentium commodi blanditiis necessitatibus, nemo accusantium, in error facere corporis minus?.</div>
-                ))}</div>
-              </TabsContent>
-              <TabsContent value="reports">
-                <div className='space-y-2'>{Array.from({ length: 5 }).map((i, index) => (
-                  <div key={index} className='p-4 border rounded-lg'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugit ad quod beatae. Laborum ipsum alias iure ad quibusdam qui praesentium commodi blanditiis necessitatibus, nemo accusantium, in error facere corporis minus?.</div>
-                ))}</div>
-              </TabsContent>
-
-            </Tabs>
-          </div>
-
-        </div> */}
-
-
       </main>
-      <Footer />
+
     </div>
   )
 }

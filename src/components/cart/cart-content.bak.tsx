@@ -18,13 +18,13 @@ export function CartContent() {
           <ShoppingBag className="h-12 w-12 text-muted-foreground" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold">Giỏ hàng vẫn trống</h2>
-          <p className="text-muted-foreground">Hãy thêm một vài sản phẩm đầu tiên.</p>
+          <h2 className="text-2xl font-semibold">Your cart is empty</h2>
+          <p className="text-muted-foreground">Add some products to get started</p>
         </div>
-        <Link href="/dashboard/shop">
+        <Link href="/products">
           <Button size="lg">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Trở lại shop
+            Continue Shopping
           </Button>
         </Link>
       </div>
@@ -49,10 +49,10 @@ export function CartContent() {
 
         <div className="space-y-3">
           {items.map((item, index) => (
-            <CartItem key={item.id + item.variantId} item={item} />
-            // <div key={item.id + item.variantId}>
-            // {/* {index < items.length - 1 && <Separator className="mt-3 opacity-50" />} */}
-            // </div>
+            <div key={item.id + item.variantId}>
+              <CartItem item={item} />
+              {index < items.length - 1 && <Separator className="mt-3 opacity-50" />}
+            </div>
           ))}
         </div>
 

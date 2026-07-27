@@ -75,13 +75,13 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
           </DrawerDescription>
         </DrawerHeader>
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
+          <div className="flex flex-col items-center justify-center  h-full space-y-4 p-4">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
               <ShoppingBag className="h-8 w-8 text-muted-foreground" />
             </div>
             <div className="text-center space-y-2">
               <p className="font-medium">Giỏ hàng trống</p>
-              <p className="text-sm text-muted-foreground">Hãy thêm một vài sản phẩm.</p>
+              <p className="text-sm text-muted-foreground">Hãy thêm một vài sản phẩm đầu tiên.</p>
             </div>
           </div>
         ) : (

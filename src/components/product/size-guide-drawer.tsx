@@ -93,18 +93,19 @@ export function SizeGuidDrawer({
     >
       <DrawerTrigger render={
         <Button variant="ghost" size="sm">
-          <Ruler className='w-4 h-4' /> Size guide
+          <Ruler className='w-4 h-4' /> Bảng size
         </Button>
       } />
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Pick a delivery time</DrawerTitle>
+          <DrawerTitle>Bảng size</DrawerTitle>
           <DrawerDescription>
-            We&apos;ll prepare your order as soon as possible.
+            Hướng dẫn chọn size
           </DrawerDescription>
         </DrawerHeader>
         <div className="flex-1 scroll-fade overflow-y-auto p-4">
-          <RadioGroup
+          hiển thị bảng size ở đây (nếu có)
+          {/* <RadioGroup
             value={deliveryTime}
             onValueChange={setDeliveryTime}
             className="gap-2"
@@ -125,13 +126,13 @@ export function SizeGuidDrawer({
                 </Field>
               </FieldLabel>
             ))}
-          </RadioGroup>
+          </RadioGroup> */}
         </div>
         <DrawerFooter>
-          <Button onClick={handleConfirm} className="h-[34px]">
+          {/* <Button onClick={handleConfirm} className="h-[34px]">
             Confirm Delivery Time
-          </Button>
-          <DrawerClose render={<Button variant="outline">Cancel</Button>} />
+          </Button> */}
+          <DrawerClose render={<Button variant="outline">Đóng</Button>} />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
