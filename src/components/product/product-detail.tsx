@@ -44,7 +44,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const updateOption = (option: string, value: string) => {
     // Fn cập nhật options
     setOptions(prev => ({ ...prev, [option]: value }));
-    setQuantity(1);
+    // setQuantity(1);
   };
 
   const toggleOption = (option: string, value: string) => {
@@ -56,7 +56,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       }
       return update;
     });
-    setQuantity(1);
+    // setQuantity(1);
   };
 
   // const clearOptions = () => {
@@ -90,7 +90,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   const handleAddToCart = async () => {
     // Fn thêm vào giỏ hàng
-    if (!selectedOptions) return alert('vui lòng chọn biến thể sp');
+    if (!selectedVariant) return alert('vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 

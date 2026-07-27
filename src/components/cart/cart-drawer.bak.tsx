@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react';
 import { useCart } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet'
@@ -11,29 +10,13 @@ import { Progress } from '../ui/progress'
 import { CartItem } from './cart-item'
 import Link from 'next/link'
 import { ShoppingCart, ShoppingBag, Package } from 'lucide-react'
-
-import { toast } from "sonner"
-
-import { useIsMobile } from "@/hooks/use-mobile"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+import { useEffect, useState } from 'react'
 
 export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolean }) {
   const [open, setOpen] = useState(showCartDrawer)
   const { items, getTotalPrice, getTotalItems } = useCart()
   const totalItems = getTotalItems()
   const totalPrice = getTotalPrice()
-
-  const [deliveryTime, setDeliveryTime] = useState("asap")
-  const isMobile = useIsMobile()
 
   useEffect(() => {
     setOpen(showCartDrawer)
@@ -45,35 +28,37 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
 
   const shipping = Math.floor(Math.random() * (90 - 0 + 1)) + 0;
 
-
   return (
-    <Drawer
+    <Sheet
       open={open}
-      onOpenChange={setOpen}
-      showSwipeHandle={isMobile}
-      swipeDirection={isMobile ? "down" : "right"}
+      onOpenChange={(val) => {
+        setOpen(val)
+      }}
     >
-      <DrawerTrigger render={
-        <Button variant="default" size="icon" className="relative">
-          <ShoppingCart className="h-5 w-5" />
-          {totalItems > 0 && (
-            <Badge
-              variant="default"
-              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
-            >
-              {totalItems}
-            </Badge>
-          )}
-          <span className="sr-only">Giỏ hàng</span>
-        </Button>
-      } />
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Giỏ hàng</DrawerTitle>
-          <DrawerDescription>
-            {totalItems ? `${totalItems} ${totalItems > 1 ? "items" : "item"}` : ""}
-          </DrawerDescription>
-        </DrawerHeader>
+      <SheetTrigger
+        render={
+          <Button variant="default" size="icon" className="relative">
+            <ShoppingCart className="h-5 w-5" />
+            {totalItems > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+              >
+                {totalItems}
+              </Badge>
+            )}
+            <span className="sr-only">Giỏ hàng</span>
+          </Button>
+        }
+      />
+      <SheetContent className="gap-0">
+        <SheetHeader className='border-b'>
+          <SheetTitle className="flex items-center gap-2">
+            Giỏ hàng
+          </SheetTitle>
+          {totalItems > 0 && <SheetDescription>{totalItems} mặt hàng</SheetDescription>}
+        </SheetHeader>
+
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full space-y-4">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
@@ -85,7 +70,9 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
             </div>
           </div>
         ) : (
+          // <div className="h-full flex flex-col p-4 border border-red-400">
           <>
+
             {/* Free Shipping Progress */}
             <div className="bg-muted/30 p-4">
               {amountToFreeShipping > 0 ? (
@@ -104,14 +91,34 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
               )}
             </div>
 
-            {/* items list */}
-            <div className="flex-1 scroll-fade overflow-y-auto p-4 space-y-4">
+            {/* Cart Items */}
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
               {items.map((item) => (
                 <CartItem key={item.id + item.variantId} item={item} />
               ))}
             </div>
 
-            <DrawerFooter>
+            {/* Cart Summary */}
+            {/* <div className="border-t pt-4 space-y-4 p-4">
+              <div className="flex justify-between font-semibold text-lg">
+                <span>Total</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+              <div className="space-y-2 flex flex-col">
+                <Link href="/cart" className="w-full">
+                  <Button variant="outline" size="lg" className="w-full bg-transparent">
+                    View Cart
+                  </Button>
+                </Link>
+                <Link href="/checkout" className="w-full">
+                  <Button size="lg" className="w-full">
+                    Checkout
+                  </Button>
+                </Link>
+              </div>
+            </div> */}
+
+            <div className="space-y-4 border-t p-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
@@ -131,14 +138,23 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
               </div>
 
               <div className="space-y-2">
-                <Button onClick={undefined} className="h-[34px] w-full">
-                  Thanh toán
+                <Button className="w-full">
+                  {/* <CreditCard className="mr-2 h-4 w-4" /> */}
+                  Checkout
                 </Button>
-                <DrawerClose render={<Button className=" w-full" variant="outline">Tiếp tục mua sắm</Button>} />
+                <Button variant="outline" className="w-full">
+                  Continue Shopping
+                </Button>
               </div>
-            </DrawerFooter>
-          </>)}
-      </DrawerContent>
-    </Drawer>
+            </div>
+
+            {/* </div> */}
+          </>
+        )}
+
+      </SheetContent>
+
+      {/* <SheetFooter></SheetFooter> */}
+    </Sheet>
   )
 }

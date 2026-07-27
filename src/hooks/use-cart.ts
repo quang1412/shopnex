@@ -17,7 +17,7 @@ interface CartStore {
   items: CartItem[]
   addItem: (item: Omit<CartItem, 'quantity'>) => void
   removeItem: (id: string, variantId?: string) => void
-  updateQuantity: (id: string, quantity: number, variantId?: string) => void
+  updateQuantity: (quantity: number, id: string, variantId?: string) => void
   clearCart: () => void
   getTotalPrice: () => number
   getTotalItems: () => number
@@ -29,16 +29,20 @@ export const useCart = create<CartStore>()(
       items: [],
 
       addItem: (item) => {
+
         const items = get().items
-        const existingItem = items.find((i) => i.id === item.id && i.variantId === item.variantId)
+        const existingItem = items.find((i) => (i.id === item.id) && (i.variantId === item.variantId))
 
         if (existingItem) {
           set({
-            items: items.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)),
+            items: items.map((i) => ((i.id === item.id && i.variantId === item.variantId) ? { ...i, quantity: i.quantity + 1 } : i)),
           })
         } else {
           set({ items: [...items, { ...item, quantity: 1 }] })
         }
+
+        console.log('existingItem', existingItem, item);
+
       },
 
       removeItem: (id, variantId) => {
@@ -49,7 +53,7 @@ export const useCart = create<CartStore>()(
         })
       },
 
-      updateQuantity: (id, quantity, variantId) => {
+      updateQuantity: (quantity, id, variantId) => {
         if (quantity <= 0) {
           get().removeItem(id)
           return

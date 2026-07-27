@@ -17,7 +17,7 @@ export function CartItem({ item }: CartItemProps) {
     if (newQuantity <= 0) {
       removeItem(item.id, item.variantId)
     } else {
-      updateQuantity(item.id, newQuantity, item.variantId)
+      updateQuantity(newQuantity, item.id, item.variantId)
     }
   }
 
