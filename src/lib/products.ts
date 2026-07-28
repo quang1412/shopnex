@@ -7,6 +7,7 @@ export interface Product {
   name: string
   description: string
   price: number
+  originalPrice: number
   image: string
   images: string[]
   category: string
@@ -14,12 +15,13 @@ export interface Product {
   featured?: boolean
   variants?: PayloadProduct['variants']
   options?: PayloadProduct['variantOptions']
+  customFields: { name: string, value: string }[]
   // variant?: string
 }
 
 // Transform Payload product to shop product format
 function transformProduct(payloadProduct: PayloadProduct): Product {
-  const firstVariant = payloadProduct.variants[0]
+  const firstVariant = payloadProduct.variants.find(p => p.sku === "default-variant") || payloadProduct.variants[0]
   const images =
     firstVariant?.gallery
       ?.map((media) => {
@@ -35,6 +37,7 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
     name: payloadProduct.title,
     description: payloadProduct.description || '',
     price: firstVariant?.price || 0,
+    originalPrice: firstVariant?.originalPrice || 0,
     image: images[0] || '',
     images: images,
     category: payloadProduct.collections?.[0]
@@ -43,9 +46,10 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
         : 'Uncategorized'
       : 'Uncategorized',
     inStock: (firstVariant?.stockCount || 0) > 0,
-    featured: payloadProduct.visible || false,
+    featured: payloadProduct.featured || false,
     variants: payloadProduct.variants,
     options: payloadProduct.variantOptions,
+    customFields: payloadProduct.customFields?.map(({ name, value }) => ({ name, value: (value || '') })) || [],
   }
 }
 
@@ -111,6 +115,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
         collection: 'products',
         where: {
           visible: { equals: true },
+          featured: { equals: true },
         },
         populate: {
           collections: {

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,8 @@ import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRig
 import { string } from 'zod'
 // import { useIsMobile } from '@/hooks/use-mobile'
 import { SizeGuidDrawer } from './size-guide-drawer'
-import Link from 'next/link'
+
+import { toast } from 'sonner'
 
 interface ProductDetailProps {
   product: Product
@@ -25,6 +27,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isPreOrder = true;
+  const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
+  const savedPercent = !!regularPrice ? (100 - (product.price / (regularPrice / 100))).toFixed(1) : 0;
+
 
   // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
   const defaultVariant = product.variants?.find(v => v.sku === 'SN-default') ||
@@ -109,7 +116,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
       })
     }
 
-    setIsLoading(false)
+    setIsLoading(false);
+    toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
   }
 
   const gallery = [...product.images, ...dummyGallery,]
@@ -117,11 +125,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
   return (
     <div className="container mx-auto pb-8 space-y-4 4xl:overflow-x-auto 4xl:scrollbar-none 4xl:h-[calc(100vh-4em)] w-full">
 
-      <div>
+      {/* <div>
         <Button className="" variant="ghost" onClick={() => { }}>
           <ChevronLeft />  Trở lại
         </Button>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start  ">
 
@@ -167,9 +175,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
         {/* Product Info */}
         <div className="space-y-6 lg:col-span-1  ">
+
           {/* Header */}
           <div className="space-y-4">
-
             <div className="flex items-start justify-between">
               <div className="space-y-2">
 
@@ -224,23 +232,31 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
 
 
-            <div className="text-2xl font-semibold">${product.price}</div>
+            {/* Prices */}
+            <div className='text-2xl flex gap-2 items-end'>
+              <span className=" font-bold">${product.price}</span>
+              <del className='text-sm  text-muted-foreground'>${regularPrice}</del>
+              {savedPercent && <span className='text-sm  text-green-500'>sale {savedPercent}%</span>}
+            </div>
 
           </div>
 
           {/* <Separator /> */}
 
           {/* Description */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-muted-foreground">Elevate your style with our Classic Leather Watch. Featuring premium materials, precise movement, and timeless design that complements any outfit.</h3>
+          </div> */}
 
-            {/* <div
+          {/* Description 2 */}
+          {/* <div className="space-y-4">
+            <div
               className="text-muted-foreground leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: product.description,
               }}
-            /> */}
-          </div>
+            />
+          </div> */}
 
           {/* <Separator /> */}
 
@@ -289,11 +305,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
 
-              <div className="flex items-center border rounded-lg p-1">
+              <div className="flex items-center border rounded-lg p-0.5">
                 {/* quantity control */}
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="sm"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={!selectedVariant || quantity <= 1}
                 >
@@ -302,7 +318,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <span className=" min-w-[3rem] text-center">{quantity}</span>
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="sm"
                   onClick={() => setQuantity(quantity + 1)}
                   disabled={!selectedVariant || quantity >= 100}
                 >
@@ -311,7 +327,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               </div>
 
               <span className="text-sm text-muted-foreground">
-                {product.inStock ? 'In Stock' : 'Out of Stock'}
+                {isPreOrder ? "Đặt trước có hàng sau 02 ngày" : product.inStock ? 'Sẵn hàng' : 'Hết hàng'}
               </span>
             </div>
 
@@ -331,7 +347,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 {isLoading ? 'Đang thêm...' : 'Thêm vào Giỏ'}
               </Button>
 
-              <Button variant="outline" size="lg" className="sm:w-auto bg-transparent">
+              <Button variant="outline" size="lg" className="  sm:w-[33.33%] bg-transparent">
                 Mua ngay
               </Button>
 
@@ -345,8 +361,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <Separator />
 
           {/* Features */}
-          <div className="space-y-4">
-            {/* <h3 className="font-semibold">Why Choose This Product</h3> */}
+          {/* <div className="space-y-4">
+            <h3 className="font-semibold">Why Choose This Product</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Truck className="h-5 w-5 text-primary" />
@@ -370,8 +386,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
+          {/* Features */}
+          <div className='space-y-1'>
+            {product.customFields.map((i, index) => (
+              <p key={index} className='w-full flex justify-between text-sm'>
+                <span className='text-muted-foreground'>{i.name}</span>
+                <span >{i.value}</span>
+              </p>
+            ))}
+          </div>
 
           {/* <div className='space-y-6'>
             {Array.from({ length: 4 }).map((i, index) => (

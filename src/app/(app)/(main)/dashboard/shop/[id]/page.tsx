@@ -72,9 +72,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
     // </div>
 
     <div className="flex flex-col gap-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl leading-none tracking-tight">{product.name}</h1>
+          <h1 className="text-3xl leading-none tracking-tight w-full max-w-lg truncate">{product.name}</h1>
           <p className="text-muted-foreground text-sm">{product.category}</p>
         </div>
 
@@ -87,6 +91,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ProductDetail product={product} />
       </main>
 
+      <Footer />
     </div>
   )
 }

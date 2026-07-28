@@ -234,8 +234,8 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <form onSubmit={handleSubmit} className='h-full'>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full overflow-y-auto">
         {/* Checkout Form */}
         <div className="space-y-6">
           {/* Contact Information */}
@@ -313,7 +313,7 @@ export function CheckoutForm() {
                   <Label htmlFor="state">State</Label>
                   <Select
                     value={formData.state}
-                    onValueChange={(value) => handleInputChange('state', value)}
+                    onValueChange={(value) => handleInputChange('state', value ?? '')}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
@@ -344,7 +344,7 @@ export function CheckoutForm() {
                   <Label htmlFor="country">Country</Label>
                   <Select
                     value={formData.country}
-                    onValueChange={(value) => handleInputChange('country', value)}
+                    onValueChange={(value) => handleInputChange('country', value ?? '')}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -484,40 +484,40 @@ export function CheckoutForm() {
         </div>
 
         {/* Order Summary */}
-        <div>
-          <div className="sticky top-22">
-            <OrderSummary
-              subtotal={subtotal}
-              shipping={shippingCost}
-              tax={tax}
-              total={total}
-              shippingMethodName={selectedShipping?.name}
-            />
+        {/* <div> */}
+        <div className="sticky top-0 self-start">
+          <OrderSummary
+            subtotal={subtotal}
+            shipping={shippingCost}
+            tax={tax}
+            total={total}
+            shippingMethodName={selectedShipping?.name}
+          />
 
-            <div className="mt-6 space-y-4">
-              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Complete Order
-                  </>
-                )}
+          <div className="mt-6 space-y-4">
+            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Complete Order
+                </>
+              )}
+            </Button>
+
+            <Link href="/cart">
+              <Button variant="outline" size="lg" className="w-full bg-transparent">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Cart
               </Button>
-
-              <Link href="/cart">
-                <Button variant="outline" size="lg" className="w-full bg-transparent">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Cart
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
         </div>
+        {/* </div> */}
       </div>
     </form>
   )

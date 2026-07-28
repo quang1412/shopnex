@@ -125,6 +125,15 @@ export const Products: CollectionConfig = {
       label: 'Tags',
       relationTo: 'collections',
     },
+    // {
+    //   name: 'sizeGuide',
+    //   type: 'relationship',
+    //   admin:{
+    //     position:'sidebar',
+    //   },
+    //   label: 'Size guide',
+    //   relationTo:'',
+    // },
     HandleField(),
     {
       type: 'collapsible',

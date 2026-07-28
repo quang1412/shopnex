@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 // import { ProductCard } from "./product-card";
-import { ProductCard } from "./product-item";
+import { ProductCard } from "./product-card-1";
 import { ProductFilters, type FilterState } from "./product-filters";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,14 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 // import { Card, CardHeader, CardContent, CardAction, CardTitle } from "../ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Product } from "@/lib/products";
 import { Filter, X, Grid3X3, List, XIcon } from "lucide-react";
 
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group"
+// import {
+//   ToggleGroup,
+//   ToggleGroupItem,
+// } from "@/components/ui/toggle-group"
 
 interface ProductListingProps {
   products: Product[];
@@ -109,13 +109,6 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
     setSortBy("name");
   };
 
-  const hasActiveFilters =
-    filters.categories.length > 0 ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 500 ||
-    filters.inStock ||
-    filters.featured ||
-    sortBy !== "name";
 
   return (
     <div className="space-y-4">
@@ -134,7 +127,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
 
 
         {/* Products */}
-        <div className="@container/grid-view lg:col-span-3 space-y-4">
+        <div className="@container/prod-list lg:col-span-3 space-y-4">
 
           {/* Filters Header */}
           <div className="flex flex-row justify-between items-center gap-4">
@@ -209,7 +202,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-2 @xl/grid-view:grid-cols-3 @4xl/grid-view:grid-cols-4  gap-4"
+                  ? "grid grid-cols-2 @xl/prod-list:grid-cols-3 @4xl/prod-list:grid-cols-4 gap-4"
                   : "space-y-4 flex flex-col"
               }
             >
@@ -218,6 +211,7 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
                   key={product.id}
                   product={product}
                   viewMode={viewMode}
+                  className="mb-3"
                 />
               ))}
             </div>

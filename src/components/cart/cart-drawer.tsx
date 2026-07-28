@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useCart } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet'
+// import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet'
 // import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -29,16 +29,21 @@ import {
 export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolean }) {
   const [open, setOpen] = useState(showCartDrawer)
   const { items, getTotalPrice, getTotalItems } = useCart()
-  const totalItems = getTotalItems()
+
+  const [totalItems, setTotalItems] = useState<number>(0);
   const totalPrice = getTotalPrice()
 
-  const [deliveryTime, setDeliveryTime] = useState("asap")
+  // const [deliveryTime, setDeliveryTime] = useState("asap")
   const isMobile = useIsMobile()
 
   useEffect(() => {
     setOpen(showCartDrawer)
   }, [showCartDrawer])
 
+  useEffect(() => {
+    const t = getTotalItems();
+    setTotalItems(t);
+  }, []);
 
   const amountToFreeShipping = 1000;
   const freeShippingProgress = 50;
@@ -57,12 +62,15 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
         <Button variant="default" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
           {totalItems > 0 && (
-            <Badge
-              variant="default"
-              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
-            >
+            <span className='absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent'>
               {totalItems}
-            </Badge>
+            </span>
+            // <Badge
+            //   // variant="default"
+            //   className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
+            // >
+            //   {totalItems}
+            // </Badge>
           )}
           <span className="sr-only">Giỏ hàng</span>
         </Button>
@@ -131,8 +139,11 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
               </div>
 
               <div className="space-y-2">
-                <Button onClick={undefined} className="h-[34px] w-full">
-                  Thanh toán
+                <Button onClick={undefined} nativeButton={false} className=" w-full" render={
+                  <Link href="/dashboard/checkout" >
+                    Thanh toán
+                  </Link>
+                }>
                 </Button>
                 <DrawerClose render={<Button className=" w-full" variant="outline">Tiếp tục mua sắm</Button>} />
               </div>
