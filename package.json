@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.5.7",
     "@payloadcms/db-postgres": "3.86.0",
     "@payloadcms/next": "3.86.0",
     "@payloadcms/plugin-seo": "3.86.0",

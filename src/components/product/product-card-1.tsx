@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
-import { ShoppingCart, Heart, Plus } from 'lucide-react'
+// import { ShoppingCart, Heart, Plus } from 'lucide-react'
 // import { Separator } from '@/components/ui/separator'
 import {
   Item,
@@ -68,7 +68,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   if (viewMode === 'list') {
     return (
       <Item variant="outline" render={
-        <Link href={`/dashboard/shop/${product.id}`}>
+        <Link href={`/dashboard/products/${product.id}`}>
           <div className='flex flex-row gap-2'>
 
             {/* <ItemMedia variant="image">
@@ -112,11 +112,11 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   }
 
   return (
-    <div className={'group flex flex-col gap-2 text-sm' + (className ? className : '')}>
+    <div className={'group flex flex-col gap-2 text-sm ' + (className ? className : '')}>
 
       {/* Image */}
       <div className='relative aspect-square rounded-xl overflow-hidden'>
-        <Link href={`/dashboard/shop/${product.id}`} >
+        <Link href={`/dashboard/products/${product.id}`} >
           <Image
             width={200}
             height={200}
@@ -137,7 +137,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
 
         {/* Name */}
         <p className='truncate font-semibold'>
-          <Link href={`/dashboard/shop/${product.id}`}>{product.name}</Link>
+          <Link href={`/dashboard/products/${product.id}`}>{product.name}</Link>
         </p>
 
         {/* Prices */}
@@ -163,7 +163,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   // return (
   //   <Card size="sm" className="relative mx-auto w-full max-w-sm pt-0">
   //     <Badge className='z-30 absolute top-2 right-2 bg-primary/50' >30% off</Badge>
-  //     <Link href={`/dashboard/shop/${product.id}`} className='relative '>
+  //     <Link href={`/dashboard/products/${product.id}`} className='relative '>
   //       <Image
   //         width={200}
   //         height={200}
@@ -180,7 +180,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   //       </CardDescription>
 
   //       <CardTitle className='truncate'>
-  //         <Link href={`/dashboard/shop/${product.id}`}>{product.name}</Link>
+  //         <Link href={`/dashboard/products/${product.id}`}>{product.name}</Link>
   //       </CardTitle>
 
   //       <div className='flex gap-1 items-center'>

@@ -33,13 +33,13 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className='flex-1 overflow-hidden'>
-          {/* <CheckoutForm /> */}
-          {Array.from({ length: 20 }).map((i, index) => (
+        <div className='flex-1  '>
+          <CheckoutForm />
+          {/* {Array.from({ length: 20 }).map((i, index) => (
             <div key={index} className='p-4 border rounded-lg mb-4 last:mb-0'>
               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Similique qui sit aperiam a? Similique eaque totam aliquid, aliquam eos ipsa numquam impedit culpa dolores iure enim saepe delectus? Nemo, temporibus!
             </div>
-          ))}
+          ))} */}
         </div>
 
 

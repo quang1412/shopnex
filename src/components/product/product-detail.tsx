@@ -189,8 +189,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   {/* breadcrumb   */}
                   {[
                     { label: 'Home', url: '/dashboard' },
-                    { label: 'Shop', url: '/dashboard/shop' },
-                    { label: product.category, url: `/dashboard/shop?category=${product.category}` }
+                    { label: 'Products', url: '/dashboard/products' },
+                    { label: product.category, url: `/dashboard/products?category=${product.category}` }
                   ].map((path, index) => (
                     <React.Fragment key={path.url}>
                       {index > 0 && <ChevronRight className='w-4 h-4' />}
@@ -389,7 +389,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div> */}
 
           {/* Features */}
-          <div className='space-y-1'>
+          <div className='space-y-2'>
             {product.customFields.map((i, index) => (
               <p key={index} className='w-full flex justify-between text-sm'>
                 <span className='text-muted-foreground'>{i.name}</span>

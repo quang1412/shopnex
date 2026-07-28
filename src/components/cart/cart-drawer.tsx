@@ -12,6 +12,7 @@ import { CartItem } from './cart-item'
 import Link from 'next/link'
 import { ShoppingCart, ShoppingBag, Package } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from "sonner"
 
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -27,11 +28,14 @@ import {
 } from "@/components/ui/drawer"
 
 export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolean }) {
+  const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(showCartDrawer)
   const { items, getTotalPrice, getTotalItems } = useCart()
 
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const totalPrice = getTotalPrice()
+  // const [totalItems, setTotalItems] = useState<number>(0);
+
+  const totalItems = getTotalItems();
+  const totalPrice = getTotalPrice();
 
   // const [deliveryTime, setDeliveryTime] = useState("asap")
   const isMobile = useIsMobile()
@@ -41,8 +45,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
   }, [showCartDrawer])
 
   useEffect(() => {
-    const t = getTotalItems();
-    setTotalItems(t);
+    setIsMounted(true);
   }, []);
 
   const amountToFreeShipping = 1000;
@@ -50,6 +53,12 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
 
   const shipping = Math.floor(Math.random() * (90 - 0 + 1)) + 0;
 
+  if (!isMounted) {
+    return <Button variant="default" size="icon" className="relative">
+      <ShoppingCart className="h-5 w-5" />
+      <span className="sr-only">Giỏ hàng</span>
+    </Button>
+  }
 
   return (
     <Drawer
@@ -62,15 +71,12 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
         <Button variant="default" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
           {totalItems > 0 && (
-            <span className='absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent'>
+            <Badge
+              // variant="destructive"
+              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
+            >
               {totalItems}
-            </span>
-            // <Badge
-            //   // variant="default"
-            //   className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
-            // >
-            //   {totalItems}
-            // </Badge>
+            </Badge>
           )}
           <span className="sr-only">Giỏ hàng</span>
         </Button>

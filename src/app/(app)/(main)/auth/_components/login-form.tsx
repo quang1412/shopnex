@@ -7,14 +7,14 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+// import {
+//   Field,
+//   FieldContent,
+//   FieldError,
+//   FieldGroup,
+//   FieldLabel,
+//   FieldSet,
+// } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -54,7 +54,7 @@ export function LoginForm() {
   const { user, login } = useAuth();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: "onChange",
+    // mode: "onChange",
     defaultValues: {
       email: "",
       password: "",
@@ -62,9 +62,9 @@ export function LoginForm() {
     },
   });
 
-  // if (user) {
-  //   return <a href="/">back to home</a>
-  // }
+  if (user) {
+    router.replace('/')
+  }
 
   const handleSubmit = async (data: FormData) => {
     try {
@@ -87,7 +87,7 @@ export function LoginForm() {
               name="email"
               render={({ field, fieldState }) => (
                 <FormItem className="gap-1.5" data-invalid={fieldState.invalid}>
-                  <FormLabel htmlFor="login-email">Email Address</FormLabel>
+                  <FormLabel htmlFor="login-email">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -108,7 +108,7 @@ export function LoginForm() {
               name="password"
               render={({ field, fieldState }) => (
                 <FormItem className="gap-1.5" data-invalid={fieldState.invalid}>
-                  <FormLabel htmlFor="login-password">Password</FormLabel>
+                  <FormLabel htmlFor="login-password">Mật khẩu</FormLabel>
                   <FormControl>
                     <Input
                       {...field}

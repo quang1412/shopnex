@@ -235,7 +235,8 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className='h-full'>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full overflow-y-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full  ">
+
         {/* Checkout Form */}
         <div className="space-y-6">
           {/* Contact Information */}
@@ -484,8 +485,7 @@ export function CheckoutForm() {
         </div>
 
         {/* Order Summary */}
-        {/* <div> */}
-        <div className="sticky top-0 self-start">
+        <div className="sticky top-22 self-start">
           <OrderSummary
             subtotal={subtotal}
             shipping={shippingCost}
@@ -517,7 +517,7 @@ export function CheckoutForm() {
             </Link>
           </div>
         </div>
-        {/* </div> */}
+
       </div>
     </form>
   )

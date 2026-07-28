@@ -109,7 +109,6 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
     setSortBy("name");
   };
 
-
   return (
     <div className="space-y-4">
 

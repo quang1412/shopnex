@@ -40,10 +40,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const searchQuery = (await searchParams).search
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-content-padding={false}>
+      <div className="flex flex-col gap-6 p-4 md:p-6" >
 
-      {/* Banner */}
-      {/* <div className='w-full h-40 overflow-hidden'>
+        {/* Banner */}
+        {/* <div className='w-full h-40 overflow-hidden'>
         <Image
           width={128}
           height={128}
@@ -53,26 +54,30 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         />
       </div> */}
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-1">
-          {/* <h1 className="text-3xl leading-none tracking-tight">Store Overview</h1> */}
-          <h1 className="text-3xl leading-none tracking-tight">
-            {searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : 'Cửa hàng'}
-          </h1>
-          <p className="text-muted-foreground text-sm">{searchQuery
-            ? `Tìm sản phẩm khớp với "${searchQuery}"`
-            : 'Khám phá bộ sưu tập các sản phẩm cao cấp của chúng tôi'}</p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl leading-none tracking-tight">
+              {searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : 'Sản phẩm'}
+            </h1>
+            <p className="text-muted-foreground text-sm">{searchQuery
+              ? `Tìm sản phẩm khớp với "${searchQuery}"`
+              : 'Khám phá bộ sưu tập các sản phẩm cao cấp của chúng tôi'}</p>
+          </div>
+
+          <div>
+            {/* actions */}
+          </div>
         </div>
 
-        <div>
-          {/* actions */}
-        </div>
+        <ProductListing
+          products={products}
+          categories={categories}
+          initialSearchQuery={searchQuery}
+        />
       </div>
-      <ProductListing
-        products={products}
-        categories={categories}
-        initialSearchQuery={searchQuery}
-      />
+
+      <Footer />
+
     </div>
 
 

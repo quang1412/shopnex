@@ -95,7 +95,7 @@ export function RegisterForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem className="gap-1.5"  >
-                  <FormLabel >first-name</FormLabel>
+                  <FormLabel >Họ và đệm</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -112,7 +112,7 @@ export function RegisterForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem className="gap-1.5"  >
-                  <FormLabel >last-name</FormLabel>
+                  <FormLabel >Tên</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -130,7 +130,7 @@ export function RegisterForm() {
             name="email"
             render={({ field }) => (
               <FormItem className="gap-1.5"  >
-                <FormLabel >Email Address</FormLabel>
+                <FormLabel >Email</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -148,7 +148,7 @@ export function RegisterForm() {
             name="password"
             render={({ field }) => (
               <FormItem className="gap-1.5"  >
-                <FormLabel htmlFor="register-password">Password</FormLabel>
+                <FormLabel htmlFor="register-password">Mật khẩu</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -167,7 +167,7 @@ export function RegisterForm() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="gap-1.5"  >
-                <FormLabel htmlFor="register-confirm-password">Confirm Password</FormLabel>
+                <FormLabel htmlFor="register-confirm-password">Xác nhận mật khẩu</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -184,8 +184,8 @@ export function RegisterForm() {
         </fieldset>
         <Button className="w-full" type="submit">
           {form.formState.isSubmitting
-            ? <span className="flex justify-center items-center gap-2" ><Spinner /> Đang đăng nhập...</span>
-            : <span>Đăng nhập</span>
+            ? <span className="flex justify-center items-center gap-2" ><Spinner /> Đang đăng ký...</span>
+            : <span>Đăng ký</span>
           }
         </Button>
       </form>
