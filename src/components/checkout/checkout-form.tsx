@@ -41,19 +41,30 @@ import {
 } from "@/components/ui/field"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
+type addressItem = {
+  code: string
+  name: string
+}
 
 interface CheckoutFormData {
   email: string
-  firstName: string
-  lastName: string
+  // firstName: string
+  // lastName: string
   fullName: string
-  phoneNumber: string
+  phone: string
   address: string
+
   provinceName: string
   provinceCode: string
-  state: string
-  zipCode: string
-  country: string
+  districtName: string
+  districtCode: string
+  wardName: string
+  wardCode: string
+
+
+  // state: string
+  // zipCode: string
+  // country: string
   paymentMethodId: string
   shippingMethodId: string
   saveInfo: boolean
@@ -76,17 +87,22 @@ export function CheckoutForm() {
   const [selectedShipping, setSelectedShipping] = useState<ShippingMethod | null>(null)
   const [formData, setFormData] = useState<CheckoutFormData>({
     email: process.env.NODE_ENV === 'development' ? 'john.doe@example.com' : '',
-    firstName: process.env.NODE_ENV === 'development' ? 'John' : '',
-    lastName: process.env.NODE_ENV === 'development' ? 'Doe' : '',
+    // firstName: process.env.NODE_ENV === 'development' ? 'John' : '',
+    // lastName: process.env.NODE_ENV === 'development' ? 'Doe' : '',
     fullName: process.env.NODE_ENV === 'development' ? 'John Doe' : '',
-    phoneNumber: process.env.NODE_ENV === 'development' ? '0900000000' : '',
+    phone: process.env.NODE_ENV === 'development' ? '0900000000' : '',
+
     address: process.env.NODE_ENV === 'development' ? '123 Main Street' : '',
     provinceName: process.env.NODE_ENV === 'development' ? 'Hà Nội' : '',
     provinceCode: process.env.NODE_ENV === 'development' ? '1' : '',
+    districtName: process.env.NODE_ENV === 'development' ? 'Hoài Đức' : '',
+    districtCode: process.env.NODE_ENV === 'development' ? '23' : '',
+    wardName: process.env.NODE_ENV === 'development' ? 'Đông La' : '',
+    wardCode: process.env.NODE_ENV === 'development' ? '456' : '',
 
-    state: process.env.NODE_ENV === 'development' ? 'NY' : '',
-    zipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
-    country: 'US',
+    // state: process.env.NODE_ENV === 'development' ? 'NY' : '',
+    // zipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
+    // country: 'VN',
     paymentMethodId: '',
     shippingMethodId: '',
     saveInfo: false,
@@ -97,7 +113,7 @@ export function CheckoutForm() {
     billingCity: process.env.NODE_ENV === 'development' ? 'New York' : '',
     billingState: process.env.NODE_ENV === 'development' ? 'NY' : '',
     billingZipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
-    billingCountry: 'US',
+    billingCountry: 'VN',
   })
 
   useEffect(() => {
@@ -164,14 +180,13 @@ export function CheckoutForm() {
         items: items,
         customerInfo: {
           email: formData.email,
-          // firstName: formData.firstName,
-          // lastName: formData.lastName,
           fullName: formData.fullName,
           address: formData.address,
           province: formData.provinceCode,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          country: formData.country,
+          district: formData.districtCode,
+          ward: formData.wardCode,
+          fullAddress: ([formData.address, formData.provinceName, formData.districtName, formData.wardName]).filter(Boolean).join(', '),
+          phone: formData.phone,
         },
         paymentMethodId: formData.paymentMethodId,
         shippingMethodId: formData.shippingMethodId,
@@ -217,8 +232,8 @@ export function CheckoutForm() {
         tax: tax,
         customerInfo: {
           email: formData.email,
-          name: `${formData.firstName} ${formData.lastName}`,
-          address: `${formData.address}, ${formData.provinceName}, ${formData.state} ${formData.zipCode}`,
+          name: formData.fullName,
+          address: ([formData.address, formData.provinceName, formData.districtName, formData.wardName]).filter(Boolean).join(', '),
         },
         shippingMethod: selectedShipping?.name,
         date: new Date().toISOString(),
@@ -252,8 +267,8 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='h-full'>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full max-h-0">
+    <form onSubmit={handleSubmit} className='h-full container mx-auto'>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full max-h-0 no-scrollbar ">
 
         <div className='md:col-span-2'>
           <div className=''>
@@ -301,21 +316,21 @@ export function CheckoutForm() {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">Họ, đệm</Label>
+                  <Label htmlFor="fullName">Họ tên</Label>
                   <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
                     placeholder="John"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Tên</Label>
+                  <Label htmlFor="phone">Số điện thoại</Label>
                   <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Doe"
                     required
                   />
@@ -335,7 +350,7 @@ export function CheckoutForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="provinceName">City</Label>
+                  <Label htmlFor="provinceName">Tỉnh/Tp</Label>
                   <Input
                     id="provinceName"
                     value={formData.provinceName}
@@ -345,13 +360,13 @@ export function CheckoutForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
+                  <Label htmlFor="state">Quận/huyện</Label>
                   <Select
-                    value={formData.state}
-                    onValueChange={(value) => handleInputChange('state', value ?? '')}
+                    value={formData.districtName}
+                    onValueChange={(value) => handleInputChange('districtName', value ?? '')}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select state" />
+                      <SelectValue placeholder="Select districtName" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="AL">Alabama</SelectItem>
@@ -366,17 +381,17 @@ export function CheckoutForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="zipCode">ZIP Code</Label>
+                  <Label htmlFor="wardName">Xã/phường</Label>
                   <Input
-                    id="zipCode"
-                    value={formData.zipCode}
-                    onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                    id="wardName"
+                    value={formData.wardName}
+                    onChange={(e) => handleInputChange('wardName', e.target.value)}
                     placeholder="10001"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
+                  {/* <Label htmlFor="country">Country</Label>
                   <Select
                     value={formData.country}
                     onValueChange={(value) => handleInputChange('country', value ?? '')}
@@ -389,7 +404,7 @@ export function CheckoutForm() {
                       <SelectItem value="CA">Canada</SelectItem>
                       <SelectItem value="UK">United Kingdom</SelectItem>
                     </SelectContent>
-                  </Select>
+                  </Select> */}
                 </div>
               </div>
             </CardContent>

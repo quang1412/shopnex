@@ -107,14 +107,13 @@ export async function createOrder(orderData: {
   }>
   customerInfo: {
     email: string
-    // firstName: string
-    // lastName: string
     fullName: string
+    phone: string
     address: string
     province: string
-    state: string
-    zipCode: string
-    country: string
+    district: string
+    ward: string
+    fullAddress: string
   }
   paymentMethodId: string
   shippingMethodId: string

@@ -24,9 +24,12 @@ interface CustomerInfo {
   phone?: string
   address: string
   province: string
-  state: string
-  zipCode: string
-  country: string
+  district: string
+  ward: string
+  fullAddress: string
+  // state: string
+  // zipCode: string
+  // country: string
 }
 
 interface CheckoutRequest {
@@ -286,9 +289,9 @@ export const checkoutEndpoint: Endpoint = {
           fullName: customerInfo.fullName,
           address: customerInfo.address,
           province: customerInfo.province,
-          state: customerInfo.state,
-          zipCode: customerInfo.zipCode,
-          country: customerInfo.country,
+          district: customerInfo.district,
+          ward: customerInfo.ward,
+          fullAddress: customerInfo.fullAddress,
         },
         billingAddress: {
           // firstName: customerInfo.firstName,
@@ -298,9 +301,9 @@ export const checkoutEndpoint: Endpoint = {
           phone: customerInfo.phone,
           address: customerInfo.address,
           province: customerInfo.province,
-          state: customerInfo.state,
-          zipCode: customerInfo.zipCode,
-          country: customerInfo.country,
+          district: customerInfo.district,
+          ward: customerInfo.ward,
+          fullAddress: customerInfo.fullAddress,
         },
       }
 
