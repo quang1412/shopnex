@@ -111,7 +111,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         name: product.name,
         price: selectedVariant?.price || product.price,
         image: product.image,
-        variantId: selectedVariant?.vid ?? undefined,
+        variantId: selectedVariant?.id ?? undefined,
         variantLabel: selectedVariant?.options?.map((o: any) => o.value).join(' • ') ?? undefined,
       })
     }

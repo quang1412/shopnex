@@ -26,7 +26,7 @@ import type { ArrayFieldServerProps } from 'payload'
 //         style={{ height: '25px', width: 'auto' }}
 //         width={0} // Required for layout="intrinsic"
 //       />
-//       <p>{variantValues.join(' / ') + ` - $${currentRow.price} - ${currentRow.vid}`}</p>
+//       <p>{variantValues.join(' / ') + ` - $${currentRow.price} - ${currentRow.id}`}</p>
 //     </div>
 //   )
 // }
@@ -47,7 +47,7 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
   const variantValues = currentRow.options.map((option: any) => option.value)
   // const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl || currentRow.image?.url
   return (
-    <div style={{width:'100%', display: 'flex', gap: '1rem', justifyContent:'space-between', justifyItems:'center' }}>
+    <div style={{ width: '100%', display: 'flex', gap: '1rem', justifyContent: 'space-between', justifyItems: 'center' }}>
       {/* <Image
         alt={currentRow.name || 'variant image'}
         height={0}

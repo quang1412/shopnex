@@ -28,7 +28,7 @@ export interface CheckoutData {
     firstName: string
     lastName: string
     address: string
-    city: string
+    province: string
     state: string
     zipCode: string
     country: string
@@ -37,7 +37,7 @@ export interface CheckoutData {
     firstName: string
     lastName: string
     address: string
-    city: string
+    province: string
     state: string
     zipCode: string
     country: string
@@ -107,10 +107,11 @@ export async function createOrder(orderData: {
   }>
   customerInfo: {
     email: string
-    firstName: string
-    lastName: string
+    // firstName: string
+    // lastName: string
+    fullName: string
     address: string
-    city: string
+    province: string
     state: string
     zipCode: string
     country: string

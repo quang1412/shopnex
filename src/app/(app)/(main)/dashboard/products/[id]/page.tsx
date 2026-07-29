@@ -59,38 +59,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
   })
 
   return (
-    // <div className="min-h-screen flex flex-col">
-    //   <script
-    //     type="application/ld+json"
-    //     dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    //   />
-    //   <Header /> 
-    //   <main className="flex-1"> 
-    //     <ProductDetail product={product} />  
-    //   </main>
-    //   <Footer />
-    // </div>
+    <div data-content-padding={false}>
+      <div className="container mx-auto p-4 md:p-6 flex flex-col gap-4">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl leading-none tracking-tight w-full max-w-lg truncate">{product.name}</h1>
+            <p className="text-muted-foreground text-sm">{product.category}</p>
+          </div>
 
-    <div className="flex flex-col gap-4">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl leading-none tracking-tight w-full max-w-lg truncate">{product.name}</h1>
-          <p className="text-muted-foreground text-sm">{product.category}</p>
+          <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
+            {/* Actions */}
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
-          {/* Actions */}
-        </div>
+        <main className="flex-1">
+          <ProductDetail product={product} />
+        </main>
+
       </div>
-
-      <main className="flex-1">
-        <ProductDetail product={product} />
-      </main>
-
       <Footer />
     </div>
   )

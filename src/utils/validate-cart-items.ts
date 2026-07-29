@@ -16,7 +16,7 @@ export const validateCartItems = (cartItems: Cart['cartItems'], logger: Payload[
       errors.push(`Invalid product: ${product}`)
       continue
     }
-    const variant = product.variants.find((v) => v.vid === item.variantId)
+    const variant = product.variants.find((v) => v.id === item.variantId)
 
     if (!variant) {
       errors.push(`Invalid variantId: ${item.variantId} for product: ${product.title}`)
@@ -25,7 +25,7 @@ export const validateCartItems = (cartItems: Cart['cartItems'], logger: Payload[
 
     if (variant.stockCount == null || item.quantity > variant.stockCount) {
       errors.push(
-        `Not enough stock for product ${product.title} (variant ${variant.vid}): requested ${item.quantity}, available ${variant.stockCount ?? '0'}`,
+        `Not enough stock for product ${product.title} (variant ${variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? '0'}`,
       )
     }
   }

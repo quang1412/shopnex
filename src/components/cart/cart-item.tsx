@@ -37,7 +37,8 @@ export function CartItem({ item }: CartItemProps) {
       </div>
 
       {/* Product Details */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 flex flex-col justify-between">
+
         <div className="flex justify-between">
           <div>
             <h3 className="truncate pr-6 text-sm font-medium">
@@ -57,7 +58,8 @@ export function CartItem({ item }: CartItemProps) {
           </Button>
         </div>
 
-        <div className="mt-2 flex items-center justify-between">
+        {/* Quantity control */}
+        <div className="mt-2 flex items-center justify-between flex-1">
           <div className="flex items-center gap-1">
             <Button
               variant="outline"

@@ -32,12 +32,25 @@ import {
 } from '@/lib/checkout'
 import { toast } from 'sonner'
 
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+  FieldTitle,
+} from "@/components/ui/field"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
+
 interface CheckoutFormData {
   email: string
   firstName: string
   lastName: string
+  fullName: string
+  phoneNumber: string
   address: string
-  city: string
+  provinceName: string
+  provinceCode: string
   state: string
   zipCode: string
   country: string
@@ -65,8 +78,12 @@ export function CheckoutForm() {
     email: process.env.NODE_ENV === 'development' ? 'john.doe@example.com' : '',
     firstName: process.env.NODE_ENV === 'development' ? 'John' : '',
     lastName: process.env.NODE_ENV === 'development' ? 'Doe' : '',
+    fullName: process.env.NODE_ENV === 'development' ? 'John Doe' : '',
+    phoneNumber: process.env.NODE_ENV === 'development' ? '0900000000' : '',
     address: process.env.NODE_ENV === 'development' ? '123 Main Street' : '',
-    city: process.env.NODE_ENV === 'development' ? 'New York' : '',
+    provinceName: process.env.NODE_ENV === 'development' ? 'Hà Nội' : '',
+    provinceCode: process.env.NODE_ENV === 'development' ? '1' : '',
+
     state: process.env.NODE_ENV === 'development' ? 'NY' : '',
     zipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
     country: 'US',
@@ -147,10 +164,11 @@ export function CheckoutForm() {
         items: items,
         customerInfo: {
           email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          // firstName: formData.firstName,
+          // lastName: formData.lastName,
+          fullName: formData.fullName,
           address: formData.address,
-          city: formData.city,
+          province: formData.provinceCode,
           state: formData.state,
           zipCode: formData.zipCode,
           country: formData.country,
@@ -200,7 +218,7 @@ export function CheckoutForm() {
         customerInfo: {
           email: formData.email,
           name: `${formData.firstName} ${formData.lastName}`,
-          address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
+          address: `${formData.address}, ${formData.provinceName}, ${formData.state} ${formData.zipCode}`,
         },
         shippingMethod: selectedShipping?.name,
         date: new Date().toISOString(),
@@ -235,18 +253,34 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className='h-full'>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full  ">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full max-h-0">
+
+        <div className='md:col-span-2'>
+          <div className=''>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-3xl leading-none tracking-tight">Thanh toán</h1>
+                <p className="text-muted-foreground text-sm">thanh toán</p>
+              </div>
+
+              <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
+                {/* Actions */}
+              </div>
+            </div>
+          </div>
+          {/* &nbsp; */}
+        </div>
 
         {/* Checkout Form */}
         <div className="space-y-6">
           {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
+              <CardTitle>Thônng tin liên hệ</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">Địa chỉ email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -262,12 +296,12 @@ export function CheckoutForm() {
           {/* Shipping Address */}
           <Card>
             <CardHeader>
-              <CardTitle>Shipping Address</CardTitle>
+              <CardTitle>Địa chỉ giao hàng</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">Họ, đệm</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
@@ -277,7 +311,7 @@ export function CheckoutForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">Tên</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
@@ -289,7 +323,7 @@ export function CheckoutForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">Địa chỉ</Label>
                 <Input
                   id="address"
                   value={formData.address}
@@ -301,11 +335,11 @@ export function CheckoutForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
+                  <Label htmlFor="provinceName">City</Label>
                   <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    id="provinceName"
+                    value={formData.provinceName}
+                    onChange={(e) => handleInputChange('provinceName', e.target.value)}
                     placeholder="New York"
                     required
                   />
@@ -316,7 +350,7 @@ export function CheckoutForm() {
                     value={formData.state}
                     onValueChange={(value) => handleInputChange('state', value ?? '')}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
                     <SelectContent>
@@ -347,7 +381,7 @@ export function CheckoutForm() {
                     value={formData.country}
                     onValueChange={(value) => handleInputChange('country', value ?? '')}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -366,51 +400,81 @@ export function CheckoutForm() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5" />
-                Shipping Method
+                Phương thức vận chuyển
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {shippingMethods.length > 0 ? (
-                <div className="space-y-2">
+                <RadioGroup
+                  // defaultValue={shippingMethods[0].id}
+                  className="w-full  "
+                  onValueChange={val => handleInputChange('shippingMethodId', val)}
+                >
                   {shippingMethods.map((method) => (
-                    <div
-                      key={method.id}
-                      className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
-                    >
-                      <input
-                        type="radio"
-                        id={`shipping-${method.id}`}
-                        name="shipping"
-                        value={method.id}
-                        checked={formData.shippingMethodId === method.id}
-                        onChange={(e) => handleInputChange('shippingMethodId', e.target.value)}
-                        className="h-4 w-4"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <Label
-                            htmlFor={`shipping-${method.id}`}
-                            className="font-medium text-sm cursor-pointer"
-                          >
-                            {method.name}
-                          </Label>
-                          <span className="font-semibold text-sm">
-                            {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
-                              ? 'Free'
-                              : `$${method.baseRate.toFixed(2)}`}
-                          </span>
-                        </div>
-                        {(method.estimatedDeliveryDays || method.notes) && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {method.estimatedDeliveryDays}
-                            {method.estimatedDeliveryDays && method.notes && ' • '}
-                            {method.notes}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    // <div
+                    //   key={method.id}
+                    //   className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
+                    // >
+                    //   <input
+                    //     type="radio"
+                    //     id={`shipping-${method.id}`}
+                    //     name="shipping"
+                    //     value={method.id}
+                    //     checked={formData.shippingMethodId === method.id}
+                    //     onChange={(e) => handleInputChange('shippingMethodId', e.target.value)}
+                    //     className="h-4 w-4"
+                    //   />
+                    //   <div className="flex-1">
+                    //     <div className="flex items-center justify-between">
+                    //       <Label
+                    //         htmlFor={`shipping-${method.id}`}
+                    //         className="font-medium text-sm cursor-pointer"
+                    //       >
+                    //         {method.name}
+                    //       </Label>
+                    //       <span className="font-semibold text-sm">
+                    //         {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
+                    //           ? 'Free'
+                    //           : `$${method.baseRate.toFixed(2)}`}
+                    //       </span>
+                    //     </div>
+                    //     {(method.estimatedDeliveryDays || method.notes) && (
+                    //       <p className="text-xs text-muted-foreground mt-1">
+                    //         {method.estimatedDeliveryDays}
+                    //         {method.estimatedDeliveryDays && method.notes && ' • '}
+                    //         {method.notes}
+                    //       </p>
+                    //     )}
+                    //   </div>
+                    // </div>
+
+                    <FieldLabel key={`shipping-${method.id}`} htmlFor={`shipping-${method.id}`} className='hover:border-primary'>
+                      <Field orientation="horizontal" className='flex flex-row-reverse'>
+                        <FieldContent>
+                          <FieldTitle className='w-full flex items-center justify-between'>
+                            <span>{method.name}</span>
+                            <span>
+                              {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
+                                ? 'Free'
+                                : `$${method.baseRate.toFixed(2)}`}
+                            </span>
+                          </FieldTitle>
+                          <FieldDescription className='text-xs'>
+                            {(method.estimatedDeliveryDays || method.notes) && (
+                              <span className="text-xs text-muted-foreground mt-1">
+                                {method.estimatedDeliveryDays}
+                                {method.estimatedDeliveryDays && method.notes && ' • '}
+                                {method.notes}
+                              </span>
+                            )}
+                          </FieldDescription>
+                        </FieldContent>
+                        <RadioGroupItem value={method.id} id={`shipping-${method.id}`} />
+                      </Field>
+                    </FieldLabel>
+
                   ))}
-                </div>
+                </RadioGroup>
               ) : (
                 <p className="text-muted-foreground">Loading shipping methods...</p>
               )}
@@ -422,47 +486,72 @@ export function CheckoutForm() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
-                Payment Method
+                Phương thức thanh toán
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {paymentMethods.length > 0 ? (
-                <div className="space-y-2">
+                // <div className="space-y-2">
+                <RadioGroup
+                  //  defaultValue={paymentMethods[0].id}
+                  className="w-full  "
+                  onValueChange={val => handleInputChange('paymentMethodId', val)}
+                >
                   {paymentMethods.map((method) => {
-                    const provider = method.providers[0]
+                    const provider = method.providers[0];
+
                     return (
-                      <div
-                        key={method.id}
-                        className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
+                      <FieldLabel
+                        key={`payment-${method.id}`}
+                        htmlFor={`payment-${method.id}`}
+                        className='hover:border-primary'
                       >
-                        <input
-                          type="radio"
-                          id={`payment-${method.id}`}
-                          name="payment"
-                          value={method.id}
-                          checked={formData.paymentMethodId === method.id}
-                          onChange={(e) => handleInputChange('paymentMethodId', e.target.value)}
-                          className="h-4 w-4"
-                        />
-                        <div className="flex-1">
-                          <Label
-                            htmlFor={`payment-${method.id}`}
-                            className="font-medium text-sm cursor-pointer"
-                          >
-                            {method.name}
-                          </Label>
-                          {provider?.instructions && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {provider.instructions}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )
+                        <Field orientation="horizontal" className='flex flex-row-reverse'>
+                          <FieldContent>
+                            <FieldTitle>{method.name}</FieldTitle>
+                            <FieldDescription className='text-xs'>
+                              {provider?.instructions && (provider.instructions)}
+                            </FieldDescription>
+                          </FieldContent>
+                          <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
+                        </Field>
+                      </FieldLabel>
+                    );
+
+                    // return (
+                    //   <div
+                    //     key={method.id}
+                    //     className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
+                    //   >
+                    //     <input
+                    //       type="radio"
+                    //       id={`payment-${method.id}`}
+                    //       name="payment"
+                    //       value={method.id}
+                    //       checked={formData.paymentMethodId === method.id}
+                    //       onChange={(e) => handleInputChange('paymentMethodId', e.target.value)}
+                    //       className="h-4 w-4"
+                    //     />
+                    //     <div className="flex-1">
+                    //       <Label
+                    //         htmlFor={`payment-${method.id}`}
+                    //         className="font-medium text-sm cursor-pointer"
+                    //       >
+                    //         {method.name}
+                    //       </Label>
+                    //       {provider?.instructions && (
+                    //         <p className="text-xs text-muted-foreground mt-1">
+                    //           {provider.instructions}
+                    //         </p>
+                    //       )}
+                    //     </div>
+                    //   </div>
+                    // )
                   })}
-                </div>
+                  {/* </div> */}
+                </RadioGroup>
               ) : (
-                <p className="text-muted-foreground">Loading payment methods...</p>
+                <p className="text-muted-foreground">Đang tải các phương thức thanh toán...</p>
               )}
 
               <div className="flex items-center space-x-2">
@@ -472,52 +561,55 @@ export function CheckoutForm() {
                   onCheckedChange={(checked) => handleInputChange('saveInfo', checked as boolean)}
                 />
                 <Label htmlFor="saveInfo" className="text-sm">
-                  Save this information for next time
+                  Lưu lựa chọn cho lần sau
                 </Label>
               </div>
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 <Lock className="h-3 w-3" />
-                Your payment information is secure and encrypted
+                Thông tin thanh toán của bạn được mã hoá và bảo mật
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Order Summary */}
-        <div className="sticky top-22 self-start">
-          <OrderSummary
-            subtotal={subtotal}
-            shipping={shippingCost}
-            tax={tax}
-            total={total}
-            shippingMethodName={selectedShipping?.name}
-          />
+        <div>
+          <div className="sticky top-0 ">
+            <OrderSummary
+              subtotal={subtotal}
+              shipping={shippingCost}
+              tax={tax}
+              total={total}
+              shippingMethodName={selectedShipping?.name}
+            />
 
-          <div className="mt-6 space-y-4">
-            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Lock className="h-4 w-4 mr-2" />
-                  Complete Order
-                </>
-              )}
-            </Button>
-
-            <Link href="/cart">
-              <Button variant="outline" size="lg" className="w-full bg-transparent">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Cart
+            <div className="mt-6 space-y-4">
+              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
+                    Đang gửi...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    Xác nhận đơn hàng
+                  </>
+                )}
               </Button>
-            </Link>
+
+              <Link href="/dashboard/cart">
+                <Button variant="outline" size="lg" className="w-full bg-transparent">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Trở lại giỏ hàng
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
+        <div className='md:col-span-2'>&nbsp;</div>
       </div>
     </form>
   )

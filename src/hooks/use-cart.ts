@@ -40,9 +40,6 @@ export const useCart = create<CartStore>()(
         } else {
           set({ items: [...items, { ...item, quantity: 1 }] })
         }
-
-        console.log('existingItem', existingItem, item);
-
       },
 
       removeItem: (id, variantId) => {

@@ -31,7 +31,7 @@ export function OrderSummary({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Order Summary</CardTitle>
+        <CardTitle>Tóm tắt đơn hàng</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Items */}
@@ -68,20 +68,20 @@ export function OrderSummary({
         {/* Totals */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Subtotal</span>
+            <span>Tổng phụ</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span>
-              Shipping
+              Vận chuyển
               {shippingMethodName ? ` (${shippingMethodName})` : ''}
             </span>
-            <span className={shipping === 0 ? 'text-secondary font-medium' : ''}>
-              {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+            <span className={shipping === 0 ? ' font-medium' : ''}>
+              {shipping === 0 ? 'Miễn phí' : `$${shipping.toFixed(2)}`}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>Tax</span>
+            <span>Thuế</span>
             <span>${tax.toFixed(2)}</span>
           </div>
         </div>
@@ -89,7 +89,7 @@ export function OrderSummary({
         <Separator />
 
         <div className="flex justify-between font-semibold text-lg">
-          <span>Total</span>
+          <span>Tổng</span>
           <span>${total.toFixed(2)}</span>
         </div>
       </CardContent>

@@ -4,9 +4,12 @@ import { type Endpoint } from 'payload'
 import { stripeCheckout } from '@shopnex/stripe-plugin'
 import { manualCheckout } from './manual-checkout'
 
+import type { Product } from '@/payload-types'
+
 interface CheckoutItem {
   id: string
   variantId?: string
+  variantLabel?: string
   name: string
   price: number
   quantity: number
@@ -15,11 +18,12 @@ interface CheckoutItem {
 
 interface CustomerInfo {
   email: string
-  firstName: string
-  lastName: string
+  // firstName: string
+  // lastName: string
+  fullName: string
   phone?: string
   address: string
-  city: string
+  province: string
   state: string
   zipCode: string
   country: string
@@ -51,7 +55,7 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     }
 
     // Fetch current product to validate stock and pricing
-    const currentProduct = await req.payload.findByID({
+    const currentProduct: Product | null = await req.payload.findByID({
       collection: 'products',
       id: item.id,
       req,
@@ -61,11 +65,9 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
       throw new Error(`Product "${item.name}" is no longer available`)
     }
 
-    let variant
+    let variant: Product['variants'][number] | undefined
     if (item.variantId) {
-      // variant = currentProduct.variants.find((v: any) => v.id === item.variantId)
-      variant = currentProduct.variants.find((v: any) => v.vid === item.variantId)
-
+      variant = currentProduct.variants.find((v) => v.id === item.variantId)
       if (!variant) {
         throw new Error(`Variant ${item.variantId} not found for product "${currentProduct.title}"`)
       }
@@ -77,11 +79,15 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
       }
     }
 
+    // if (!variant) {
+    //   throw new Error(`No variants found for product "${currentProduct.title}"`)
+    // }
+
     // Validate stock availability
     if (variant.stockCount == null || variant.stockCount < item.quantity) {
       throw new Error(
         // `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
-        `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.vid}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
+        `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
       )
     }
 
@@ -94,8 +100,9 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     validatedItems.push({
       ...item,
       currentPrice: variant.price,
-      variantId: variant.id,
-      // variantId: variant.vid,
+      variantId: variant.id || '',
+      variantLabel: variant.options?.map(({ value }) => (value)).filter(i => Boolean(i)).join(', ') || '',
+      // variantId: variant.id,
       sku: variant.sku,
       availableStock: variant.stockCount,
     })
@@ -191,8 +198,11 @@ export const checkoutEndpoint: Endpoint = {
       if (
         !customerInfo ||
         !customerInfo.email ||
-        !customerInfo.firstName ||
-        !customerInfo.lastName
+        !customerInfo.phone ||
+        !customerInfo.fullName ||
+        !customerInfo.address
+        // !customerInfo.firstName ||
+        // !customerInfo.lastName
       ) {
         return Response.json({ error: 'Customer information is required' }, { status: 400 })
       }
@@ -271,21 +281,23 @@ export const checkoutEndpoint: Endpoint = {
         // Additional data for order creation
         items: validatedItems,
         shippingAddress: {
-          firstName: customerInfo.firstName,
-          lastName: customerInfo.lastName,
+          // firstName: customerInfo.firstName,
+          // lastName: customerInfo.lastName,
+          fullName: customerInfo.fullName,
           address: customerInfo.address,
-          city: customerInfo.city,
+          province: customerInfo.province,
           state: customerInfo.state,
           zipCode: customerInfo.zipCode,
           country: customerInfo.country,
         },
         billingAddress: {
-          firstName: customerInfo.firstName,
-          lastName: customerInfo.lastName,
+          // firstName: customerInfo.firstName,
+          // lastName: customerInfo.lastName,
+          fullName: customerInfo.fullName,
           email: customerInfo.email,
           phone: customerInfo.phone,
           address: customerInfo.address,
-          city: customerInfo.city,
+          province: customerInfo.province,
           state: customerInfo.state,
           zipCode: customerInfo.zipCode,
           country: customerInfo.country,

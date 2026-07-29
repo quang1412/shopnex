@@ -15,10 +15,14 @@ export const metadata: Metadata = {
 }
 
 export default function CheckoutPage() {
-  return (
-    <div data-content-padding={false}>
 
-      <div className="flex flex-col gap-4 min-h-0 overflow-hidden p-4 md:p-6" >
+  return (
+    <CheckoutForm />
+  )
+
+  return (
+    <div data-content-padding={false} className=' '>
+      <div className="flex flex-col gap-4 min-h-0 p-4 md:p-6  " >
 
         <div className=''>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ">
@@ -33,7 +37,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className='flex-1  '>
+        <div className='flex-1 '>
           <CheckoutForm />
           {/* {Array.from({ length: 20 }).map((i, index) => (
             <div key={index} className='p-4 border rounded-lg mb-4 last:mb-0'>
@@ -45,7 +49,7 @@ export default function CheckoutPage() {
 
       </div>
 
-      <Footer />
+      {/* <Footer /> */}
 
     </div>
 

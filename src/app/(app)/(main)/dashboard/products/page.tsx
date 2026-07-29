@@ -40,8 +40,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const searchQuery = (await searchParams).search
 
   return (
-    <div data-content-padding={false}>
-      <div className="flex flex-col gap-6 p-4 md:p-6" >
+    <div data-content-padding={false} >
+      <div className="container p-4 md:p-6 mx-auto  flex flex-col gap-6 " >
 
         {/* Banner */}
         {/* <div className='w-full h-40 overflow-hidden'>
