@@ -61,9 +61,8 @@ export async function manualCheckout({
       taxAmount: taxAmount || 0,
       customer: {
         email: customer?.email,
-        firstName: customer?.firstName,
-        lastName: customer?.lastName,
-        phone: customer?.phone,
+        // fullName: customer?.fullName,
+        // phone: customer?.phone,
       },
     },
   }

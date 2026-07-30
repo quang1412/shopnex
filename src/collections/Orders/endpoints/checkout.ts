@@ -18,8 +18,6 @@ interface CheckoutItem {
 
 interface CustomerInfo {
   email: string
-  // firstName: string
-  // lastName: string
   fullName: string
   phone?: string
   address: string
@@ -27,9 +25,6 @@ interface CustomerInfo {
   district: string
   ward: string
   fullAddress: string
-  // state: string
-  // zipCode: string
-  // country: string
 }
 
 interface CheckoutRequest {
@@ -82,12 +77,6 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
       }
     }
 
-    // if (!variant) {
-    //   throw new Error(`No variants found for product "${currentProduct.title}"`)
-    // }
-
-    // console.log({ stockCount: variant.stockCount, quantity: item.quantity });
-
     // Validate stock availability
     if (variant.stockCount == null || variant.stockCount < item.quantity) {
       throw new Error(
@@ -98,9 +87,7 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
 
     // Use current price from database, not submitted price
     const itemTotal = new Decimal(variant.price).times(item.quantity)
-    calculatedSubtotal = calculatedSubtotal.plus(itemTotal)
-
-    // console.log('🔴 variant', variant)
+    calculatedSubtotal = calculatedSubtotal.plus(itemTotal);
 
     validatedItems.push({
       ...item,
@@ -206,8 +193,6 @@ export const checkoutEndpoint: Endpoint = {
         !customerInfo.phone ||
         !customerInfo.fullName ||
         !customerInfo.address
-        // !customerInfo.firstName ||
-        // !customerInfo.lastName
       ) {
         return Response.json({ error: 'Customer information is required' }, { status: 400 })
       }
@@ -286,9 +271,8 @@ export const checkoutEndpoint: Endpoint = {
         // Additional data for order creation
         items: validatedItems,
         shippingAddress: {
-          // firstName: customerInfo.firstName,
-          // lastName: customerInfo.lastName,
           fullName: customerInfo.fullName,
+          phone: customerInfo.phone,
           address: customerInfo.address,
           province: customerInfo.province,
           district: customerInfo.district,
@@ -296,10 +280,8 @@ export const checkoutEndpoint: Endpoint = {
           fullAddress: customerInfo.fullAddress,
         },
         billingAddress: {
-          // firstName: customerInfo.firstName,
-          // lastName: customerInfo.lastName,
-          fullName: customerInfo.fullName,
           email: customerInfo.email,
+          fullName: customerInfo.fullName,
           phone: customerInfo.phone,
           address: customerInfo.address,
           province: customerInfo.province,
