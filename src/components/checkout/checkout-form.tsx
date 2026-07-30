@@ -81,15 +81,21 @@ interface CheckoutFormData {
   note: string
 }
 
-const getRandomFloat = (min: number, max: number): number => {
-  return Math.random() * (max - min) + min;
-};
-
 const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-
+const fixLocalName = (input: string) => (
+  input
+    .replace(/^Thành\sphố\s/g, 'TP. ')
+    .replace(/^Tỉnh\s/g, 'T. ')
+    .replace(/^Huyện\s/g, 'H. ')
+    .replace(/^Quận\s/g, 'Q. ')
+    .replace(/^Xã\s/g, 'X. ')
+    .replace(/^Thị\sxã\s/g, 'TX. ')
+    .replace(/^Phường\s/g, 'P. ')
+    .replace(/^Thị\strấn\s/g, 'TT. ')
+)
 
 export function CheckoutForm() {
   const { items, getTotalPrice, clearCart } = useCart()
@@ -247,7 +253,7 @@ export function CheckoutForm() {
         customerInfo: {
           email: formData.email,
           name: formData.fullName,
-          address: ([formData.address, formData.provinceName, formData.districtName, formData.wardName]).filter(Boolean).join(', '),
+          address: ([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', '),
         },
         shippingMethod: selectedShipping?.name,
         date: new Date().toISOString(),
@@ -355,14 +361,20 @@ export function CheckoutForm() {
                 <Label htmlFor="address">Địa chỉ</Label>
                 <AddressAutoComplete
                   className='w-full'
-                  onChange={data => {
-                    // alert(data.formattedAddress);
-                    alert([data.vtpL1, data.vtpL2, data.vtpL3].join(', '))
+                  value={formData.address}
+                  onInputValueChange={value => { handleInputChange('address', value) }}
+                  onAddressSelect={data => {
+                    handleInputChange('provinceCode', data.vtpL1.toString());
+                    handleInputChange('provinceName', fixLocalName(data.components.find(i => i.level == 1)?.name || ''));
+
+                    handleInputChange('districtCode', data.vtpL2.toString());
+                    handleInputChange('districtName', fixLocalName(data.components.find(i => i.level == 2)?.name || ''));
+
+                    handleInputChange('wardCode', data.vtpL3.toString());
+                    handleInputChange('wardName', fixLocalName(data.components.find(i => i.level == 3)?.name || ''));
                   }}
                 />
               </div>
-
-
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
@@ -393,6 +405,17 @@ export function CheckoutForm() {
                 </div>
               </div>
 
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="space-y-3">
+              <div>
+                {[formData.wardCode, formData.districtCode, formData.provinceCode].join(' - ')}
+              </div>
+              <div>
+                {([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', ')}
+              </div>
             </CardContent>
           </Card>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -9,7 +9,10 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
 } from "@/components/ui/combobox"
+import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -25,6 +28,13 @@ type locationDataBasic = {
   vtpL1: number
   vtpL2: number
   vtpL3: number
+  components: {
+    type: string,
+    name: string,
+    id: string,
+    typeName: string,
+    level: number
+  }[]
 }
 
 type locationData = locationDataBasic & {
@@ -56,15 +66,18 @@ const fetchLocationData = async (id: string): Promise<locationData> => {
 interface AddressAutoCompleteProps {
   className?: string
   defaultValue?: string
-  onChange?: (data: locationData) => void;
+  value?: string | null
+  onInputValueChange: (value: string) => void
+  onAddressSelect?: (data: locationData) => void
 }
 
 export function AddressAutoComplete({
   className,
-  defaultValue = 'an khánh',
-  onChange,
+  onAddressSelect,
+  onInputValueChange,
+  value,
 }: AddressAutoCompleteProps) {
-  const [addressString, setAddressString] = useState<string | undefined>(defaultValue);
+  // const [addressString, setAddressString] = useState<string | undefined>(defaultValue);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchKey, setSearchKey] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<locationItem[]>([]);
@@ -74,25 +87,29 @@ export function AddressAutoComplete({
   useEffect(() => {
     if (!debouncedSearchKey || debouncedSearchKey.length < searcKeyMinLength) return;
     const fetch = async () => {
-      setSuggestions([]);
+      // setSuggestions([]);
       setIsSearching(true);
       const result = await fetchSuggestions(debouncedSearchKey).catch(() => ([]));
       setSuggestions(result);
       setIsSearching(false);
-
       console.log({ suggestionsResult: result });
     };
     fetch();
   }, [debouncedSearchKey]);
 
   const handleItemSelect = async (item: locationItem | null) => {
-    if (!item) {
-      return;
-    }
+    if (!item) { return; }
+
     console.log({ sellectedItem: item });
-    setAddressString(item.label);
+
+    // onInputValueChange(item.label);
     const locationData = await fetchLocationData(item.value).catch(() => null);
-    locationData && onChange?.(locationData);
+
+    if (locationData) {
+      onAddressSelect?.(locationData);
+      const address = locationData.components.filter(i => i.level > 3).map(i => i.name).join(', ');
+      onInputValueChange(address);
+    }
 
     console.log({ locationData });
   };
@@ -116,13 +133,13 @@ export function AddressAutoComplete({
   }, [searchKey]);
 
   useEffect(() => {
-    console.log({ addressString });
-  }, [addressString]);
+    console.log({ value });
+  }, [value]);
 
   return (
     <Combobox
       filteredItems={suggestions}
-      inputValue={searchKey || addressString || ''}
+      inputValue={searchKey || value || ''}
       onInputValueChange={(value, { reason }) => {
         console.log({ 'onInputValueChange reason': reason });
 
@@ -144,7 +161,7 @@ export function AddressAutoComplete({
         className={cn(className && className)}
         placeholder="Nhập địa chỉ"
         onChange={(e) => {
-          setAddressString(e.currentTarget.value)
+          onInputValueChange(e.currentTarget.value)
         }}
       />
       <ComboboxContent>
@@ -161,5 +178,88 @@ export function AddressAutoComplete({
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+  )
+}
+
+type locationType = 'ward' | 'province'
+
+const getLocationsAfterMerge = async (type: locationType) => {
+  const urls = {
+    ward: 'https://api.viettelpost.vn/api/setting/listAllWardAfterMerge',
+    province: 'https://api.viettelpost.vn/api/setting/listAllProvinceAfterMerge',
+  }
+  const res = await fetch(urls[type], {
+    cache: 'force-cache',
+  });
+  if (!res.ok) throw new Error('fetch failed');
+  return await res.json();
+}
+
+type locationItemType = {
+  label: string, value: string
+}
+
+interface locationSelectorProps {
+  type: locationType
+  parentCode?: string
+  value?: string
+  onChange?: (data: locationItemType) => void
+  className?: string
+}
+
+export function locationSelector({
+  type,
+  parentCode,
+  value = '',
+  onChange,
+  className,
+}: locationSelectorProps) {
+  const [allLocations, setAllLocations] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const data = await getLocationsAfterMerge(type).catch(() => []);
+      setAllLocations(data)
+    };
+    fetch();
+  }, []);
+
+  const itemList = useMemo<locationItemType[]>(() => {
+    if (type == 'province') {
+      return allLocations.map(item => ({
+        label: item.WARDS_NAME, value: item.WARDS_ID
+      }))
+    } else if (parentCode) {
+      return allLocations.filter(item => (item.PROVINCE_ID == parentCode)).map(item => ({
+        label: item.WARDS_NAME, value: item.WARDS_ID
+      }))
+    } else {
+      return []
+    };
+  }, [type, allLocations, parentCode]);
+
+  return (
+    <>
+      <Combobox
+        items={itemList}
+        defaultValue={value}
+        onValueChange={(value) => {
+          // onChange?.(value)
+        }}
+      >
+        <ComboboxTrigger
+          render={<Button variant="outline" className="w-full justify-between font-normal"><ComboboxValue /></Button>} />
+        <ComboboxContent>
+          <ComboboxInput showTrigger={false} placeholder="Search" />
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+          <ComboboxList>
+            {(item) => (
+              <ComboboxItem key={item.value} value={item}>
+                {item.label}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox></>
   )
 }
