@@ -9,13 +9,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
 import { ArrowLeft, CreditCard, Lock, Truck } from 'lucide-react'
@@ -41,10 +41,11 @@ import {
 } from "@/components/ui/field"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-type addressItem = {
-  code: string
-  name: string
-}
+import { AddressAutoComplete } from '../address/address-autocomplete'
+// type addressItem = {
+//   code: string
+//   name: string
+// }
 
 interface CheckoutFormData {
   email: string
@@ -76,7 +77,19 @@ interface CheckoutFormData {
   billingState: string
   billingZipCode: string
   billingCountry: string
+
+  note: string
 }
+
+const getRandomFloat = (min: number, max: number): number => {
+  return Math.random() * (max - min) + min;
+};
+
+const getRandomInt = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+
 
 export function CheckoutForm() {
   const { items, getTotalPrice, clearCart } = useCart()
@@ -114,6 +127,7 @@ export function CheckoutForm() {
     billingState: process.env.NODE_ENV === 'development' ? 'NY' : '',
     billingZipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
     billingCountry: 'VN',
+    note: ''
   })
 
   useEffect(() => {
@@ -291,7 +305,7 @@ export function CheckoutForm() {
           {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Thônng tin liên hệ</CardTitle>
+              <CardTitle>Thông tin liên hệ</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -339,14 +353,16 @@ export function CheckoutForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="123 Main Street"
-                  required
+                <AddressAutoComplete
+                  className='w-full'
+                  onChange={data => {
+                    // alert(data.formattedAddress);
+                    alert([data.vtpL1, data.vtpL2, data.vtpL3].join(', '))
+                  }}
                 />
               </div>
+
+
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
@@ -354,59 +370,29 @@ export function CheckoutForm() {
                   <Input
                     id="provinceName"
                     value={formData.provinceName}
-                    onChange={(e) => handleInputChange('provinceName', e.target.value)}
+                    onChange={(e) => {
+                      handleInputChange('provinceName', e.target.value);
+                      handleInputChange('provinceCode', getRandomInt(0, 9).toString());
+                    }}
                     placeholder="New York"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="state">Quận/huyện</Label>
-                  <Select
-                    value={formData.districtName}
-                    onValueChange={(value) => handleInputChange('districtName', value ?? '')}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select districtName" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AL">Alabama</SelectItem>
-                      <SelectItem value="CA">California</SelectItem>
-                      <SelectItem value="FL">Florida</SelectItem>
-                      <SelectItem value="NY">New York</SelectItem>
-                      <SelectItem value="TX">Texas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
                   <Label htmlFor="wardName">Xã/phường</Label>
                   <Input
                     id="wardName"
                     value={formData.wardName}
-                    onChange={(e) => handleInputChange('wardName', e.target.value)}
-                    placeholder="10001"
+                    onChange={(e) => {
+                      handleInputChange('wardName', e.target.value);
+                      handleInputChange('wardCode', getRandomInt(100, 999).toString());
+                    }}
+                    placeholder=""
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  {/* <Label htmlFor="country">Country</Label>
-                  <Select
-                    value={formData.country}
-                    onValueChange={(value) => handleInputChange('country', value ?? '')}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="US">United States</SelectItem>
-                      <SelectItem value="CA">Canada</SelectItem>
-                      <SelectItem value="UK">United Kingdom</SelectItem>
-                    </SelectContent>
-                  </Select> */}
-                </div>
               </div>
+
             </CardContent>
           </Card>
 
@@ -419,79 +405,44 @@ export function CheckoutForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {shippingMethods.length > 0 ? (
-                <RadioGroup
-                  // defaultValue={shippingMethods[0].id}
-                  className="w-full  "
-                  onValueChange={val => handleInputChange('shippingMethodId', val)}
-                >
-                  {shippingMethods.map((method) => (
-                    // <div
-                    //   key={method.id}
-                    //   className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
-                    // >
-                    //   <input
-                    //     type="radio"
-                    //     id={`shipping-${method.id}`}
-                    //     name="shipping"
-                    //     value={method.id}
-                    //     checked={formData.shippingMethodId === method.id}
-                    //     onChange={(e) => handleInputChange('shippingMethodId', e.target.value)}
-                    //     className="h-4 w-4"
-                    //   />
-                    //   <div className="flex-1">
-                    //     <div className="flex items-center justify-between">
-                    //       <Label
-                    //         htmlFor={`shipping-${method.id}`}
-                    //         className="font-medium text-sm cursor-pointer"
-                    //       >
-                    //         {method.name}
-                    //       </Label>
-                    //       <span className="font-semibold text-sm">
-                    //         {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
-                    //           ? 'Free'
-                    //           : `$${method.baseRate.toFixed(2)}`}
-                    //       </span>
-                    //     </div>
-                    //     {(method.estimatedDeliveryDays || method.notes) && (
-                    //       <p className="text-xs text-muted-foreground mt-1">
-                    //         {method.estimatedDeliveryDays}
-                    //         {method.estimatedDeliveryDays && method.notes && ' • '}
-                    //         {method.notes}
-                    //       </p>
-                    //     )}
-                    //   </div>
-                    // </div>
-
-                    <FieldLabel key={`shipping-${method.id}`} htmlFor={`shipping-${method.id}`} className='hover:border-primary'>
-                      <Field orientation="horizontal" className='flex flex-row-reverse'>
-                        <FieldContent>
-                          <FieldTitle className='w-full flex items-center justify-between'>
-                            <span>{method.name}</span>
-                            <span>
-                              {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
-                                ? 'Free'
-                                : `$${method.baseRate.toFixed(2)}`}
+              {shippingMethods.length == 0 ? (
+                <p className="text-muted-foreground">Đang tải phương thức vận chuyển...</p>
+              ) : (<RadioGroup
+                // defaultValue={shippingMethods[0].id}
+                className="w-full  "
+                onValueChange={val => handleInputChange('shippingMethodId', val)}
+              >
+                {shippingMethods.map((method) => (
+                  <FieldLabel
+                    key={`shipping-${method.id}`}
+                    htmlFor={`shipping-${method.id}`}
+                    className='hover:border-muted-foreground'
+                  >
+                    <Field orientation="horizontal" className='flex flex-row-reverse'>
+                      <FieldContent>
+                        <FieldTitle className='w-full flex items-center justify-between'>
+                          <span>{method.name}</span>
+                          <span>
+                            {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
+                              ? 'Free'
+                              : `$${method.baseRate.toFixed(2)}`}
+                          </span>
+                        </FieldTitle>
+                        <FieldDescription className='text-xs'>
+                          {(method.estimatedDeliveryDays || method.notes) && (
+                            <span className="text-xs text-muted-foreground mt-1">
+                              {method.estimatedDeliveryDays}
+                              {method.estimatedDeliveryDays && method.notes && ' • '}
+                              {method.notes}
                             </span>
-                          </FieldTitle>
-                          <FieldDescription className='text-xs'>
-                            {(method.estimatedDeliveryDays || method.notes) && (
-                              <span className="text-xs text-muted-foreground mt-1">
-                                {method.estimatedDeliveryDays}
-                                {method.estimatedDeliveryDays && method.notes && ' • '}
-                                {method.notes}
-                              </span>
-                            )}
-                          </FieldDescription>
-                        </FieldContent>
-                        <RadioGroupItem value={method.id} id={`shipping-${method.id}`} />
-                      </Field>
-                    </FieldLabel>
-
-                  ))}
-                </RadioGroup>
-              ) : (
-                <p className="text-muted-foreground">Loading shipping methods...</p>
+                          )}
+                        </FieldDescription>
+                      </FieldContent>
+                      <RadioGroupItem value={method.id} id={`shipping-${method.id}`} />
+                    </Field>
+                  </FieldLabel>
+                ))}
+              </RadioGroup>
               )}
             </CardContent>
           </Card>
@@ -505,85 +456,55 @@ export function CheckoutForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {paymentMethods.length > 0 ? (
-                // <div className="space-y-2">
-                <RadioGroup
-                  //  defaultValue={paymentMethods[0].id}
-                  className="w-full  "
-                  onValueChange={val => handleInputChange('paymentMethodId', val)}
-                >
-                  {paymentMethods.map((method) => {
-                    const provider = method.providers[0];
-
-                    return (
-                      <FieldLabel
-                        key={`payment-${method.id}`}
-                        htmlFor={`payment-${method.id}`}
-                        className='hover:border-primary'
-                      >
-                        <Field orientation="horizontal" className='flex flex-row-reverse'>
-                          <FieldContent>
-                            <FieldTitle>{method.name}</FieldTitle>
-                            <FieldDescription className='text-xs'>
-                              {provider?.instructions && (provider.instructions)}
-                            </FieldDescription>
-                          </FieldContent>
-                          <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
-                        </Field>
-                      </FieldLabel>
-                    );
-
-                    // return (
-                    //   <div
-                    //     key={method.id}
-                    //     className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-muted/50"
-                    //   >
-                    //     <input
-                    //       type="radio"
-                    //       id={`payment-${method.id}`}
-                    //       name="payment"
-                    //       value={method.id}
-                    //       checked={formData.paymentMethodId === method.id}
-                    //       onChange={(e) => handleInputChange('paymentMethodId', e.target.value)}
-                    //       className="h-4 w-4"
-                    //     />
-                    //     <div className="flex-1">
-                    //       <Label
-                    //         htmlFor={`payment-${method.id}`}
-                    //         className="font-medium text-sm cursor-pointer"
-                    //       >
-                    //         {method.name}
-                    //       </Label>
-                    //       {provider?.instructions && (
-                    //         <p className="text-xs text-muted-foreground mt-1">
-                    //           {provider.instructions}
-                    //         </p>
-                    //       )}
-                    //     </div>
-                    //   </div>
-                    // )
-                  })}
-                  {/* </div> */}
-                </RadioGroup>
+              {paymentMethods.length == 0 ? (
+                <p className="text-muted-foreground">Đang tải phương thức thanh toán...</p>
               ) : (
-                <p className="text-muted-foreground">Đang tải các phương thức thanh toán...</p>
+                <>
+                  <RadioGroup
+                    className="w-full"
+                    onValueChange={val => handleInputChange('paymentMethodId', val)}
+                  >
+                    {paymentMethods.map((method) => {
+                      const provider = method.providers[0];
+
+                      return (
+                        <FieldLabel
+                          key={`payment-${method.id}`}
+                          htmlFor={`payment-${method.id}`}
+                          className='hover:border-muted-foreground'
+                        >
+                          <Field orientation="horizontal" className='flex flex-row-reverse'>
+                            <FieldContent>
+                              <FieldTitle>{method.name}</FieldTitle>
+                              <FieldDescription className='text-xs'>
+                                {provider?.instructions && (provider.instructions)}
+                              </FieldDescription>
+                            </FieldContent>
+                            <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
+                          </Field>
+                        </FieldLabel>
+                      );
+                    })}
+                    {/* </div> */}
+                  </RadioGroup>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="saveInfo"
+                      checked={formData.saveInfo}
+                      onCheckedChange={(checked) => handleInputChange('saveInfo', checked as boolean)}
+                    />
+                    <Label htmlFor="saveInfo" className="text-sm">
+                      Lưu lựa chọn cho lần sau
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <Lock className="h-3 w-3" />
+                    Thông tin thanh toán của bạn được mã hoá và bảo mật
+                  </div>
+                </>
               )}
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="saveInfo"
-                  checked={formData.saveInfo}
-                  onCheckedChange={(checked) => handleInputChange('saveInfo', checked as boolean)}
-                />
-                <Label htmlFor="saveInfo" className="text-sm">
-                  Lưu lựa chọn cho lần sau
-                </Label>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                <Lock className="h-3 w-3" />
-                Thông tin thanh toán của bạn được mã hoá và bảo mật
-              </div>
             </CardContent>
           </Card>
         </div>

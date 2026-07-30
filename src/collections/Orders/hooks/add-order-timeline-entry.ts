@@ -6,28 +6,28 @@ export const addOrderTimelineEntry: BeforeChangeHook<Order> = ({ data, originalD
 
   if (data.orderStatus !== originalDoc?.orderStatus) {
     let eventType = 'other'
-    let title = `Order status updated to "${data.orderStatus}"`
+    let title = `Đổi trạng thái đơn hàng: "${data.orderStatus}"`
 
     switch (data.orderStatus) {
       case 'canceled':
         eventType = 'order_cancelled'
-        title = 'Order Canceled'
+        title = 'Huỷ đơn hàng'
         break
       case 'delivered':
         eventType = 'delivered'
-        title = 'Order Delivered'
+        title = 'Đơn hàng đã vận chuyển'
         break
       case 'pending':
         eventType = 'note'
-        title = 'Order marked as Pending'
+        title = 'Đơn hàng đổi trạng thái  "Đang chờ"'
         break
       case 'processing':
         eventType = 'fulfillment_started'
-        title = 'Order Processing Started'
+        title = 'Đang thực hiện đơn hàng'
         break
       case 'shipped':
         eventType = 'shipped'
-        title = 'Order Shipped'
+        title = 'Đã giao'
         break
     }
 
@@ -35,7 +35,7 @@ export const addOrderTimelineEntry: BeforeChangeHook<Order> = ({ data, originalD
       type: eventType as any,
       createdBy: req.user?.id || null,
       date: new Date().toISOString(),
-      details: `Order status changed by ${req.user?.email || 'system'}`,
+      details: `Trạng thái đơn hàng được thay đổi bởi ${req.user?.email || 'hệ thống'}`,
       title,
     })
   }
@@ -43,24 +43,24 @@ export const addOrderTimelineEntry: BeforeChangeHook<Order> = ({ data, originalD
   // Detect paymentStatus change
   if (data.paymentStatus !== originalDoc?.paymentStatus) {
     let eventType = 'other'
-    let title = `Payment status updated to "${data.paymentStatus}"`
+    let title = `Đổi trạng thái thanh toán đơn hàng "${data.paymentStatus}"`
 
     switch (data.paymentStatus) {
       case 'failed':
         eventType = 'note'
-        title = 'Payment Failed'
+        title = 'Thanh toán thất bại'
         break
       case 'paid':
         eventType = 'order_paid'
-        title = 'Payment Received'
+        title = 'Đã nhận thanh toán'
         break
       case 'pending':
         eventType = 'note'
-        title = 'Payment Pending'
+        title = 'Đang chờ thanh toán'
         break
       case 'refunded':
         eventType = 'refund_issued'
-        title = 'Refund Issued'
+        title = 'Đã hoàn tiền'
         break
     }
 
@@ -68,7 +68,7 @@ export const addOrderTimelineEntry: BeforeChangeHook<Order> = ({ data, originalD
       type: eventType as any,
       createdBy: req.user?.id || null,
       date: new Date().toISOString(),
-      details: `Payment status changed by ${req.user?.email || 'system'}`,
+      details: `Trạng thái thanh toán được thay đổi bởi ${req.user?.email || 'hệ thống'}`,
       title,
     })
   }

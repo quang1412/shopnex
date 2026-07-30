@@ -110,9 +110,9 @@ export async function createOrder(orderData: {
     fullName: string
     phone: string
     address: string
-    province: string
-    district: string
     ward: string
+    district: string
+    province: string
     fullAddress: string
   }
   paymentMethodId: string

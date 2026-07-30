@@ -45,7 +45,7 @@ interface CheckoutRequest {
 
 const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) => {
   if (!items || items.length === 0) {
-    throw new Error('Cart is empty')
+    throw new Error('Giỏ hàng đang trống')
   }
 
   let calculatedSubtotal = new Decimal(0)
@@ -54,7 +54,7 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
   // Validate each item against current product data
   for (const item of items) {
     if (!item.id || !item.quantity || item.quantity <= 0) {
-      throw new Error(`Invalid item data: ${JSON.stringify(item)}`)
+      throw new Error(`Dữ liệu sp không hợp lệ: ${JSON.stringify(item)}`)
     }
 
     // Fetch current product to validate stock and pricing
@@ -65,20 +65,20 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     })
 
     if (!currentProduct || !currentProduct.visible || !currentProduct.inStock) {
-      throw new Error(`Product "${item.name}" is no longer available`)
+      throw new Error(`Sản phẩm "${item.name}" hiện không có sẵn`);
     }
 
     let variant: Product['variants'][number] | undefined
     if (item.variantId) {
       variant = currentProduct.variants.find((v) => v.id === item.variantId)
       if (!variant) {
-        throw new Error(`Variant ${item.variantId} not found for product "${currentProduct.title}"`)
+        throw new Error(`Biến thể ${item.variantId} không không thuộc sản phẩm "${currentProduct.title}"`)
       }
     } else {
       // Use first variant if no specific variant ID
       variant = currentProduct.variants?.[0]
       if (!variant) {
-        throw new Error(`No variants found for product "${currentProduct.title}"`)
+        throw new Error(`Không có biến thể của sản phẩm "${currentProduct.title}"`)
       }
     }
 
@@ -86,11 +86,13 @@ const validateAndCalculateOrderTotals = async (items: CheckoutItem[], req: any) 
     //   throw new Error(`No variants found for product "${currentProduct.title}"`)
     // }
 
+    // console.log({ stockCount: variant.stockCount, quantity: item.quantity });
+
     // Validate stock availability
     if (variant.stockCount == null || variant.stockCount < item.quantity) {
       throw new Error(
         // `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
-        `Insufficient stock for "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
+        `Không đủ số lượng "${currentProduct.title}" (${variant.sku || variant.id}): requested ${item.quantity}, available ${variant.stockCount ?? 0}`,
       )
     }
 
