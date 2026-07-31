@@ -5,6 +5,7 @@ export interface PaymentMethod {
   name: string
   enabled: boolean
   providers: any[]
+  discount: { [key: string]: string | number | null | undefined }
 }
 
 export interface ShippingMethod {
@@ -61,6 +62,7 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
       name: payment.name,
       enabled: payment.enabled ?? false,
       providers: payment.providers || [],
+      discount: payment.discount
     }))
   } catch (error) {
     console.error('Failed to fetch payment methods:', error)

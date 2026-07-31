@@ -421,7 +421,7 @@ export function CheckoutForm() {
                         <FieldTitle className='w-full flex items-center justify-between'>
                           <span>{method.name}</span>
                           <span>
-                            {method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder
+                            {(!method.baseRate || (method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder))
                               ? 'Free'
                               : `$${method.baseRate.toFixed(2)}`}
                           </span>
@@ -473,7 +473,15 @@ export function CheckoutForm() {
                         >
                           <Field orientation="horizontal" className='flex flex-row-reverse'>
                             <FieldContent>
-                              <FieldTitle>{method.name}</FieldTitle>
+                              {/* <FieldTitle>{method.name}</FieldTitle> */}
+                              <FieldTitle className='w-full flex items-center justify-between'>
+                                <span>{method.name}</span>
+                                {
+                                  method.discount?.type != 'none' && subtotal > (method.discount.minOrder as number || 0) && (
+                                    <span>-{method.discount.value}{method.discount.type == 'percent' ? '%' : 'đ'}</span>
+                                  )
+                                }
+                              </FieldTitle>
                               <FieldDescription className='text-xs'>
                                 {provider?.instructions && (provider.instructions)}
                               </FieldDescription>

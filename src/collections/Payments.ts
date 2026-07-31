@@ -1,4 +1,4 @@
-import type { Block, CollectionConfig, NumberFieldSingleValidation } from "payload";
+import type { Block, CollectionConfig } from "payload";
 
 import { admins, anyone } from "@/access/roles";
 
@@ -105,57 +105,78 @@ export const Payments: CollectionConfig = {
     },
     {
       name: 'discount',
-      label: 'Giảm giá ()',
+      label: 'Giảm giá',
       type: 'group',
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'type',
-              type: 'select',
-              options: [
-                { label: 'Không giảm giá', value: 'none' },
-                { label: 'Phần trăm', value: 'percent' },
-                { label: 'Giá trị', value: 'amount' },
-              ],
-              defaultValue: 'none',
-            },
-            {
-              name: 'value',
-              type: 'number',
-              hasMany: false,
-              validate: (value, { siblingData }) => {
-                const numValue = Number(value || '0')
-                // Cast siblingData to a custom shape
-                const data = siblingData as { type?: string }
-
-                const type = data.type;
-
-                if (type === 'percent') {
-                  if (numValue < 0 || numValue > 100) {
-                    return 'Percentage must be between 0 and 100'
-                  }
-                }
-
-                if (type === 'amount') {
-                  if (numValue < 1 || numValue > 10000) {
-                    return 'Amount must be between 1 and 10,000'
-                  }
-                }
-
-                return true
-              },
-              admin: {
-                width: '50%',
-                condition: (data, siblingData) => {
-                  // Return true to SHOW, false to HIDE
-                  return siblingData.type !== 'none'
-                },
-              },
-            },
-          ]
+      fields: [{
+        name: 'type',
+        label: 'Loại giảm giá',
+        type: 'select',
+        options: [
+          { label: 'Không giảm giá', value: 'none' },
+          { label: 'Theo phần trăm', value: 'percent' },
+          { label: 'Theo giá trị', value: 'amount' },
+        ],
+        required: true,
+        defaultValue: 'none',
+        admin: {
+          isClearable: false,
         },
+      },
+      {
+        type: 'row',
+        fields: [
+          {
+            name: 'value',
+            label: 'Giá trị',
+            type: 'number',
+            min: 0,
+            hasMany: false,
+            validate: (value, { siblingData }) => {
+              const numValue = Number(value || '0')
+              // Cast siblingData to a custom shape
+              const data = siblingData as { type?: string }
+
+              const type = data.type;
+
+              if (type === 'percent') {
+                if (numValue < 0 || numValue > 100) {
+                  return 'Phần trăm phải từ 0 đến 100';
+                }
+              }
+
+              if (type === 'amount') {
+                if (numValue < 1000 || numValue > 1000000) {
+                  return 'Số tiền phải từ 1.000 đến 1.000.000'
+                }
+              }
+
+              return true
+            },
+            admin: {
+              width: '50%',
+              placeholder: '0',
+              description: 'Giá trị giảm giá theo % hoặc số tiền cố định',
+            },
+          },
+          {
+            name: 'minOrder',
+            label: 'Giá trị đơn hàng',
+            type: 'number',
+            min: 1000,
+            admin: {
+              width: '50%',
+              placeholder: '1000000',
+              description: 'Giá trị tối thiểu của đơn hàng để được áp dụng giảm giá.'
+            }
+          },
+        ],
+        admin: {
+          condition: (_, siblingData) => {
+            // Return true to SHOW, false to HIDE
+            return siblingData.type !== 'none'
+          },
+        },
+      },
       ]
     },
   ],

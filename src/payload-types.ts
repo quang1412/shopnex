@@ -431,9 +431,16 @@ export interface Payment {
         blockType: 'manual';
       }[]
     | null;
-  discount?: {
-    type?: ('none' | 'percent' | 'amount') | null;
+  discount: {
+    type: 'none' | 'percent' | 'amount';
+    /**
+     * Giá trị giảm giá theo % hoặc số tiền cố định
+     */
     value?: number | null;
+    /**
+     * Giá trị tối thiểu của đơn hàng để được áp dụng giảm giá.
+     */
+    minOrder?: number | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -1029,6 +1036,7 @@ export interface PaymentsSelect<T extends boolean = true> {
     | {
         type?: T;
         value?: T;
+        minOrder?: T;
       };
   updatedAt?: T;
   createdAt?: T;
