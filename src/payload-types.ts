@@ -431,6 +431,10 @@ export interface Payment {
         blockType: 'manual';
       }[]
     | null;
+  discount?: {
+    type?: ('none' | 'percent' | 'amount') | null;
+    value?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1019,6 +1023,12 @@ export interface PaymentsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+      };
+  discount?:
+    | T
+    | {
+        type?: T;
+        value?: T;
       };
   updatedAt?: T;
   createdAt?: T;

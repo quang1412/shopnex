@@ -1,4 +1,4 @@
-import type { Block, CollectionConfig } from "payload";
+import type { Block, CollectionConfig, NumberFieldSingleValidation } from "payload";
 
 import { admins, anyone } from "@/access/roles";
 
@@ -102,6 +102,61 @@ export const Payments: CollectionConfig = {
       type: "blocks",
       blocks: [ManualProvider],
       maxRows: 1,
+    },
+    {
+      name: 'discount',
+      label: 'Giảm giá ()',
+      type: 'group',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'type',
+              type: 'select',
+              options: [
+                { label: 'Không giảm giá', value: 'none' },
+                { label: 'Phần trăm', value: 'percent' },
+                { label: 'Giá trị', value: 'amount' },
+              ],
+              defaultValue: 'none',
+            },
+            {
+              name: 'value',
+              type: 'number',
+              hasMany: false,
+              validate: (value, { siblingData }) => {
+                const numValue = Number(value || '0')
+                // Cast siblingData to a custom shape
+                const data = siblingData as { type?: string }
+
+                const type = data.type;
+
+                if (type === 'percent') {
+                  if (numValue < 0 || numValue > 100) {
+                    return 'Percentage must be between 0 and 100'
+                  }
+                }
+
+                if (type === 'amount') {
+                  if (numValue < 1 || numValue > 10000) {
+                    return 'Amount must be between 1 and 10,000'
+                  }
+                }
+
+                return true
+              },
+              admin: {
+                width: '50%',
+                condition: (data, siblingData) => {
+                  // Return true to SHOW, false to HIDE
+                  return siblingData.type !== 'none'
+                },
+              },
+            },
+          ]
+        },
+      ]
     },
   ],
 };

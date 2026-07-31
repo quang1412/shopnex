@@ -40,3 +40,15 @@ export function formatCurrency(
 
   return new Intl.NumberFormat(locale, formatOptions).format(amount);
 }
+
+export function fixLocalName(input: string) {
+  return input
+    .replace(/^Thành\sphố\s/g, 'TP.')
+    .replace(/^Tỉnh\s/g, 'T.')
+    .replace(/^Huyện\s/g, 'H.')
+    .replace(/^Quận\s/g, 'Q.')
+    .replace(/^Xã\s/g, 'X.')
+    .replace(/^Thị\sxã\s/g, 'TX.')
+    .replace(/^Phường\s/g, 'P.')
+    .replace(/^Thị\strấn\s/g, 'TT.')
+}

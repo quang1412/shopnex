@@ -62,6 +62,11 @@ export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
   ['cod', 'bankTransfer', 'inStore', 'other'],
 )
+export const enum_payments_discount_type = pgEnum('enum_payments_discount_type', [
+  'none',
+  'percent',
+  'amount',
+])
 export const enum_exports_format = pgEnum('enum_exports_format', ['csv', 'json'])
 export const enum_exports_drafts = pgEnum('enum_exports_drafts', ['yes', 'no'])
 export const enum_payload_jobs_log_task_slug = pgEnum('enum_payload_jobs_log_task_slug', [
@@ -629,6 +634,8 @@ export const payments = pgTable(
     id: serial('id').primaryKey(),
     name: varchar('name').notNull(),
     enabled: boolean('enabled').default(true),
+    discount_type: enum_payments_discount_type('discount_type').default('none'),
+    discount_value: numeric('discount_value', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -1415,6 +1422,7 @@ type DatabaseSchema = {
   enum_products_source: typeof enum_products_source
   enum_users_roles: typeof enum_users_roles
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
+  enum_payments_discount_type: typeof enum_payments_discount_type
   enum_exports_format: typeof enum_exports_format
   enum_exports_drafts: typeof enum_exports_drafts
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug

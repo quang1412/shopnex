@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { cn, fixLocalName } from "@/lib/utils";
+
 import {
   Combobox,
   ComboboxContent,
@@ -154,15 +155,17 @@ export function AddressAutoComplete({
 
       onValueChange={(value: locationItem | null, { reason }) => {
         console.log({ 'onValueChange reason': reason });
-        handleItemSelect(value)
+        handleItemSelect(value);
+        setSuggestions([]);
       }}
     >
       <ComboboxInput
-        className={cn(className && className)}
+        className={cn('font-normal', className && className)}
         placeholder="Nhập địa chỉ"
         onChange={(e) => {
           onInputValueChange(e.currentTarget.value)
         }}
+        showTrigger={false}
       />
       <ComboboxContent>
         <ComboboxEmpty className="text-xs">{getStatus()}</ComboboxEmpty>
@@ -202,16 +205,16 @@ type locationItemType = {
 interface locationSelectorProps {
   type: locationType
   parentCode?: string
-  value?: string
-  onChange?: (data: locationItemType) => void
+  value?: string | null
+  onValueChange?: (item?: any | null) => void
   className?: string
 }
 
-export function locationSelector({
+export function LocationSelector({
   type,
   parentCode,
-  value = '',
-  onChange,
+  value = null,
+  onValueChange,
   className,
 }: locationSelectorProps) {
   const [allLocations, setAllLocations] = useState<any[]>([]);
@@ -227,11 +230,11 @@ export function locationSelector({
   const itemList = useMemo<locationItemType[]>(() => {
     if (type == 'province') {
       return allLocations.map(item => ({
-        label: item.WARDS_NAME, value: item.WARDS_ID
+        label: fixLocalName(item.PROVINCE_NAME), value: String(item.PROVINCE_ID), ...item,
       }))
     } else if (parentCode) {
       return allLocations.filter(item => (item.PROVINCE_ID == parentCode)).map(item => ({
-        label: item.WARDS_NAME, value: item.WARDS_ID
+        label: fixLocalName(item.WARDS_NAME), value: String(item.WARDS_ID), ...item,
       }))
     } else {
       return []
@@ -239,27 +242,33 @@ export function locationSelector({
   }, [type, allLocations, parentCode]);
 
   return (
-    <>
-      <Combobox
-        items={itemList}
-        defaultValue={value}
-        onValueChange={(value) => {
-          // onChange?.(value)
-        }}
-      >
-        <ComboboxTrigger
-          render={<Button variant="outline" className="w-full justify-between font-normal"><ComboboxValue /></Button>} />
-        <ComboboxContent>
-          <ComboboxInput showTrigger={false} placeholder="Search" />
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item.value} value={item}>
-                {item.label}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox></>
+    <Combobox
+      items={itemList}
+      value={value || null}
+      onValueChange={(value: string | null) => {
+        const item = itemList.find(i => i.value == value);
+        onValueChange?.(item)
+      }}
+    >
+      <ComboboxTrigger
+        render={
+          <Button variant="outline" className="w-full justify-between font-normal">
+            <ComboboxValue placeholder='-' />
+          </Button>
+        }
+        className={cn(className && className)}
+      />
+      <ComboboxContent>
+        <ComboboxInput showTrigger={false} placeholder="Tìm kiếm" />
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item.value} value={item.value}>
+              {item.label}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   )
 }

@@ -9,13 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
 import { ArrowLeft, CreditCard, Lock, Truck } from 'lucide-react'
@@ -41,16 +34,13 @@ import {
 } from "@/components/ui/field"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-import { AddressAutoComplete } from '../address/address-autocomplete'
-// type addressItem = {
-//   code: string
-//   name: string
-// }
+import { AddressAutoComplete, LocationSelector } from '../address/address-autocomplete'
+
+import { fixLocalName } from '@/lib/utils'
 
 interface CheckoutFormData {
   email: string
-  // firstName: string
-  // lastName: string
+
   fullName: string
   phone: string
   address: string
@@ -62,40 +52,19 @@ interface CheckoutFormData {
   wardName: string
   wardCode: string
 
-
-  // state: string
-  // zipCode: string
-  // country: string
   paymentMethodId: string
   shippingMethodId: string
   saveInfo: boolean
   useSameAddress: boolean
-  billingFirstName: string
-  billingLastName: string
+  billingFullName: string
   billingAddress: string
-  billingCity: string
-  billingState: string
-  billingZipCode: string
-  billingCountry: string
+  billingProvince: string
+  billingDistrict: string
+  billingWard: string
+  billingFullAddress: string
 
   note: string
 }
-
-const getRandomInt = (min: number, max: number): number => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-const fixLocalName = (input: string) => (
-  input
-    .replace(/^Thành\sphố\s/g, 'TP. ')
-    .replace(/^Tỉnh\s/g, 'T. ')
-    .replace(/^Huyện\s/g, 'H. ')
-    .replace(/^Quận\s/g, 'Q. ')
-    .replace(/^Xã\s/g, 'X. ')
-    .replace(/^Thị\sxã\s/g, 'TX. ')
-    .replace(/^Phường\s/g, 'P. ')
-    .replace(/^Thị\strấn\s/g, 'TT. ')
-)
 
 export function CheckoutForm() {
   const { items, getTotalPrice, clearCart } = useCart()
@@ -106,33 +75,28 @@ export function CheckoutForm() {
   const [selectedShipping, setSelectedShipping] = useState<ShippingMethod | null>(null)
   const [formData, setFormData] = useState<CheckoutFormData>({
     email: process.env.NODE_ENV === 'development' ? 'john.doe@example.com' : '',
-    // firstName: process.env.NODE_ENV === 'development' ? 'John' : '',
-    // lastName: process.env.NODE_ENV === 'development' ? 'Doe' : '',
+
     fullName: process.env.NODE_ENV === 'development' ? 'John Doe' : '',
     phone: process.env.NODE_ENV === 'development' ? '0900000000' : '',
-
     address: process.env.NODE_ENV === 'development' ? '123 Main Street' : '',
     provinceName: process.env.NODE_ENV === 'development' ? 'Hà Nội' : '',
     provinceCode: process.env.NODE_ENV === 'development' ? '1' : '',
-    districtName: process.env.NODE_ENV === 'development' ? 'Hoài Đức' : '',
+    districtName: process.env.NODE_ENV === 'development' ? '' : '',
     districtCode: process.env.NODE_ENV === 'development' ? '23' : '',
     wardName: process.env.NODE_ENV === 'development' ? 'Đông La' : '',
-    wardCode: process.env.NODE_ENV === 'development' ? '456' : '',
+    wardCode: process.env.NODE_ENV === 'development' ? '49863' : '',
 
-    // state: process.env.NODE_ENV === 'development' ? 'NY' : '',
-    // zipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
-    // country: 'VN',
     paymentMethodId: '',
     shippingMethodId: '',
     saveInfo: false,
     useSameAddress: true,
-    billingFirstName: process.env.NODE_ENV === 'development' ? 'John' : '',
-    billingLastName: process.env.NODE_ENV === 'development' ? 'Doe' : '',
-    billingAddress: process.env.NODE_ENV === 'development' ? '123 Main Street' : '',
-    billingCity: process.env.NODE_ENV === 'development' ? 'New York' : '',
-    billingState: process.env.NODE_ENV === 'development' ? 'NY' : '',
-    billingZipCode: process.env.NODE_ENV === 'development' ? '10001' : '',
-    billingCountry: 'VN',
+    billingFullName: process.env.NODE_ENV === 'development' ? '' : '',
+    billingAddress: process.env.NODE_ENV === 'development' ? '' : '',
+    billingProvince: process.env.NODE_ENV === 'development' ? '' : '',
+    billingDistrict: process.env.NODE_ENV === 'development' ? '' : '',
+    billingWard: process.env.NODE_ENV === 'development' ? '' : '',
+    billingFullAddress: '',
+
     note: ''
   })
 
@@ -169,6 +133,9 @@ export function CheckoutForm() {
   }, [formData.shippingMethodId, shippingMethods])
 
   const handleInputChange = (field: keyof CheckoutFormData, value: string | boolean) => {
+    if (['wardName', 'districtName', 'provinceName'].includes(field) && typeof value === 'string') {
+      value = fixLocalName(value);
+    }
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -252,8 +219,8 @@ export function CheckoutForm() {
         tax: tax,
         customerInfo: {
           email: formData.email,
-          name: formData.fullName,
-          address: ([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', '),
+          // name: formData.fullName,
+          // address: ([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', '),
         },
         shippingMethod: selectedShipping?.name,
         date: new Date().toISOString(),
@@ -365,13 +332,13 @@ export function CheckoutForm() {
                   onInputValueChange={value => { handleInputChange('address', value) }}
                   onAddressSelect={data => {
                     handleInputChange('provinceCode', data.vtpL1.toString());
-                    handleInputChange('provinceName', fixLocalName(data.components.find(i => i.level == 1)?.name || ''));
+                    handleInputChange('provinceName', (data.components.find(i => i.level == 1)?.name || ''));
 
                     handleInputChange('districtCode', data.vtpL2.toString());
-                    handleInputChange('districtName', fixLocalName(data.components.find(i => i.level == 2)?.name || ''));
+                    handleInputChange('districtName', (data.components.find(i => i.level == 2)?.name || ''));
 
                     handleInputChange('wardCode', data.vtpL3.toString());
-                    handleInputChange('wardName', fixLocalName(data.components.find(i => i.level == 3)?.name || ''));
+                    handleInputChange('wardName', (data.components.find(i => i.level == 3)?.name || ''));
                   }}
                 />
               </div>
@@ -379,28 +346,36 @@ export function CheckoutForm() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="provinceName">Tỉnh/Tp</Label>
-                  <Input
-                    id="provinceName"
-                    value={formData.provinceName}
-                    onChange={(e) => {
-                      handleInputChange('provinceName', e.target.value);
-                      handleInputChange('provinceCode', getRandomInt(0, 9).toString());
+                  <LocationSelector
+                    type='province'
+                    value={formData.provinceCode}
+                    onValueChange={value => {
+                      console.log({ value });
+                      handleInputChange('provinceName', value?.label || '');
+                      handleInputChange('provinceCode', value?.value || '');
+
+                      handleInputChange('districtName', '');
+                      handleInputChange('districtCode', '');
+
+                      handleInputChange('wardName', '');
+                      handleInputChange('wardCode', '');
+
                     }}
-                    placeholder="New York"
-                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="wardName">Xã/phường</Label>
-                  <Input
-                    id="wardName"
-                    value={formData.wardName}
-                    onChange={(e) => {
-                      handleInputChange('wardName', e.target.value);
-                      handleInputChange('wardCode', getRandomInt(100, 999).toString());
+                  <LocationSelector
+                    type='ward'
+                    parentCode={formData.provinceCode}
+                    value={formData.wardCode}
+                    onValueChange={value => {
+                      console.log({ 'ward': value });
+                      handleInputChange('wardName', value?.label || '');
+                      handleInputChange('wardCode', value?.value || '');
+
+                      handleInputChange('districtCode', value?.DISTRICT_ID || '');
                     }}
-                    placeholder=""
-                    required
                   />
                 </div>
               </div>
@@ -414,7 +389,7 @@ export function CheckoutForm() {
                 {[formData.wardCode, formData.districtCode, formData.provinceCode].join(' - ')}
               </div>
               <div>
-                {([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', ')}
+                {([(formData.address || '-'), (formData.wardName || '-'), formData.districtName, (formData.provinceName || '-')]).filter(Boolean).join(', ')}
               </div>
             </CardContent>
           </Card>
