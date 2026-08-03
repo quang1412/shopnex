@@ -9,16 +9,21 @@ interface OrderSummaryProps {
   subtotal?: number
   shipping?: number
   tax?: number
+  discount?: number
   total?: number
   shippingMethodName?: string
+  shippingFullAddress?: string
 }
 
 export function OrderSummary({
   subtotal: propSubtotal,
   shipping: propShipping,
   tax: propTax,
+  discount: propDiscount,
   total: propTotal,
   shippingMethodName,
+  shippingFullAddress,
+
 }: OrderSummaryProps) {
   const { items, getTotalPrice } = useCart()
 
@@ -26,7 +31,8 @@ export function OrderSummary({
   const subtotal = propSubtotal ?? getTotalPrice()
   const shipping = propShipping ?? (subtotal > 50 ? 0 : 9.99)
   const tax = propTax ?? subtotal * 0.08
-  const total = propTotal ?? subtotal + shipping + tax
+  const discount = propDiscount ?? 0
+  const total = propTotal ?? subtotal + shipping + tax - discount
 
   return (
     <Card>
@@ -67,10 +73,12 @@ export function OrderSummary({
 
         {/* Totals */}
         <div className="space-y-2">
+          {/* Tạm tính */}
           <div className="flex justify-between text-sm">
-            <span>Tổng phụ</span>
+            <span>Tạm tính</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
+          {/* Vận chuyển */}
           <div className="flex justify-between text-sm">
             <span>
               Vận chuyển
@@ -80,9 +88,16 @@ export function OrderSummary({
               {shipping === 0 ? 'Miễn phí' : `$${shipping.toFixed(2)}`}
             </span>
           </div>
+          {/* Thuế */}
           <div className="flex justify-between text-sm">
             <span>Thuế</span>
             <span>${tax.toFixed(2)}</span>
+          </div>
+
+          {/* discount */}
+          <div className="flex justify-between text-sm">
+            <span>Giảm giá</span>
+            <span>${discount.toFixed(2)}</span>
           </div>
         </div>
 

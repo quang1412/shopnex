@@ -5,7 +5,6 @@ export interface PaymentMethod {
   name: string
   enabled: boolean
   providers: any[]
-  discount: { [key: string]: string | number | null | undefined }
 }
 
 export interface ShippingMethod {
@@ -16,6 +15,14 @@ export interface ShippingMethod {
   freeShippingMinOrder?: number
   estimatedDeliveryDays?: string
   notes?: string
+}
+
+export interface GiftCard {
+  code: string
+  shippingMethodIds?: string[],
+  paymentMethodIds?: string[],
+  minOrderTotal: number,
+  value: number,
 }
 
 export interface CheckoutData {
@@ -62,7 +69,6 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
       name: payment.name,
       enabled: payment.enabled ?? false,
       providers: payment.providers || [],
-      discount: payment.discount
     }))
   } catch (error) {
     console.error('Failed to fetch payment methods:', error)
@@ -94,8 +100,54 @@ export async function getShippingMethods(): Promise<ShippingMethod[]> {
     })
   } catch (error) {
     console.error('Failed to fetch shipping methods:', error)
-    return []
+    return [];
   }
+}
+
+export async function giftCardVerify(code: string): Promise<{
+  success?: boolean,
+  error?: string
+  data?: GiftCard,
+}> {
+  try {
+    const resp = await fetch(`/api/gift-cards/verify?code=${code}`);
+    if (!resp.ok) {
+      const errorData = await resp.json();
+      throw new Error(errorData.message || `HTTP error! Status: ${resp.status}`);
+    }
+    const data = await resp.json();
+
+    if (!data?.code) throw new Error('Mã giảm giá không hợp lệ');
+
+    return {
+      success: true,
+      data: {
+        code: data.code,
+        paymentMethodIds: data.paymentMethods?.map((m: any) => String(typeof m == 'object' ? m.id : m)),
+        shippingMethodIds: data.shippingMethods?.map((s: any) => String(typeof s == 'object' ? s.id : s)),
+        minOrderTotal: data.minOrderTotal,
+        value: data.value,
+      },
+    }
+  } catch (e: any) {
+    return {
+      error: e instanceof Error ? e.message : 'unknow error',
+    }
+  }
+};
+
+export function calculateDiscount(giftCard: GiftCard, payment: string, shipping: string, subtotal: number) {
+  // Kiểm tra các điều kiện.
+  if (
+    (giftCard.paymentMethodIds && giftCard.paymentMethodIds.length > 0 && !giftCard.paymentMethodIds.includes(payment)) ||
+    (giftCard.shippingMethodIds && giftCard.shippingMethodIds.length > 0 && !giftCard.shippingMethodIds.includes(shipping)) ||
+    giftCard.minOrderTotal > subtotal
+  ) {
+    return 0;
+  }
+
+  // return Math.min(subtotal, giftCard.value);
+  return giftCard.value;
 }
 
 export async function createOrder(orderData: {
@@ -188,10 +240,10 @@ export function calculateShipping(subtotal: number, shippingMethod: ShippingMeth
   return shippingMethod.baseRate
 }
 
-export function calculateTax(subtotal: number, taxRate: number = 0.08): number {
+export function calculateTax(subtotal: number, taxRate: number = 0): number {
   return subtotal * taxRate
 }
 
-export function calculateTotal(subtotal: number, shipping: number, tax: number): number {
-  return subtotal + shipping + tax
+export function calculateTotal(subtotal: number, shipping: number, tax: number, discount: number = 0): number {
+  return Math.max(0, ((subtotal + shipping + tax - discount) || 0));
 }

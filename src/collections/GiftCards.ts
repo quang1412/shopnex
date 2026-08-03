@@ -5,6 +5,7 @@ import { generateGiftCardCode } from "@/utils/generate-gift-card-code";
 import { getClientIp } from "@/utils/get-client-ip";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
+
 import { groups } from "./groups";
 
 const rateLimiter = new RateLimiterMemory({
@@ -27,6 +28,8 @@ export const GiftCards: CollectionConfig = {
   },
   endpoints: [
     {
+      method: "get",
+      path: "/verify",
       handler: async (req) => {
         try {
           const ip = getClientIp(req);
@@ -50,16 +53,34 @@ export const GiftCards: CollectionConfig = {
             },
           });
 
-          return Response.json(giftCards.docs?.[0]);
+          const doc = giftCards.docs?.[0];
+
+          // if (!doc?.code) {
+          //   return Response.json({
+          //     message: "Mã giảm giá không hợp lệ", statusCode: 400,
+          //   })
+          // };
+
+          const validUsers = (doc?.customers || []).map(c => (typeof c == 'object' ? c.id : c));
+
+          if (
+            !doc?.code
+            || (validUsers.length > 0 && !validUsers.includes(req.user?.id || -1))
+            || (doc.startDate && new Date(doc.startDate) > new Date())
+            || (doc.expiryDate && new Date(doc.expiryDate) < new Date())
+          ) {
+            return Response.json({
+              message: "Mã giảm giá không hợp lệ", statusCode: 400,
+            })
+          };
+
+          return Response.json(doc);
         } catch (reject) {
           return Response.json({
-            message: "Too many requests. Please try again later.",
-            statusCode: 429,
+            message: "Too many requests. Please try again later.", statusCode: 429,
           });
         }
       },
-      method: "get",
-      path: "/verify",
     },
   ],
   fields: [
@@ -69,31 +90,121 @@ export const GiftCards: CollectionConfig = {
       defaultValue: () => {
         return generateGiftCardCode();
       },
-      label: "Card code",
+      label: "Mã giảm giá",
       required: true,
     },
     {
-      name: "value",
-      type: "number",
-      label: "Initial value",
-      required: true,
+      type: 'row',
+      fields: [
+        {
+          name: "value",
+          type: "number",
+          label: "Giá trị (đ)",
+          required: true,
+          min: 0,
+          admin: {
+            width: '50%',
+          },
+        },
+        {
+          name: "minOrderTotal",
+          type: "number",
+          label: "Đơn hàng tối thiểu (đ)",
+          required: true,
+          min: 0,
+          admin: {
+            width: '50%',
+          },
+        },
+      ]
     },
     {
-      name: "customer",
+      type: 'row',
+      fields: [
+        {
+          name: "startDate",
+          type: "date",
+          admin: {
+            width: '50%',
+            description: "Thời gian mã giảm giá băt đầu có hiệu lực",
+            date: {
+              pickerAppearance: 'dayAndTime',
+              // Formats how the selected date/time renders in the input box
+              // Uses date-fns formatting tokens
+              displayFormat: 'dd/MM/yyyy HH:mm',
+              // Optional: Forces the time selection intervals (e.g., every 15 minutes)
+              timeIntervals: 15,
+            },
+          },
+          label: "Thời gian bắt đầu",
+          validate: (value, { siblingData }) => {
+            const { expiryDate } = siblingData as { expiryDate: string };
+            if (value && expiryDate && new Date(value) > new Date(expiryDate)) {
+              return 'Thời gian bắt đầu không được lớn hơn thời gian kết thúc';
+            }
+            return true;
+          },
+        },
+        {
+          name: "expiryDate",
+          type: "date",
+          admin: {
+            width: '50%',
+            description: "Thời gian mã giảm giá hết hạn",
+            date: {
+              pickerAppearance: 'dayAndTime',
+              // Formats how the selected date/time renders in the input box
+              // Uses date-fns formatting tokens
+              displayFormat: 'dd/MM/yyyy HH:mm',
+              // Optional: Forces the time selection intervals (e.g., every 15 minutes)
+              timeIntervals: 15,
+            },
+          },
+          label: "Thời gian kết thúc",
+          validate: (value, { siblingData }) => {
+            const { startDate } = siblingData as { startDate: string };
+
+            if (value && startDate && new Date(value) < new Date(startDate)) {
+              return 'Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu';
+            }
+
+            return true;
+          },
+        },
+      ]
+    },
+    {
+      name: "customers",
       type: "relationship",
+      relationTo: "users",
+      hasMany: true,
       admin: {
         position: "sidebar",
+        placeholder: 'Tất cả khách hàng',
       },
-      label: "Customer",
-      relationTo: "users",
+      label: "Khách hàng",
     },
     {
-      name: "expiryDate",
-      type: "date",
+      name: 'paymentMethods',
+      type: 'relationship',
+      relationTo: 'payments',
+      hasMany: true,
       admin: {
-        description: "Date gift card will expire",
+        position: "sidebar",
+        placeholder: 'Tất cả phương thức',
       },
-      label: "Expiration Date",
+      label: "Phương thức thanh toán",
+    },
+    {
+      name: 'shippingMethods',
+      type: 'relationship',
+      relationTo: 'shipping',
+      hasMany: true,
+      admin: {
+        position: "sidebar",
+        placeholder: 'Tất cả phương thức',
+      },
+      label: "Phương thức vận chuyển",
     },
   ],
 };

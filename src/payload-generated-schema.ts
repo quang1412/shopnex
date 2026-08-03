@@ -62,11 +62,6 @@ export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
   ['cod', 'bankTransfer', 'inStore', 'other'],
 )
-export const enum_payments_discount_type = pgEnum('enum_payments_discount_type', [
-  'none',
-  'percent',
-  'amount',
-])
 export const enum_exports_format = pgEnum('enum_exports_format', ['csv', 'json'])
 export const enum_exports_drafts = pgEnum('enum_exports_drafts', ['yes', 'no'])
 export const enum_payload_jobs_log_task_slug = pgEnum('enum_payload_jobs_log_task_slug', [
@@ -546,9 +541,8 @@ export const gift_cards = pgTable(
     id: serial('id').primaryKey(),
     code: varchar('code').notNull(),
     value: numeric('value', { mode: 'number' }).notNull(),
-    customer: integer('customer_id').references(() => users.id, {
-      onDelete: 'set null',
-    }),
+    minOrderTotal: numeric('min_order_total', { mode: 'number' }).notNull(),
+    startDate: timestamp('start_date', { mode: 'string', withTimezone: true, precision: 3 }),
     expiryDate: timestamp('expiry_date', { mode: 'string', withTimezone: true, precision: 3 }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
@@ -558,9 +552,49 @@ export const gift_cards = pgTable(
       .notNull(),
   },
   (columns) => [
-    index('gift_cards_customer_idx').on(columns.customer),
     index('gift_cards_updated_at_idx').on(columns.updatedAt),
     index('gift_cards_created_at_idx').on(columns.createdAt),
+  ],
+)
+
+export const gift_cards_rels = pgTable(
+  'gift_cards_rels',
+  {
+    id: serial('id').primaryKey(),
+    order: integer('order'),
+    parent: integer('parent_id').notNull(),
+    path: varchar('path').notNull(),
+    usersID: integer('users_id'),
+    paymentsID: integer('payments_id'),
+    shippingID: integer('shipping_id'),
+  },
+  (columns) => [
+    index('gift_cards_rels_order_idx').on(columns.order),
+    index('gift_cards_rels_parent_idx').on(columns.parent),
+    index('gift_cards_rels_path_idx').on(columns.path),
+    index('gift_cards_rels_users_id_idx').on(columns.usersID),
+    index('gift_cards_rels_payments_id_idx').on(columns.paymentsID),
+    index('gift_cards_rels_shipping_id_idx').on(columns.shippingID),
+    foreignKey({
+      columns: [columns['parent']],
+      foreignColumns: [gift_cards.id],
+      name: 'gift_cards_rels_parent_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['usersID']],
+      foreignColumns: [users.id],
+      name: 'gift_cards_rels_users_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['paymentsID']],
+      foreignColumns: [payments.id],
+      name: 'gift_cards_rels_payments_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['shippingID']],
+      foreignColumns: [shipping.id],
+      name: 'gift_cards_rels_shipping_fk',
+    }).onDelete('cascade'),
   ],
 )
 
@@ -634,8 +668,6 @@ export const payments = pgTable(
     id: serial('id').primaryKey(),
     name: varchar('name').notNull(),
     enabled: boolean('enabled').default(true),
-    discount_type: enum_payments_discount_type('discount_type').default('none'),
-    discount_value: numeric('discount_value', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -1226,11 +1258,31 @@ export const relations_users = relations(users, ({ many }) => ({
 }))
 export const relations_media = relations(media, () => ({}))
 export const relations_policies = relations(policies, () => ({}))
-export const relations_gift_cards = relations(gift_cards, ({ one }) => ({
-  customer: one(users, {
-    fields: [gift_cards.customer],
+export const relations_gift_cards_rels = relations(gift_cards_rels, ({ one }) => ({
+  parent: one(gift_cards, {
+    fields: [gift_cards_rels.parent],
+    references: [gift_cards.id],
+    relationName: '_rels',
+  }),
+  usersID: one(users, {
+    fields: [gift_cards_rels.usersID],
     references: [users.id],
-    relationName: 'customer',
+    relationName: 'users',
+  }),
+  paymentsID: one(payments, {
+    fields: [gift_cards_rels.paymentsID],
+    references: [payments.id],
+    relationName: 'payments',
+  }),
+  shippingID: one(shipping, {
+    fields: [gift_cards_rels.shippingID],
+    references: [shipping.id],
+    relationName: 'shipping',
+  }),
+}))
+export const relations_gift_cards = relations(gift_cards, ({ many }) => ({
+  _rels: many(gift_cards_rels, {
+    relationName: '_rels',
   }),
 }))
 export const relations_pages = relations(pages, () => ({}))
@@ -1422,7 +1474,6 @@ type DatabaseSchema = {
   enum_products_source: typeof enum_products_source
   enum_users_roles: typeof enum_users_roles
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
-  enum_payments_discount_type: typeof enum_payments_discount_type
   enum_exports_format: typeof enum_exports_format
   enum_exports_drafts: typeof enum_exports_drafts
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug
@@ -1447,6 +1498,7 @@ type DatabaseSchema = {
   media: typeof media
   policies: typeof policies
   gift_cards: typeof gift_cards
+  gift_cards_rels: typeof gift_cards_rels
   pages: typeof pages
   payments_blocks_manual_details: typeof payments_blocks_manual_details
   payments_blocks_manual: typeof payments_blocks_manual
@@ -1482,6 +1534,7 @@ type DatabaseSchema = {
   relations_users: typeof relations_users
   relations_media: typeof relations_media
   relations_policies: typeof relations_policies
+  relations_gift_cards_rels: typeof relations_gift_cards_rels
   relations_gift_cards: typeof relations_gift_cards
   relations_pages: typeof relations_pages
   relations_payments_blocks_manual_details: typeof relations_payments_blocks_manual_details

@@ -431,17 +431,6 @@ export interface Payment {
         blockType: 'manual';
       }[]
     | null;
-  discount: {
-    type: 'none' | 'percent' | 'amount';
-    /**
-     * Giá trị giảm giá theo % hoặc số tiền cố định
-     */
-    value?: number | null;
-    /**
-     * Giá trị tối thiểu của đơn hàng để được áp dụng giảm giá.
-     */
-    minOrder?: number | null;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -520,11 +509,18 @@ export interface GiftCard {
   id: number;
   code: string;
   value: number;
-  customer?: (number | null) | User;
+  minOrderTotal: number;
   /**
-   * Date gift card will expire
+   * Thời gian mã giảm giá băt đầu có hiệu lực
+   */
+  startDate?: string | null;
+  /**
+   * Thời gian mã giảm giá hết hạn
    */
   expiryDate?: string | null;
+  customers?: (number | User)[] | null;
+  paymentMethods?: (number | Payment)[] | null;
+  shippingMethods?: (number | Shipping)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -988,8 +984,12 @@ export interface PoliciesSelect<T extends boolean = true> {
 export interface GiftCardsSelect<T extends boolean = true> {
   code?: T;
   value?: T;
-  customer?: T;
+  minOrderTotal?: T;
+  startDate?: T;
   expiryDate?: T;
+  customers?: T;
+  paymentMethods?: T;
+  shippingMethods?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1030,13 +1030,6 @@ export interface PaymentsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-      };
-  discount?:
-    | T
-    | {
-        type?: T;
-        value?: T;
-        minOrder?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -2,14 +2,22 @@
 
 import type React from 'react'
 
+import { fixLocalName } from '@/lib/utils'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardAction,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+// import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
 import { ArrowLeft, CreditCard, Lock, Truck } from 'lucide-react'
 import Link from 'next/link'
@@ -20,23 +28,34 @@ import {
   calculateShipping,
   calculateTax,
   calculateTotal,
+  giftCardVerify,
+  calculateDiscount,
   type PaymentMethod,
   type ShippingMethod,
-} from '@/lib/checkout'
+  type GiftCard,
+} from '@/lib/checkout';
+
 import { toast } from 'sonner'
 
+// import {
+//   Field,
+//   FieldContent,
+//   FieldDescription,
+//   FieldLabel,
+//   FieldTitle,
+// } from "@/components/ui/field"
+
 import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-  FieldTitle,
-} from "@/components/ui/field"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 import { AddressAutoComplete, LocationSelector } from '../address/address-autocomplete'
-
-import { fixLocalName } from '@/lib/utils'
+import { ItemSelectDrawer } from '../item-select-drawer'
+// import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutFormData {
   email: string
@@ -63,6 +82,7 @@ interface CheckoutFormData {
   billingWard: string
   billingFullAddress: string
 
+  giftCard: string
   note: string
 }
 
@@ -73,6 +93,14 @@ export function CheckoutForm() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([])
   const [selectedShipping, setSelectedShipping] = useState<ShippingMethod | null>(null)
+
+  const [isGiftCardLoading, setIsGiftCardLoading] = useState<boolean>(false)
+  // const [discount, setDiscount] = useState<number>(0);
+  const [giftCard, setGiftCard] = useState<GiftCard | null>(null);
+
+  const [openDrawerShipping, setOpenDrawerShipping] = useState<boolean>(false);
+  const [openDrawerPayment, setOpenDrawerPayment] = useState<boolean>(false);
+
   const [formData, setFormData] = useState<CheckoutFormData>({
     email: process.env.NODE_ENV === 'development' ? 'john.doe@example.com' : '',
 
@@ -97,6 +125,7 @@ export function CheckoutForm() {
     billingWard: process.env.NODE_ENV === 'development' ? '' : '',
     billingFullAddress: '',
 
+    giftCard: '',
     note: ''
   })
 
@@ -130,7 +159,7 @@ export function CheckoutForm() {
   useEffect(() => {
     const shipping = shippingMethods.find((s) => s.id === formData.shippingMethodId)
     setSelectedShipping(shipping || null)
-  }, [formData.shippingMethodId, shippingMethods])
+  }, [formData.shippingMethodId, shippingMethods]);
 
   const handleInputChange = (field: keyof CheckoutFormData, value: string | boolean) => {
     if (['wardName', 'districtName', 'provinceName'].includes(field) && typeof value === 'string') {
@@ -139,10 +168,33 @@ export function CheckoutForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleGiftCardVerify = async () => {
+    if (!formData.giftCard) return;
+    try {
+      setIsGiftCardLoading(true);
+      const { data, error } = await giftCardVerify(formData.giftCard)
+      if (error || !data) {
+        throw new Error(error || 'Mã giảm giá không hợp lệ');
+      };
+
+      setGiftCard(data);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Mã giảm giá không hợp lệ');
+    } finally {
+      setIsGiftCardLoading(false);
+    }
+  };
+
   const subtotal = getTotalPrice()
   const shippingCost = calculateShipping(subtotal, selectedShipping)
   const tax = calculateTax(subtotal)
-  const total = calculateTotal(subtotal, shippingCost, tax)
+  const discount = !giftCard ? 0 : calculateDiscount(giftCard, formData.paymentMethodId, formData.shippingMethodId, subtotal)
+  const total = calculateTotal(subtotal, shippingCost, tax, discount)
+
+  useEffect(() => {
+    console.log({ giftCard, discount });
+
+  }, [giftCard, discount])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -179,6 +231,8 @@ export function CheckoutForm() {
         shippingMethodId: formData.shippingMethodId,
         subtotal: subtotal,
         shipping: shippingCost,
+        // giftCard: giftCard?.code,
+        // discount: discount,
         tax: tax,
         total: total,
       })
@@ -383,7 +437,7 @@ export function CheckoutForm() {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardContent className="space-y-3">
               <div>
                 {[formData.wardCode, formData.districtCode, formData.provinceCode].join(' - ')}
@@ -392,10 +446,90 @@ export function CheckoutForm() {
                 {([(formData.address || '-'), (formData.wardName || '-'), formData.districtName, (formData.provinceName || '-')]).filter(Boolean).join(', ')}
               </div>
             </CardContent>
+          </Card> */}
+
+          {/* Shipping Methods Drawer */}
+          <Card>
+            <CardHeader >
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="h-5 w-5" />
+                Phương thức vận chuyển
+              </CardTitle>
+              <CardAction>
+                <Button variant="link" size="xs" onClick={(e) => {
+                  setOpenDrawerShipping(true);
+                }}>Thay đổi</Button>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {shippingMethods.length === 0
+                ? <>Đang tải...</>
+                : <ItemSelectDrawer
+                  name='shipping'
+                  title="Phương thức vận chuyển"
+                  description="Chọn phương thức vận chuyển"
+                  items={shippingMethods.map(method => ({
+                    'id': method.id,
+                    'titleLeft': method.name,
+                    'titleRight': (!method.baseRate || (method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder))
+                      ? 'Free'
+                      : `$${method.baseRate.toFixed(2)}`,
+                    'description': [method.estimatedDeliveryDays, method.notes].filter(Boolean).join(' • '),
+                    // 'isSelected': method.id === formData.shippingMethodId,
+
+                  }))}
+                  selectedItemId={formData.shippingMethodId}
+                  onValueChange={val => {
+                    handleInputChange('shippingMethodId', val || '');
+                  }}
+                  open={openDrawerShipping}
+                  onOpenChange={setOpenDrawerShipping}
+                />}
+            </CardContent>
+          </Card>
+
+          {/* Payment Methods Drawer */}
+          <Card>
+            <CardHeader >
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Phương thức thanh toán
+              </CardTitle>
+              <CardAction>
+                <Button variant="link" size="xs" onClick={(e) => {
+                  setOpenDrawerPayment(true);
+                }}>Thay đổi</Button>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {paymentMethods.length === 0
+                ? <>Đang tải...</>
+                : <ItemSelectDrawer
+                  name='payment'
+                  title="Phương thức thanh toán"
+                  description="Chọn phương thức thanh toán"
+                  items={paymentMethods.map(method => {
+                    const provider = method.providers[0]
+                    return ({
+                      id: method.id,
+                      titleLeft: method.name,
+
+                      description: provider?.instructions,
+                      isSelected: method.id === formData.paymentMethodId,
+                    })
+                  })}
+                  selectedItemId={formData.paymentMethodId}
+                  onValueChange={val => {
+                    handleInputChange("paymentMethodId", val || '');
+                  }}
+                  open={openDrawerPayment}
+                  onOpenChange={setOpenDrawerPayment}
+                />}
+            </CardContent>
           </Card>
 
           {/* Shipping Methods */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5" />
@@ -406,8 +540,8 @@ export function CheckoutForm() {
               {shippingMethods.length == 0 ? (
                 <p className="text-muted-foreground">Đang tải phương thức vận chuyển...</p>
               ) : (<RadioGroup
-                // defaultValue={shippingMethods[0].id}
-                className="w-full  "
+                className="w-full"
+                value={formData.shippingMethodId || ''}
                 onValueChange={val => handleInputChange('shippingMethodId', val)}
               >
                 {shippingMethods.map((method) => (
@@ -443,10 +577,10 @@ export function CheckoutForm() {
               </RadioGroup>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Payment Methods */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
@@ -473,14 +607,8 @@ export function CheckoutForm() {
                         >
                           <Field orientation="horizontal" className='flex flex-row-reverse'>
                             <FieldContent>
-                              {/* <FieldTitle>{method.name}</FieldTitle> */}
                               <FieldTitle className='w-full flex items-center justify-between'>
-                                <span>{method.name}</span>
-                                {
-                                  method.discount?.type != 'none' && subtotal > (method.discount.minOrder as number || 0) && (
-                                    <span>-{method.discount.value}{method.discount.type == 'percent' ? '%' : 'đ'}</span>
-                                  )
-                                }
+                                {method.name}
                               </FieldTitle>
                               <FieldDescription className='text-xs'>
                                 {provider?.instructions && (provider.instructions)}
@@ -491,7 +619,6 @@ export function CheckoutForm() {
                         </FieldLabel>
                       );
                     })}
-                    {/* </div> */}
                   </RadioGroup>
 
                   <div className="flex items-center space-x-2">
@@ -512,21 +639,50 @@ export function CheckoutForm() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Order Summary */}
         <div>
-          <div className="sticky top-0 ">
+          <div className="sticky top-0 space-y-6">
             <OrderSummary
               subtotal={subtotal}
               shipping={shippingCost}
               tax={tax}
+              discount={discount}
               total={total}
               shippingMethodName={selectedShipping?.name}
             />
 
-            <div className="mt-6 space-y-4">
+            <Card>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+
+                  <Label htmlFor="giftCard">Mã giảm giá</Label>
+                  <InputGroup>
+                    <InputGroupInput
+                      id="giftCard"
+                      placeholder="Nhập mã giảm giá (nếu có)"
+                      value={formData.giftCard}
+                      onChange={({ target: { value } }) => (handleInputChange('giftCard', value))}
+                      disabled={isGiftCardLoading}
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        type="button"
+                        variant="default"
+                        disabled={isGiftCardLoading}
+                        onClick={handleGiftCardVerify}
+                      >Áp dụng</InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </div>
+              </CardContent>
+            </Card>
+
+
+
+            <div className=" space-y-4">
               <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
