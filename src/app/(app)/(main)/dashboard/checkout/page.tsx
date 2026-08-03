@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default function CheckoutPage() {
 
   return (
-    // <div data-content-padding={false} className='bg-muted p-4 md:p-6'>
-    <CheckoutForm />
-    // </div>
+    <div data-content-padding={false} className=' p-4 md:p-6 h-full'>
+      <CheckoutForm />
+    </div>
   )
 
   return (

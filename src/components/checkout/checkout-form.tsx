@@ -308,10 +308,10 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='h-full container mx-auto'>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full max-h-0 no-scrollbar ">
+    <form onSubmit={handleSubmit} className=' h-full container mx-auto @container/form'>
+      <div className="grid grid-cols-1 @xl/form:grid-cols-2 gap-8 h-full max-h-0 no-scrollbar  z-10">
 
-        <div className='md:col-span-2'>
+        <div className='@xl/form:col-span-2'>
           <div className=''>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ">
               <div className="flex flex-col gap-1">
@@ -320,11 +320,9 @@ export function CheckoutForm() {
               </div>
 
               <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
-                {/* Actions */}
               </div>
             </div>
           </div>
-          {/* &nbsp; */}
         </div>
 
         {/* Checkout Form */}
@@ -707,7 +705,7 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <div className='md:col-span-2'>&nbsp;</div>
+        <div className='@xl/form:col-span-2'>&nbsp;</div>
       </div>
     </form>
   )

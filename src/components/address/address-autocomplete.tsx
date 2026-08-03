@@ -252,7 +252,7 @@ export function LocationSelector({
     >
       <ComboboxTrigger
         render={
-          <Button variant="outline" className="w-full justify-between font-normal">
+          <Button variant="outline" className="w-full justify-between font-normal bg-white">
             <ComboboxValue placeholder='-' />
           </Button>
         }
