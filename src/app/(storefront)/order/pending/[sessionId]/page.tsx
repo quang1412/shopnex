@@ -49,9 +49,10 @@ export default function OrderPendingPage() {
               <div className="mx-auto w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center">
                 <Clock className="h-8 w-8 text-yellow-500" />
               </div>
-              <h1 className="text-3xl font-bold">Order Received!</h1>
+              <h1 className="text-3xl font-bold">Đơn hàng đã được nhận!</h1>
               <p className="text-muted-foreground">
-                Your order is awaiting payment. Please complete your bank transfer to confirm it.
+                Vui lòng hoàn thành thanh toán để xác nhận đơn hàng
+                {/* Your order is awaiting payment. Please complete your bank transfer to confirm it. */}
               </p>
             </div>
 
@@ -59,7 +60,7 @@ export default function OrderPendingPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>Order Summary</span>
+                    <span>Tóm tắt đơn hàng</span>
                     <span className="text-sm font-normal text-muted-foreground">
                       #{order.orderId}
                     </span>
@@ -71,13 +72,13 @@ export default function OrderPendingPage() {
                       <div className="space-y-3">
                         <h3 className="text-sm font-semibold flex items-center gap-2">
                           <Package className="h-4 w-4" />
-                          Items Ordered
+                          Sản phẩm
                         </h3>
                         {items.map((item: any, i: number) => (
                           <div key={i} className="flex justify-between text-sm">
                             <div className="">
                               <p className="text-muted-foreground">
-                                {item.name} <span className="text-xs"> × {item.quantity}</span>
+                                {item.name} <span className="text-sm"> × {item.quantity}</span>
                               </p>
                               {item.variantLabel && (
                                 <p className="text-xs text-muted-foreground">{item.variantLabel}</p>
@@ -97,13 +98,13 @@ export default function OrderPendingPage() {
                     <div className="space-y-1 text-sm">
                       {metadata.subtotal != null && (
                         <div className="flex justify-between text-muted-foreground">
-                          <span>Subtotal</span>
+                          <span>Tổng phụ</span>
                           <span>${metadata.subtotal.toFixed(2)}</span>
                         </div>
                       )}
                       {metadata.shippingCost != null && (
                         <div className="flex justify-between text-muted-foreground">
-                          <span>Shipping</span>
+                          <span>Giao hàng</span>
                           <span>
                             {metadata.shippingCost === 0
                               ? 'FREE'
@@ -113,8 +114,14 @@ export default function OrderPendingPage() {
                       )}
                       {metadata.taxAmount != null && (
                         <div className="flex justify-between text-muted-foreground">
-                          <span>Tax</span>
+                          <span>Thuế</span>
                           <span>${metadata.taxAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {metadata.discount != null && (
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>Thuế</span>
+                          <span>${metadata.discount.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
@@ -122,7 +129,7 @@ export default function OrderPendingPage() {
 
                   <Separator />
                   <div className="flex justify-between font-semibold">
-                    <span>Total Due</span>
+                    <span>Tổng cộng</span>
                     <span>${order.totalAmount?.toFixed(2)}</span>
                   </div>
 
@@ -132,13 +139,12 @@ export default function OrderPendingPage() {
                       <div className="space-y-1">
                         <h3 className="text-sm font-semibold flex items-center gap-2">
                           <Truck className="h-4 w-4" />
-                          Shipping Address
+                          Địa chỉ giao hàng
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+                          <span>{order.shippingAddress.fullName} • {order.shippingAddress.phone}</span>
                           <br />
-                          {order.shippingAddress.address}, {order.shippingAddress.city},{' '}
-                          {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                          {order.shippingAddress.fullAddress}
                         </p>
                       </div>
                     </>
@@ -151,7 +157,7 @@ export default function OrderPendingPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-5 w-5" />
-                  Payment Instructions
+                  Hướng dẫn thanh toán
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">

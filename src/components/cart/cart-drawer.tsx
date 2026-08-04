@@ -121,7 +121,11 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
             {/* items list */}
             <div className="flex-1 scroll-fade overflow-y-auto p-4 space-y-4">
               {items.map((item) => (
-                <CartItem key={item.id + item.variantId} item={item} />
+                <CartItem
+                  key={item.id + item.variantId}
+                  className='p-0'
+                  item={item}
+                />
               ))}
             </div>
 
@@ -146,12 +150,12 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
 
               <div className="space-y-2">
                 <Button onClick={undefined} nativeButton={false} className=" w-full" render={
-                  <Link href="/dashboard/checkout" >
-                    Thanh toán
+                  <Link href="/checkout" >
+                    Mua hàng
                   </Link>
                 }>
                 </Button>
-                <DrawerClose render={<Button className=" w-full" variant="outline">Tiếp tục mua sắm</Button>} />
+                <DrawerClose render={<Button className=" w-full" variant="outline">Đóng</Button>} />
               </div>
             </DrawerFooter>
           </>)}

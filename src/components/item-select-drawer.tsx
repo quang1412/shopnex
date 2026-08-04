@@ -98,7 +98,7 @@ export function ItemSelectDrawer({
         <Item
           variant="outline"
           className={cn(
-            "hover:bg-muted active:border-primary cursor-pointer",
+            "hover:border-primary active:border-primary cursor-pointer",
             className && className
           )}
         >
@@ -116,7 +116,7 @@ export function ItemSelectDrawer({
           </ItemContent>
         </Item>
       } />
-      <DrawerContent className={cn(classNameDrawer && classNameDrawer)}>
+      <DrawerContent className={cn("", classNameDrawer && classNameDrawer)}>
         <DrawerHeader>
           <DrawerTitle className={cn(!title && 'sr-only')}>
             {title}
@@ -126,7 +126,7 @@ export function ItemSelectDrawer({
           </DrawerDescription>
         </DrawerHeader>
         <div className={
-          "flex-1 overflow-y-auto p-4"
+          " flex-1 overflow-y-auto p-4"
           // + " scroll-fade"
         }>
           <RadioGroup

@@ -6,7 +6,7 @@ import { CartSummary } from './cart-summary'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
-import { ShoppingBag, ArrowLeft } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, CircleCheckBig } from 'lucide-react'
 
 export function CartContent() {
   const { items, clearCart } = useCart()
@@ -32,41 +32,85 @@ export function CartContent() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Cart Items */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Items ({items.length})</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearCart}
-            className="text-destructive hover:text-destructive"
-          >
-            Clear Cart
-          </Button>
+    <div className='@container/cart'>
+      <div className="grid grid-cols-1 @2xl/cart:grid-cols-2 gap-8 ">
+        {/* Col-1 */}
+        {/* Cart Items */}
+        <div className=" space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Sản phẩm ({items.length})</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearCart}
+              className="text-destructive hover:text-destructive"
+            >
+              Xóa giỏ hàng
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {items.map((item, index) => (
+              <CartItem
+                key={index + item.id + item.variantId}
+                className='bg-muted/50'
+                variant="outline"
+                item={item}
+              />
+            ))}
+          </div>
+
+          <Link href="/dashboard/products">
+            <Button variant="outline" className="w-full sm:w-auto bg-transparent">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Trở lại shop
+            </Button>
+          </Link>
+
+          {/* <div>
+            {Array.from({ length: 10 }).map(e => (
+              <div className='p-4'>
+                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quis, nihil inventore perspiciatis quibusdam, exercitationem unde nostrum optio ipsum voluptatum eius sunt! Quo laboriosam voluptatem atque vitae, repudiandae laborum repellat quisquam!
+              </div>
+            ))}
+          </div> */}
         </div>
 
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <CartItem key={item.id + item.variantId} item={item} />
-            // <div key={item.id + item.variantId}>
-            // {/* {index < items.length - 1 && <Separator className="mt-3 opacity-50" />} */}
-            // </div>
-          ))}
+        {/* Col-2 */}
+        {/* Cart Summary */}
+        <div>
+          <div className="sticky top-8  space-y-6">
+            <CartSummary />
+
+            <div className=" space-y-4">
+
+              <Button
+                size="lg"
+                nativeButton={false}
+                className="w-full"
+                render={
+                  <Link href="/checkout" className="w-full mb-4">
+                    <CircleCheckBig className="h-4 w-4 mr-2" />
+                    Mua hàng
+                  </Link>
+                }
+              />
+
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full bg-transparent"
+                nativeButton={false}
+                render={
+                  <Link href="/dashboard/products">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Trở lại shop
+                  </Link>
+                }
+              />
+            </div>
+          </div>
         </div>
-
-        <Link href="/products">
-          <Button variant="outline" className="w-full sm:w-auto bg-transparent">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Continue Shopping
-          </Button>
-        </Link>
-      </div>
-
-      {/* Cart Summary */}
-      <div className="lg:col-span-1">
-        <CartSummary />
       </div>
     </div>
   )

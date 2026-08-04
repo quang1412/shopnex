@@ -254,7 +254,7 @@ export function LocationSelector({
         render={
           <Button
             variant="outline"
-            className={cn("w-full justify-between font-normal bg-transparent", className && className)}
+            className={cn("w-full justify-between font-normal bg-transparent text-base md:text-sm", className && className)}
           >
             <ComboboxValue placeholder='-' />
           </Button>

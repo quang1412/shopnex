@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
-import { ShoppingCart, Truck } from "lucide-react"
+import { ShoppingCart, Truck, CircleCheckBig } from "lucide-react"
+// import { ArrowLeft, CreditCard, CircleCheckBig, Truck } from 'lucide-react'
+
 
 export function CartSummary() {
   const { items, getTotalPrice, getTotalItems } = useCart()
@@ -22,30 +24,30 @@ export function CartSummary() {
   }
 
   return (
-    <Card className="sticky top-8 shadow-lg border-border/50">
+    <Card className="bg-muted/50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShoppingCart className="h-5 w-5" />
-          Order Summary
+          Tóm tắt đơn hàng
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Subtotal ({totalItems} items)</span>
+            <span>Tổng phụ ({totalItems} sp)</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1">
-              <Truck className="h-3 w-3" />
-              Shipping
+              {/* <Truck className="h-3 w-3" /> */}
+              Vận chuyển
             </span>
             <span className={shipping === 0 ? "text-primary font-medium" : ""}>
               {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>Tax</span>
+            <span>Thuế</span>
             <span>${tax.toFixed(2)}</span>
           </div>
         </div>
@@ -53,7 +55,7 @@ export function CartSummary() {
         <Separator />
 
         <div className="flex justify-between font-semibold text-lg">
-          <span>Total</span>
+          <span>Tổng cộng</span>
           <span>${total.toFixed(2)}</span>
         </div>
 
@@ -63,7 +65,7 @@ export function CartSummary() {
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex flex-col gap-3">
+      {/* <CardFooter className="flex flex-col gap-3">
         <Link href="/checkout" className="w-full">
           <Button size="lg" className="w-full">
             Proceed to Checkout
@@ -74,7 +76,7 @@ export function CartSummary() {
             Continue Shopping
           </Button>
         </Link>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   )
 }

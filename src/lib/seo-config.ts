@@ -26,16 +26,16 @@ export const seoConfig = {
       descriptionTemplate: 'Shop products matching "%s" at ShopNex. Find exactly what you\'re looking for in our curated collection.',
     },
     categories: {
-      title: 'Categories | ShopNex',
+      title: 'Danh mục | ShopNex',
       description: 'Browse our product categories. Find exactly what you need by shopping our organized collections.',
     },
     cart: {
-      title: 'Shopping Cart | ShopNex',
+      title: 'Giỏ hàng | ShopNex',
       description: 'Review your selected items and proceed to checkout. Secure shopping cart with easy item management.',
       noIndex: true,
     },
     checkout: {
-      title: 'Checkout | ShopNex',
+      title: 'Thanh toán | ShopNex',
       description: 'Complete your purchase securely. Enter shipping and payment information to finalize your order.',
       noIndex: true,
     },

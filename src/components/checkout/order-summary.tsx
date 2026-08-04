@@ -76,13 +76,13 @@ export function OrderSummary({
         {/* Totals */}
         <div className="space-y-2">
           {/* Tạm tính */}
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between gap-2 text-sm">
             <span>Tạm tính</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
           {/* Vận chuyển */}
-          <div className="flex justify-between text-sm">
-            <span>
+          <div className="flex justify-between gap-2 text-sm">
+            <span className=' truncate'>
               Vận chuyển
               {shippingMethodName ? ` (${shippingMethodName})` : ''}
             </span>
@@ -91,21 +91,21 @@ export function OrderSummary({
             </span>
           </div>
           {/* Thuế */}
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between gap-2 text-sm">
             <span>Thuế</span>
             <span>${tax.toFixed(2)}</span>
           </div>
 
           {/* discount */}
-          <div className="flex justify-between text-sm">
+          {<div className="flex justify-between gap-2 text-sm">
             <span>Giảm giá</span>
             <span>${discount.toFixed(2)}</span>
-          </div>
+          </div>}
         </div>
 
         <Separator />
 
-        <div className="flex justify-between font-semibold text-lg">
+        <div className="flex justify-between gap-2 font-semibold text-lg">
           <span>Tổng</span>
           <span>${total.toFixed(2)}</span>
         </div>

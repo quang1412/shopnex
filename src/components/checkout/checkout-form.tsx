@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 // import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
-import { ArrowLeft, CreditCard, Lock, Truck } from 'lucide-react'
+import { ArrowLeft, CreditCard, CircleCheckBig, Truck } from 'lucide-react'
 import Link from 'next/link'
 import {
   getPaymentMethods,
@@ -36,14 +36,6 @@ import {
 } from '@/lib/checkout';
 
 import { toast } from 'sonner'
-
-// import {
-//   Field,
-//   FieldContent,
-//   FieldDescription,
-//   FieldLabel,
-//   FieldTitle,
-// } from "@/components/ui/field"
 
 import {
   InputGroup,
@@ -224,7 +216,7 @@ export function CheckoutForm() {
           province: formData.provinceCode,
           district: formData.districtCode,
           ward: formData.wardCode,
-          fullAddress: ([formData.address, formData.provinceName, formData.districtName, formData.wardName]).filter(Boolean).join(', '),
+          fullAddress: ([formData.address, formData.wardName, formData.districtName, formData.provinceName,]).filter(Boolean).join(', '),
           phone: formData.phone,
         },
         paymentMethodId: formData.paymentMethodId,
@@ -308,23 +300,10 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className=' h-full container mx-auto @container/form'>
-      <div className="grid grid-cols-1 @xl/form:grid-cols-2 gap-8 h-full max-h-0 no-scrollbar  z-10">
+    <form onSubmit={handleSubmit} className='h-full @container/form '>
+      <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-8 h-full  z-10">
 
-        <div className='@xl/form:col-span-2'>
-          <div className=''>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ">
-              <div className="flex flex-col gap-1">
-                <h1 className="text-3xl leading-none tracking-tight">Checkout</h1>
-                <p className="text-muted-foreground text-sm">Hoàn thành đơn hàng</p>
-              </div>
-
-              <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
-              </div>
-            </div>
-          </div>
-        </div>
-
+        {/* Col-1 */}
         {/* Checkout Form */}
         <div className="space-y-6">
           {/* Contact Information */}
@@ -341,7 +320,7 @@ export function CheckoutForm() {
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="john@example.com"
-                  className='bg-background'
+                  className='bg-muted/50'
                   required
                 />
               </div>
@@ -362,7 +341,7 @@ export function CheckoutForm() {
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
                     placeholder="John"
-                    className='bg-background'
+                    className='bg-muted/50'
                     required
                   />
                 </div>
@@ -373,7 +352,7 @@ export function CheckoutForm() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Doe"
-                    className='bg-background'
+                    className='bg-muted/50'
                     required
                   />
                 </div>
@@ -382,7 +361,7 @@ export function CheckoutForm() {
               <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
                 <AddressAutoComplete
-                  className='w-full bg-background'
+                  className='w-full bg-muted/50'
                   value={formData.address}
                   onInputValueChange={value => { handleInputChange('address', value) }}
                   onAddressSelect={data => {
@@ -404,7 +383,7 @@ export function CheckoutForm() {
                   <LocationSelector
                     type='province'
                     defaultValue={formData.provinceCode}
-                    className='bg-background'
+                    className='bg-muted/50 text-base md:text-sm'
                     onValueChange={value => {
                       console.log({ value });
                       handleInputChange('provinceName', value?.label || '');
@@ -425,7 +404,7 @@ export function CheckoutForm() {
                     type='ward'
                     parentCode={formData.provinceCode}
                     defaultValue={formData.wardCode}
-                    className='bg-background'
+                    className='bg-muted/50 text-base md:text-sm'
                     onValueChange={value => {
                       console.log({ 'ward': value });
                       handleInputChange('wardName', value?.label || '');
@@ -487,7 +466,7 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerShipping}
                   onOpenChange={setOpenDrawerShipping}
-                  className='bg-background'
+                  className='bg-muted/50 dark:bg-muted/50'
                 />}
             </CardContent>
           </Card>
@@ -528,145 +507,23 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerPayment}
                   onOpenChange={setOpenDrawerPayment}
-                  className='bg-background'
+                  className='bg-muted/50'
                 />}
             </CardContent>
           </Card>
 
-          {/* Shipping Methods */}
-          {/* <Card className='bg-muted/50'>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                Phương thức vận chuyển
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {shippingMethods.length == 0 ? (
-                <p className="text-muted-foreground">Đang tải phương thức vận chuyển...</p>
-              ) : (<RadioGroup
-                className="w-full"
-                value={formData.shippingMethodId || ''}
-                onValueChange={val => handleInputChange('shippingMethodId', val)}
-              >
-                {shippingMethods.map((method) => (
-                  <FieldLabel
-                    key={`shipping-${method.id}`}
-                    htmlFor={`shipping-${method.id}`}
-                    className='hover:border-muted-foreground'
-                  >
-                    <Field orientation="horizontal" className='flex flex-row-reverse'>
-                      <FieldContent>
-                        <FieldTitle className='w-full flex items-center justify-between'>
-                          <span>{method.name}</span>
-                          <span>
-                            {(!method.baseRate || (method.freeShippingMinOrder && subtotal >= method.freeShippingMinOrder))
-                              ? 'Free'
-                              : `$${method.baseRate.toFixed(2)}`}
-                          </span>
-                        </FieldTitle>
-                        <FieldDescription className='text-xs'>
-                          {(method.estimatedDeliveryDays || method.notes) && (
-                            <span className="text-xs text-muted-foreground mt-1">
-                              {method.estimatedDeliveryDays}
-                              {method.estimatedDeliveryDays && method.notes && ' • '}
-                              {method.notes}
-                            </span>
-                          )}
-                        </FieldDescription>
-                      </FieldContent>
-                      <RadioGroupItem value={method.id} id={`shipping-${method.id}`} />
-                    </Field>
-                  </FieldLabel>
-                ))}
-              </RadioGroup>
-              )}
-            </CardContent>
-          </Card> */}
-
-          {/* Payment Methods */}
-          {/* <Card className='bg-muted/50'>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Phương thức thanh toán
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {paymentMethods.length == 0 ? (
-                <p className="text-muted-foreground">Đang tải phương thức thanh toán...</p>
-              ) : (
-                <>
-                  <RadioGroup
-                    className="w-full"
-                    onValueChange={val => handleInputChange('paymentMethodId', val)}
-                  >
-                    {paymentMethods.map((method) => {
-                      const provider = method.providers[0];
-
-                      return (
-                        <FieldLabel
-                          key={`payment-${method.id}`}
-                          htmlFor={`payment-${method.id}`}
-                          className='hover:border-muted-foreground'
-                        >
-                          <Field orientation="horizontal" className='flex flex-row-reverse'>
-                            <FieldContent>
-                              <FieldTitle className='w-full flex items-center justify-between'>
-                                {method.name}
-                              </FieldTitle>
-                              <FieldDescription className='text-xs'>
-                                {provider?.instructions && (provider.instructions)}
-                              </FieldDescription>
-                            </FieldContent>
-                            <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
-                          </Field>
-                        </FieldLabel>
-                      );
-                    })}
-                  </RadioGroup>
-
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="saveInfo"
-                      checked={formData.saveInfo}
-                      onCheckedChange={(checked) => handleInputChange('saveInfo', checked as boolean)}
-                    />
-                    <Label htmlFor="saveInfo" className="text-sm">
-                      Lưu lựa chọn cho lần sau
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                    <Lock className="h-3 w-3" />
-                    Thông tin thanh toán của bạn được mã hoá và bảo mật
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card> */}
         </div>
 
+        {/* Col-2 */}
         {/* Order Summary */}
         <div>
-          <div className="sticky top-0 space-y-6">
-            <OrderSummary
-              subtotal={subtotal}
-              shipping={shippingCost}
-              tax={tax}
-              discount={discount}
-              total={total}
-              shippingMethodName={selectedShipping?.name}
-              className='bg-muted/50'
-            />
-
+          <div className="sticky top-6 space-y-6">
             <Card className='bg-muted/50'>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-
                   <Label htmlFor="giftCard">Mã giảm giá</Label>
                   <InputGroup
-                    className='bg-background'
+                    className='bg-muted/50'
                   >
                     <InputGroupInput
                       id="giftCard"
@@ -677,9 +534,9 @@ export function CheckoutForm() {
                     />
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        // className="text-sm"
                         type="button"
-                        variant="default"
+                        variant="outline"
+                        className="text-xs"
                         disabled={isGiftCardLoading}
                         onClick={handleGiftCardVerify}
                       >Áp dụng</InputGroupButton>
@@ -689,7 +546,15 @@ export function CheckoutForm() {
               </CardContent>
             </Card>
 
-
+            <OrderSummary
+              subtotal={subtotal}
+              shipping={shippingCost}
+              tax={tax}
+              discount={discount}
+              total={total}
+              shippingMethodName={selectedShipping?.name}
+              className='bg-muted/50'
+            />
 
             <div className=" space-y-4">
               <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
@@ -700,13 +565,13 @@ export function CheckoutForm() {
                   </>
                 ) : (
                   <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Xác nhận đơn hàng
+                    <CircleCheckBig className="h-4 w-4 mr-2" />
+                    Đặt hàng
                   </>
                 )}
               </Button>
 
-              <Link href="/dashboard/cart">
+              <Link href="/cart">
                 <Button variant="outline" size="lg" className="w-full bg-transparent">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Trở lại giỏ hàng
@@ -716,7 +581,7 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <div className='@xl/form:col-span-2'>&nbsp;</div>
+        {/* <div className='@xl/form:col-span-2 max-h-0'>&nbsp;</div> */}
       </div>
     </form>
   )
