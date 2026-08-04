@@ -315,8 +315,8 @@ export function CheckoutForm() {
           <div className=''>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ">
               <div className="flex flex-col gap-1">
-                <h1 className="text-3xl leading-none tracking-tight">Thanh toán</h1>
-                <p className="text-muted-foreground text-sm">thanh toán</p>
+                <h1 className="text-3xl leading-none tracking-tight">Checkout</h1>
+                <p className="text-muted-foreground text-sm">Hoàn thành đơn hàng</p>
               </div>
 
               <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
@@ -328,7 +328,7 @@ export function CheckoutForm() {
         {/* Checkout Form */}
         <div className="space-y-6">
           {/* Contact Information */}
-          <Card>
+          <Card className='bg-muted/50'>
             <CardHeader>
               <CardTitle>Thông tin liên hệ</CardTitle>
             </CardHeader>
@@ -341,6 +341,7 @@ export function CheckoutForm() {
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="john@example.com"
+                  className='bg-background'
                   required
                 />
               </div>
@@ -348,7 +349,7 @@ export function CheckoutForm() {
           </Card>
 
           {/* Shipping Address */}
-          <Card>
+          <Card className='bg-muted/50'>
             <CardHeader>
               <CardTitle>Địa chỉ giao hàng</CardTitle>
             </CardHeader>
@@ -361,6 +362,7 @@ export function CheckoutForm() {
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
                     placeholder="John"
+                    className='bg-background'
                     required
                   />
                 </div>
@@ -371,6 +373,7 @@ export function CheckoutForm() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Doe"
+                    className='bg-background'
                     required
                   />
                 </div>
@@ -379,7 +382,7 @@ export function CheckoutForm() {
               <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
                 <AddressAutoComplete
-                  className='w-full'
+                  className='w-full bg-background'
                   value={formData.address}
                   onInputValueChange={value => { handleInputChange('address', value) }}
                   onAddressSelect={data => {
@@ -400,7 +403,8 @@ export function CheckoutForm() {
                   <Label htmlFor="provinceName">Tỉnh/Tp</Label>
                   <LocationSelector
                     type='province'
-                    value={formData.provinceCode}
+                    defaultValue={formData.provinceCode}
+                    className='bg-background'
                     onValueChange={value => {
                       console.log({ value });
                       handleInputChange('provinceName', value?.label || '');
@@ -420,7 +424,8 @@ export function CheckoutForm() {
                   <LocationSelector
                     type='ward'
                     parentCode={formData.provinceCode}
-                    value={formData.wardCode}
+                    defaultValue={formData.wardCode}
+                    className='bg-background'
                     onValueChange={value => {
                       console.log({ 'ward': value });
                       handleInputChange('wardName', value?.label || '');
@@ -435,7 +440,7 @@ export function CheckoutForm() {
             </CardContent>
           </Card>
 
-          {/* <Card>
+          {/* <Card className='bg-muted/50'>
             <CardContent className="space-y-3">
               <div>
                 {[formData.wardCode, formData.districtCode, formData.provinceCode].join(' - ')}
@@ -447,14 +452,14 @@ export function CheckoutForm() {
           </Card> */}
 
           {/* Shipping Methods Drawer */}
-          <Card>
+          <Card className='bg-muted/50'>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5" />
                 Phương thức vận chuyển
               </CardTitle>
               <CardAction>
-                <Button variant="link" size="xs" onClick={(e) => {
+                <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerShipping(true);
                 }}>Thay đổi</Button>
               </CardAction>
@@ -482,19 +487,20 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerShipping}
                   onOpenChange={setOpenDrawerShipping}
+                  className='bg-background'
                 />}
             </CardContent>
           </Card>
 
           {/* Payment Methods Drawer */}
-          <Card>
+          <Card className='bg-muted/50'>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
                 Phương thức thanh toán
               </CardTitle>
               <CardAction>
-                <Button variant="link" size="xs" onClick={(e) => {
+                <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerPayment(true);
                 }}>Thay đổi</Button>
               </CardAction>
@@ -522,12 +528,13 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerPayment}
                   onOpenChange={setOpenDrawerPayment}
+                  className='bg-background'
                 />}
             </CardContent>
           </Card>
 
           {/* Shipping Methods */}
-          {/* <Card>
+          {/* <Card className='bg-muted/50'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5" />
@@ -578,7 +585,7 @@ export function CheckoutForm() {
           </Card> */}
 
           {/* Payment Methods */}
-          {/* <Card>
+          {/* <Card className='bg-muted/50'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
@@ -650,14 +657,17 @@ export function CheckoutForm() {
               discount={discount}
               total={total}
               shippingMethodName={selectedShipping?.name}
+              className='bg-muted/50'
             />
 
-            <Card>
+            <Card className='bg-muted/50'>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
 
                   <Label htmlFor="giftCard">Mã giảm giá</Label>
-                  <InputGroup>
+                  <InputGroup
+                    className='bg-background'
+                  >
                     <InputGroupInput
                       id="giftCard"
                       placeholder="Nhập mã giảm giá (nếu có)"
@@ -667,6 +677,7 @@ export function CheckoutForm() {
                     />
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
+                        // className="text-sm"
                         type="button"
                         variant="default"
                         disabled={isGiftCardLoading}

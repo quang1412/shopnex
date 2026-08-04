@@ -157,7 +157,7 @@ export async function createOrder(orderData: {
     price: number
     quantity: number
     image?: string
-    variantId?: string
+    variantId?: string | null
   }>
   customerInfo: {
     email: string

@@ -30,13 +30,16 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
     // Simulate loading
     await new Promise((resolve) => setTimeout(resolve, 300))
 
+    const firstVariant = product.variants?.[0];
+
     addItem({
       id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
-      variantId: undefined,
-      variantLabel: undefined,
+      variantId: firstVariant?.id,
+      variantLabel: firstVariant?.options?.map((o) => (o.value)).join(' • '),
+      stock: firstVariant?.stockCount || 0,
     })
 
     setIsLoading(false)

@@ -205,7 +205,7 @@ type locationItemType = {
 interface locationSelectorProps {
   type: locationType
   parentCode?: string
-  value?: string | null
+  defaultValue?: string | null
   onValueChange?: (item?: any | null) => void
   className?: string
 }
@@ -213,7 +213,7 @@ interface locationSelectorProps {
 export function LocationSelector({
   type,
   parentCode,
-  value = null,
+  defaultValue = null,
   onValueChange,
   className,
 }: locationSelectorProps) {
@@ -244,7 +244,7 @@ export function LocationSelector({
   return (
     <Combobox
       items={itemList}
-      value={value || null}
+      value={defaultValue || null}
       onValueChange={(value: string | null) => {
         const item = itemList.find(i => i.value == value);
         onValueChange?.(item)
@@ -252,11 +252,13 @@ export function LocationSelector({
     >
       <ComboboxTrigger
         render={
-          <Button variant="outline" className="w-full justify-between font-normal bg-white">
+          <Button
+            variant="outline"
+            className={cn("w-full justify-between font-normal bg-transparent", className && className)}
+          >
             <ComboboxValue placeholder='-' />
           </Button>
         }
-        className={cn(className && className)}
       />
       <ComboboxContent>
         <ComboboxInput showTrigger={false} placeholder="Tìm kiếm" />

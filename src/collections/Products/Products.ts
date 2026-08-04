@@ -189,6 +189,7 @@ export const Products: CollectionConfig = {
 
     {
       name: 'variants',
+      label: 'Biến thể',
       type: 'array',
       admin: {
         components: {
@@ -215,6 +216,7 @@ export const Products: CollectionConfig = {
         },
         {
           name: 'gallery',
+          label: 'Ảnh',
           type: 'upload',
           admin: {
             components: {
@@ -223,7 +225,6 @@ export const Products: CollectionConfig = {
             isSortable: false,
           },
           hasMany: true,
-          label: 'Image',
           relationTo: 'media',
         },
 
@@ -234,14 +235,15 @@ export const Products: CollectionConfig = {
               name: 'price',
               type: 'number',
               required: true,
+              label: 'Giá bán'
             },
-
             {
               name: 'originalPrice',
               type: 'number',
+              label: 'Giá thông thường'
             },
             {
-              label: 'In Stock',
+              label: 'Tồn kho',
               name: 'stockCount',
               type: 'number',
               defaultValue: 0,

@@ -410,6 +410,7 @@ export interface Media {
  */
 export interface Payment {
   id: number;
+  _order?: string | null;
   name: string;
   enabled?: boolean | null;
   providers?:
@@ -440,6 +441,7 @@ export interface Payment {
  */
 export interface Shipping {
   id: number;
+  _order?: string | null;
   name: string;
   enabled?: boolean | null;
   location?: (number | null) | Location;
@@ -1010,6 +1012,7 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "payments_select".
  */
 export interface PaymentsSelect<T extends boolean = true> {
+  _order?: T;
   name?: T;
   enabled?: T;
   providers?:
@@ -1055,6 +1058,7 @@ export interface LocationsSelect<T extends boolean = true> {
  * via the `definition` "shipping_select".
  */
 export interface ShippingSelect<T extends boolean = true> {
+  _order?: T;
   name?: T;
   enabled?: T;
   location?: T;

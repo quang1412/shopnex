@@ -109,10 +109,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
       addItem({
         id: product.id,
         name: product.name,
-        price: selectedVariant?.price || product.price,
         image: product.image,
+        price: selectedVariant?.price || product.price,
         variantId: selectedVariant?.id ?? undefined,
         variantLabel: selectedVariant?.options?.map((o: any) => o.value).join(' • ') ?? undefined,
+        stock: selectedVariant.stockCount || 0,
       })
     }
 

@@ -1,7 +1,7 @@
 import type { RowLabelProps } from '@payloadcms/ui'
 import type { ArrayFieldServerProps } from 'payload'
 
-// import Image from 'next/image'
+import Image from 'next/image'
 
 // const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & RowLabelProps) => {
 //   if (!props.data.variants) {
@@ -43,20 +43,26 @@ const VariantRowLabel = (props: { rowLabel: string } & ArrayFieldServerProps & R
   }
 
   // console.log('currentRow?.gallery', currentRow?.gallery);
+  // console.log('props', props);
+
 
   const variantValues = currentRow.options.map((option: any) => option.value)
-  // const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl || currentRow.image?.url
+  const imageUrl = currentRow.gallery?.[0]?.url || currentRow.imageUrl || '/images/placeholder.svg'
   return (
     <div style={{ width: '100%', display: 'flex', gap: '1rem', justifyContent: 'space-between', justifyItems: 'center' }}>
-      {/* <Image
-        alt={currentRow.name || 'variant image'}
-        height={0}
-        sizes="100vw" // Optional hint for responsive images
-        src={imageUrl}
-        style={{ height: '25px', width: 'auto' }}
-        width={0} // Required for layout="intrinsic"
-      /> */}
-      <p>{props.rowLabel}: {variantValues.join(' / ')}</p>
+      <div className='flex gap-2'>
+        <Image
+          alt={currentRow.name || 'variant image'}
+          height={0}
+          sizes="100vw" // Optional hint for responsive images
+          src={(imageUrl)}
+          style={{ height: '25px', width: 'auto' }}
+          width={0} // Required for layout="intrinsic"
+          className='rounded'
+        />
+        <p>{props.rowLabel}: {variantValues.join(' / ')}</p>
+      </div>
+
       <p>${currentRow.price}</p>
     </div>
   )

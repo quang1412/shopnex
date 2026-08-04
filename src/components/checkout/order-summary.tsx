@@ -13,6 +13,7 @@ interface OrderSummaryProps {
   total?: number
   shippingMethodName?: string
   shippingFullAddress?: string
+  className?: string
 }
 
 export function OrderSummary({
@@ -23,6 +24,7 @@ export function OrderSummary({
   total: propTotal,
   shippingMethodName,
   shippingFullAddress,
+  className,
 
 }: OrderSummaryProps) {
   const { items, getTotalPrice } = useCart()
@@ -35,7 +37,7 @@ export function OrderSummary({
   const total = propTotal ?? subtotal + shipping + tax - discount
 
   return (
-    <Card>
+    <Card className={className ? className : ''}>
       <CardHeader>
         <CardTitle>Tóm tắt đơn hàng</CardTitle>
       </CardHeader>

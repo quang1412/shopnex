@@ -82,6 +82,7 @@ export const Payments: CollectionConfig = {
     group: groups.settings.name,
     useAsTitle: "name",
   },
+  orderable: true, // Enables drag-and-drop reordering
   fields: [
     {
       name: "name",
