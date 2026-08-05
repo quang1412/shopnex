@@ -4,6 +4,7 @@ import { useCart } from '@/hooks/use-cart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
+import { ShoppingCart } from 'lucide-react'
 
 interface OrderSummaryProps {
   subtotal?: number
@@ -39,7 +40,9 @@ export function OrderSummary({
   return (
     <Card className={className ? className : ''}>
       <CardHeader>
-        <CardTitle>Tóm tắt đơn hàng</CardTitle>
+        <CardTitle className='flex items-center gap-2'>
+          <ShoppingCart className="h-4 w-4" />
+          Tóm tắt đơn hàng</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Items */}

@@ -15,6 +15,8 @@ import { string } from 'zod'
 import { SizeGuidDrawer } from './size-guide-drawer'
 
 import { toast } from 'sonner'
+import { AddToCartButton } from './add-to-cart-btn'
+import { ProductVariantSelector } from './options-selector'
 
 interface ProductDetailProps {
   product: Product
@@ -49,11 +51,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
     );
   });
 
-  const updateOption = (option: string, value: string) => {
-    // Fn cập nhật options
-    setOptions(prev => ({ ...prev, [option]: value }));
-    setQuantity(1);
-  };
+  // const updateOption = (option: string, value: string) => {
+  //   setOptions(prev => ({ ...prev, [option]: value }));
+  //   setQuantity(1);
+  // };
 
   const toggleOption = (option: string, value: string) => {
     // Fn cập nhật options
@@ -82,7 +83,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
     setSelectedVariant(variant);
   }, [selectedOptions]);
 
-  const isOptionSelectable = React.useCallback((option: string, value: string): boolean => {
+  const isOptionSelectable = (option: string, value: string): boolean => {
     // Fn check xem các options nào tiếp theo có thể chọn, dựa trên options hiện tại của client và các biến thể
     const testOptions = { ...selectedOptions, [option]: value };
 
@@ -94,7 +95,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
     const isSelectable = Boolean(matchedVariants?.length);
     return isSelectable;
 
-  }, [product, selectedOptions])
+  };
 
   const handleAddToCart = async () => {
     // Fn thêm vào giỏ hàng
@@ -120,6 +121,35 @@ export function ProductDetail({ product }: ProductDetailProps) {
     setIsLoading(false);
     toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
   }
+
+  const handleAddToCart_ = async (variantId: string, qty: number) => {
+    const variant = product.variants?.find(v => v.id === variantId);
+    if (!variant) return alert('vui lòng chọn biến thể sp');
+
+    // Fn thêm vào giỏ hàng
+    if (!selectedVariant) return alert('vui lòng chọn biến thể sp');
+
+    setIsLoading(true);
+
+    // Simulate loading
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    for (let i = 0; i < qty; i++) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: variant?.price || product.price,
+        variantId: variant?.id ?? undefined,
+        variantLabel: variant?.options?.map((o: any) => o.value).join(' • ') || undefined,
+        stock: variant.stockCount || 0,
+      })
+    }
+
+    setIsLoading(false);
+    toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
+  }
+
 
   const gallery = [...product.images, ...dummyGallery,]
 
@@ -261,8 +291,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* <Separator /> */}
 
+          <ProductVariantSelector product={product} onVariantChange={(variantId) => {
+            toast.info(variantId || 'clear');
+          }} />
+
           {/* Options control */}
-          {product.options && product.options.length > 0 && <div className='relative space-y-4'>
+          {/* {product.options && product.options.length > 0 && <div className='relative space-y-4'>
+
             {product.options.map(({ id, option, value }) => (
               <div key={id} className='space-y-2'>
                 <div className=' space-x-1'>
@@ -277,9 +312,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       <Button
                         key={value}
                         size="lg"
-                        variant={isDisabled ? "ghost" : selectedOptions?.[option] === value ? "default" : 'outline'}
+                        variant={isDisabled ? "outline" : selectedOptions?.[option] === value ? "default" : 'outline'}
                         disabled={isDisabled}
-                        className="disabled:line-through cursor-pointer disabled:cursor-not-allowed"
+                        className="cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-black/80 disabled:dark:border-white/80"
                         onClick={(e) => {
                           e.preventDefault();
                           toggleOption(option, value)
@@ -292,22 +327,25 @@ export function ProductDetail({ product }: ProductDetailProps) {
             ))}
 
             <div className='absolute top-0 right-0'>
-              {/* <Button variant="ghost" size="sm" onClick={() => { alert('show size guide!') }}>
-                <Ruler className='w-4 h-4' /> Size guide
-              </Button> */}
               <SizeGuidDrawer content={''} />
-              {/* {selectedOptions && <Button variant="ghost" size="sm" onClick={clearOptions}>
-                <XIcon className='h-4 w-4' /> Clear
-              </Button>} */}
             </div>
-          </div>}
+          </div>} */}
+
+          <AddToCartButton
+            variant={selectedVariant}
+            handleAddToCart={handleAddToCart_}
+            handlleBuyNow={(id) => {
+              toast.info(`Buy now ${id}`)
+            }}
+            isLoading={isLoading}
+          />
 
           {/* Add to Cart */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
+          {/* DELETE */}
+          <div className="space-y-4 hidden">
 
+            <div className="flex items-center gap-4">
               <div className="flex items-center border rounded-lg p-0.5">
-                {/* quantity control */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -356,8 +394,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 {/* after ATC button content */}
                 <p className='text-xs text-muted-foreground text-center'>Bạn chọn nhầm size? chúng mình hỗ trợ đổi size miễn phí.</p>
               </div>
+
             </div>
+
           </div>
+          {/* DELETE */}
 
           <Separator />
 

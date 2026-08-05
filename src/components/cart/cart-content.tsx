@@ -37,7 +37,7 @@ export function CartContent() {
         {/* Col-1 */}
         {/* Cart Items */}
         <div className=" space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between hidden">
             <h2 className="text-xl font-semibold">Sản phẩm ({items.length})</h2>
             <Button
               variant="ghost"

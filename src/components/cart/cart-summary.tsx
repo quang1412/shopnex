@@ -1,11 +1,11 @@
 "use client"
 
 import { useCart } from "@/hooks/use-cart"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
-import { ShoppingCart, Truck, CircleCheckBig } from "lucide-react"
+import { ShoppingCart, } from "lucide-react"
 // import { ArrowLeft, CreditCard, CircleCheckBig, Truck } from 'lucide-react'
 
 
@@ -27,7 +27,7 @@ export function CartSummary() {
     <Card className="bg-muted/50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingCart className="h-4 w-4" />
           Tóm tắt đơn hàng
         </CardTitle>
       </CardHeader>

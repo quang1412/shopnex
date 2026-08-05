@@ -15,11 +15,12 @@ import {
   CardTitle,
   CardAction,
 } from '@/components/ui/card'
+import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 // import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
-import { ArrowLeft, CreditCard, CircleCheckBig, Truck } from 'lucide-react'
+import { ArrowLeft, CreditCard, CircleCheckBig, Truck, Mail, MapIcon, MapPinCheck, TicketPercent, NotebookPen } from 'lucide-react'
 import Link from 'next/link'
 import {
   getPaymentMethods,
@@ -47,6 +48,7 @@ import {
 
 import { AddressAutoComplete, LocationSelector } from '../address/address-autocomplete'
 import { ItemSelectDrawer } from '../item-select-drawer'
+import { Textarea } from '../ui/textarea'
 // import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CheckoutFormData {
@@ -308,29 +310,46 @@ export function CheckoutForm() {
         <div className="space-y-6">
           {/* Contact Information */}
           <Card className='bg-muted/50'>
+            {/* <CardHeader>
+              <CardTitle className='flex items-center gap-2'>
+                <Mail className="h-4 w-4" />
+                Liên hệ
+              </CardTitle>
+            </CardHeader> */}
             <CardHeader>
-              <CardTitle>Thông tin liên hệ</CardTitle>
+              <Label htmlFor="email">
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </CardTitle>
+              </Label>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Địa chỉ email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="john@example.com"
-                  className='bg-muted/50'
-                  required
-                />
-              </div>
+              {/* <div className="space-y-2"> */}
+              {/* <Label htmlFor="email">Địa chỉ email</Label> */}
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="john@example.com"
+                className='bg-muted/50 border-border'
+                required
+              />
+              {/* </div> */}
             </CardContent>
           </Card>
 
           {/* Shipping Address */}
           <Card className='bg-muted/50'>
             <CardHeader>
-              <CardTitle>Địa chỉ giao hàng</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MapPinCheck className="h-4 w-4" />
+                Thông tin giao hàng
+              </CardTitle>
+              <CardAction>
+                <Button className="text-muted-foreground" variant="link" size="xs" >Chọn</Button>
+              </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -341,7 +360,7 @@ export function CheckoutForm() {
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
                     placeholder="John"
-                    className='bg-muted/50'
+                    className='bg-muted/50 border-border'
                     required
                   />
                 </div>
@@ -352,7 +371,7 @@ export function CheckoutForm() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Doe"
-                    className='bg-muted/50'
+                    className='bg-muted/50 border-border'
                     required
                   />
                 </div>
@@ -361,7 +380,7 @@ export function CheckoutForm() {
               <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
                 <AddressAutoComplete
-                  className='w-full bg-muted/50'
+                  className='w-full bg-muted/50 border-border'
                   value={formData.address}
                   onInputValueChange={value => { handleInputChange('address', value) }}
                   onAddressSelect={data => {
@@ -434,13 +453,13 @@ export function CheckoutForm() {
           <Card className='bg-muted/50'>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
+                <Truck className="h-4 w-4" />
                 Phương thức vận chuyển
               </CardTitle>
               <CardAction>
                 <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerShipping(true);
-                }}>Thay đổi</Button>
+                }}>Chọn</Button>
               </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -466,7 +485,7 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerShipping}
                   onOpenChange={setOpenDrawerShipping}
-                  className='bg-muted/50 dark:bg-muted/50'
+                  className='bg-muted/50 '
                 />}
             </CardContent>
           </Card>
@@ -475,13 +494,13 @@ export function CheckoutForm() {
           <Card className='bg-muted/50'>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
+                <CreditCard className="h-4 w-4" />
                 Phương thức thanh toán
               </CardTitle>
               <CardAction>
                 <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerPayment(true);
-                }}>Thay đổi</Button>
+                }}>Chọn</Button>
               </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -512,6 +531,25 @@ export function CheckoutForm() {
             </CardContent>
           </Card>
 
+          <Card className='bg-muted/50'>
+            <CardHeader>
+              <Label htmlFor="orderNote">
+                <CardTitle className="flex items-center gap-2">
+                  <NotebookPen className="h-4 w-4" />
+                  Ghi chú đơn hàng
+                </CardTitle>
+              </Label>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                id="orderNote"
+                placeholder='Lưu ý của bạn dành cho shop'
+                className='resize-none bg-muted/50 border-border '
+              />
+            </CardContent>
+          </Card>
+
+
         </div>
 
         {/* Col-2 */}
@@ -519,29 +557,38 @@ export function CheckoutForm() {
         <div>
           <div className="sticky top-6 space-y-6">
             <Card className='bg-muted/50'>
+              <CardHeader>
+                <Label htmlFor="giftCard">
+                  <CardTitle className="flex items-center gap-2">
+                    <TicketPercent className="h-4 w-4" />
+                    Mã giảm giá
+                  </CardTitle>
+
+                </Label>
+              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="giftCard">Mã giảm giá</Label>
-                  <InputGroup
-                    className='bg-muted/50'
-                  >
-                    <InputGroupInput
+
+                  {/* <Field orientation="horizontal"> */}
+                  <div className='flex gap-2'>
+                    <Input
                       id="giftCard"
+                      type="giftcard"
                       placeholder="Nhập mã giảm giá (nếu có)"
                       value={formData.giftCard}
                       onChange={({ target: { value } }) => (handleInputChange('giftCard', value))}
                       disabled={isGiftCardLoading}
+                      className='bg-muted/50 border-border'
                     />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        type="button"
-                        variant="outline"
-                        className="text-xs"
-                        disabled={isGiftCardLoading}
-                        onClick={handleGiftCardVerify}
-                      >Áp dụng</InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-xs"
+                      disabled={!formData.giftCard || isGiftCardLoading}
+                      onClick={handleGiftCardVerify}
+                    >Áp dụng</Button>
+                    {/* </Field> */}
+                  </div>
                 </div>
               </CardContent>
             </Card>

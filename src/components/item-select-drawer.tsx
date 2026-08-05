@@ -66,7 +66,6 @@ export function ItemSelectDrawer({
   open,
   onOpenChange,
 }: ItemSelectDrawerProps) {
-  // const [open, setOpen] = React.useState<boolean>(openProp || false);
   const [selectedId, setSelectedId] = React.useState<string>(selectedItemId)
   const isMobile = useIsMobile();
 
@@ -98,7 +97,7 @@ export function ItemSelectDrawer({
         <Item
           variant="outline"
           className={cn(
-            "hover:border-primary active:border-primary cursor-pointer",
+            "hover:border-primary/50 active:border-primary cursor-pointer",
             className && className
           )}
         >
