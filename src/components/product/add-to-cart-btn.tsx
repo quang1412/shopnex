@@ -24,18 +24,18 @@ export function AddToCartButton({
   const { quantityInCart, remainingStockAllowed, isMaxedOut } = useProductStock(String(variant?.id), (variant?.stockCount ?? 0));
   const [inputQty, setInputQty] = useState(1);
 
+  const variantId = variant?.id || null
+
   useEffect(() => {
     setInputQty(1);
   }, [variant])
 
   const onClickATC = () => {
-    if (!variant?.id) return;
-    handleAddToCart?.(variant.id, inputQty);
+    variantId && handleAddToCart?.(variantId, inputQty);
   }
 
   const onClickBuyNow = () => {
-    if (!variant?.id) return;
-    handlleBuyNow?.(variant.id);
+    variantId && handlleBuyNow?.(variantId);
   }
 
   return (
@@ -47,7 +47,7 @@ export function AddToCartButton({
             variant="ghost"
             size="sm"
             onClick={() => { setInputQty(inputQty - 1) }}
-            disabled={!variant?.id || (inputQty == 1)}
+            disabled={!variantId || (inputQty == 1)}
           >
             <>-</>
           </Button>
@@ -56,7 +56,7 @@ export function AddToCartButton({
             variant="ghost"
             size="sm"
             onClick={() => { setInputQty(inputQty + 1) }}
-            disabled={!variant?.id || (inputQty >= remainingStockAllowed)}
+            disabled={!variantId || remainingStockAllowed === 0 || inputQty >= remainingStockAllowed}
           >
             <>+</>
           </Button>
@@ -69,20 +69,21 @@ export function AddToCartButton({
       </div>
 
       <div className='flex gap-4'>
-        < Button
+        <Button
           onClick={onClickATC}
-          disabled={isMaxedOut || quantityInCart >= remainingStockAllowed}
+          disabled={isMaxedOut || remainingStockAllowed === 0}
           className="flex-1"
         >
           {isLoading ? <><Spinner />&nbsp;Đang thêm...</>
             : !variant ? "Chọn một biến thể"
-              : (quantityInCart >= remainingStockAllowed) ? "Bạn đã gom hết"
+              : (remainingStockAllowed === 0) ? "Bạn đã gom hết"
                 : isMaxedOut ? "Hết hàng"
                   : "Thêm vào giỏ"}
         </ Button>
         <Button
           onClick={onClickBuyNow}
           variant="outline"
+          className="w-[30%]"
         >
           Mua ngay
         </Button>

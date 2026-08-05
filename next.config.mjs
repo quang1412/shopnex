@@ -16,6 +16,18 @@ const nextConfig = {
 
     return webpackConfig
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000', // Change this to your backend server port (e.g., 5000, 1337, etc.)
+        pathname: '/**',
+      },
+    ],
+
+  },
+
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

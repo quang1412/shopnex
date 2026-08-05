@@ -25,6 +25,8 @@ export function CartItem({ item, className, variant }: CartItemProps) {
   const { updateQuantity, removeItem } = useCart()
 
   const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity > item.stock) return;
+
     if (newQuantity <= 0) {
       removeItem(item.id, item.variantId)
     } else {
@@ -96,6 +98,7 @@ export function CartItem({ item, className, variant }: CartItemProps) {
               size="icon"
               className="h-7 w-7"
               onClick={() => handleQuantityChange(item.quantity + 1)}
+              disabled={item.quantity >= item.stock}
             >
               <Plus className="h-3 w-3" />
             </Button>

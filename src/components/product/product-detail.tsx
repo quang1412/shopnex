@@ -10,13 +10,12 @@ import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
 import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRight, XIcon, Ruler, ChevronLeft } from 'lucide-react'
-import { string } from 'zod'
 // import { useIsMobile } from '@/hooks/use-mobile'
 import { SizeGuidDrawer } from './size-guide-drawer'
 
 import { toast } from 'sonner'
 import { AddToCartButton } from './add-to-cart-btn'
-import { ProductVariantSelector } from './options-selector'
+import { ProductVariantSelector } from './variant-selector'
 
 interface ProductDetailProps {
   product: Product
@@ -34,72 +33,78 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
   const savedPercent = !!regularPrice ? (100 - (product.price / (regularPrice / 100))).toFixed(1) : 0;
 
-
   // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
   const defaultVariant = product.variants?.find(v => v.sku === 'SN-default') ||
     product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
     product.variants?.[0];
 
-  const [selectedVariant, setSelectedVariant] = useState<NonNullable<Product['variants']>[number] | undefined | null>(
-    defaultVariant
-  );
+  // const [selectedVariant, setSelectedVariant] = useState<NonNullable<Product['variants']>[number] | undefined | null>(
+  //   defaultVariant
+  // );
 
-  const [selectedOptions, setOptions] = useState<{ [x: string]: string } | null>(() => {
-    if (!defaultVariant?.options) return null;
-    return Object.fromEntries(
-      defaultVariant.options?.map((opt) => [opt.option, opt.value])
-    );
+  const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
+    return {};
+
+    // if (!defaultVariant?.options) return {};
+    // return Object.fromEntries(
+    //   defaultVariant.options.map((opt) => [opt.option, opt.value])
+    // );
+  });
+
+  const variantSelected = product.variants?.find((variant) => {
+    const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
+    return !isDeff;
   });
 
   // const updateOption = (option: string, value: string) => {
-  //   setOptions(prev => ({ ...prev, [option]: value }));
+  //   setSelectedOptions(prev => ({ ...prev, [option]: value }));
   //   setQuantity(1);
   // };
 
-  const toggleOption = (option: string, value: string) => {
-    // Fn cập nhật options
-    setOptions(prev => {
-      const update = ({ ...prev, [option]: value });
-      if (prev?.[option] === value) {
-        delete update[option];
-      }
-      return update;
-    });
-    setQuantity(1);
-  };
+  // const toggleOption = (option: string, value: string) => {
+  //   // Fn cập nhật options
+  //   setSelectedOptions(prev => {
+  //     const update = ({ ...prev, [option]: value });
+  //     if (prev?.[option] === value) {
+  //       delete update[option];
+  //     }
+  //     return update;
+  //   });
+  //   setQuantity(1);
+  // };
 
   // const clearOptions = () => {
   //   // Fn xoá các options 
-  //   setOptions(null);
+  //   setSelectedOptions(null);
   //   setQuantity(1);
   // };
 
-  React.useEffect(() => {
-    // Fn xác định biến thể dựa theo các options của client.
-    const variant = !selectedOptions ? null : product.variants?.find(variant => {
-      const isDeff = variant.options?.find(opt => (opt.value !== selectedOptions[opt.option]))
-      return isDeff ? 0 : 1
-    });
-    setSelectedVariant(variant);
-  }, [selectedOptions]);
+  // React.useEffect(() => {
+  //   // Fn xác định biến thể dựa theo các options của client.
+  //   const variant = !selectedOptions ? null : product.variants?.find(variant => {
+  //     const isDeff = variant.options?.find(opt => (opt.value !== selectedOptions[opt.option]))
+  //     return isDeff ? 0 : 1
+  //   });
+  //   setSelectedVariant(variant);
+  // }, [selectedOptions]);
 
-  const isOptionSelectable = (option: string, value: string): boolean => {
-    // Fn check xem các options nào tiếp theo có thể chọn, dựa trên options hiện tại của client và các biến thể
-    const testOptions = { ...selectedOptions, [option]: value };
+  // const isOptionSelectable = (option: string, value: string): boolean => {
+  //   // Fn check xem các options nào tiếp theo có thể chọn, dựa trên options hiện tại của client và các biến thể
+  //   const testOptions = { ...selectedOptions, [option]: value };
 
-    const matchedVariants = product.variants?.filter((variant) => {
-      const isDeff = Boolean(variant.options?.find(({ option: o, value: v }) => (testOptions[o] && testOptions[o] != v)))
-      return isDeff ? 0 : 1
-    }).filter(({ stockCount }) => (stockCount && stockCount > 0));
+  //   const matchedVariants = product.variants?.filter((variant) => {
+  //     const isDeff = Boolean(variant.options?.find(({ option: o, value: v }) => (testOptions[o] && testOptions[o] != v)))
+  //     return isDeff ? 0 : 1
+  //   }).filter(({ stockCount }) => (stockCount && stockCount > 0));
 
-    const isSelectable = Boolean(matchedVariants?.length);
-    return isSelectable;
+  //   const isSelectable = Boolean(matchedVariants?.length);
+  //   return isSelectable;
+  // };
 
-  };
-
+  // DELETE
   const handleAddToCart = async () => {
     // Fn thêm vào giỏ hàng
-    if (!selectedVariant) return alert('vui lòng chọn biến thể sp');
+    if (!variantSelected) return alert('vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 
@@ -111,10 +116,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
         id: product.id,
         name: product.name,
         image: product.image,
-        price: selectedVariant?.price || product.price,
-        variantId: selectedVariant?.id ?? undefined,
-        variantLabel: selectedVariant?.options?.map((o: any) => o.value).join(' • ') ?? undefined,
-        stock: selectedVariant.stockCount || 0,
+        price: variantSelected?.price || product.price,
+        variantId: variantSelected?.id ?? undefined,
+        variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') ?? undefined,
+        stock: variantSelected.stockCount || 0,
       })
     }
 
@@ -127,7 +132,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
     if (!variant) return alert('vui lòng chọn biến thể sp');
 
     // Fn thêm vào giỏ hàng
-    if (!selectedVariant) return alert('vui lòng chọn biến thể sp');
+    if (!variantSelected) return alert('vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 
@@ -146,6 +151,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       })
     }
 
+    setSelectedOptions({});
     setIsLoading(false);
     toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
   }
@@ -156,12 +162,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
   return (
     <div className="container mx-auto pb-8 space-y-4 4xl:overflow-x-auto 4xl:scrollbar-none 4xl:h-[calc(100vh-4em)] w-full">
 
-      {/* <div>
-        <Button className="" variant="ghost" onClick={() => { }}>
-          <ChevronLeft />  Trở lại
-        </Button>
-      </div> */}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start  ">
 
         {/* Product Images */}
@@ -169,7 +169,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           <div className="flex gap-4 flex-col @lg/gallery:flex-row-reverse">
             {/* Main Image */}
             <div className='flex-1'>
-              <div className="aspect-square rounded-lg overflow-hidden bg-muted/50">
+              <div className="aspect-square  rounded-lg overflow-hidden bg-muted/50">
                 <Image
                   src={gallery[selectedImage] || product.image}
                   alt={product.name}
@@ -291,9 +291,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* <Separator /> */}
 
-          <ProductVariantSelector product={product} onVariantChange={(variantId) => {
-            toast.info(variantId || 'clear');
-          }} />
+          <ProductVariantSelector
+            product={product}
+            options={selectedOptions}
+            onOptionsChange={setSelectedOptions}
+
+          // onVariantChange={(variantId) => {
+          //   toast.info(variantId || 'clear');
+          //   setSelectedVariant(!variantId ? null : product.variants?.find(v => v.id == variantId) || null)
+          // }}
+          />
 
           {/* Options control */}
           {/* {product.options && product.options.length > 0 && <div className='relative space-y-4'>
@@ -332,10 +339,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div>} */}
 
           <AddToCartButton
-            variant={selectedVariant}
+            variant={variantSelected}
             handleAddToCart={handleAddToCart_}
             handlleBuyNow={(id) => {
               toast.info(`Buy now ${id}`)
+
+              setSelectedOptions({})
             }}
             isLoading={isLoading}
           />
@@ -350,7 +359,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={!selectedVariant || quantity <= 1}
+                  disabled={!variantSelected || quantity <= 1}
                 >
                   -
                 </Button>
@@ -359,7 +368,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => setQuantity(quantity + 1)}
-                  disabled={!selectedVariant || quantity >= 100}
+                  disabled={!variantSelected || quantity >= 100}
                 >
                   +
                 </Button>
@@ -375,7 +384,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 size="lg"
                 onClick={handleAddToCart}
                 // disabled={!product.inStock || isLoading || !selectedVariant}
-                disabled={isLoading || !(product.inStock || (selectedVariant?.stockCount && selectedVariant.stockCount > 0))}
+                disabled={isLoading || !(product.inStock || (variantSelected?.stockCount && variantSelected.stockCount > 0))}
                 className="sm:flex-1"
               >
                 {isLoading ? (
@@ -446,11 +455,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             ))}
           </div> */}
         </div>
-
-
       </div>
-
-
       {/* <div>{JSON.stringify(candidateVariants?.map(c => c.options))}</div> */}
     </div>
   )

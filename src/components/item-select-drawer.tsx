@@ -52,6 +52,7 @@ interface ItemSelectDrawerProps {
   onValueChange: (id?: string) => void
   className?: string
   classNameDrawer?: string
+  swipeDirection?: "up" | "down" | "left" | "right"
 }
 
 export function ItemSelectDrawer({
@@ -65,6 +66,7 @@ export function ItemSelectDrawer({
   classNameDrawer,
   open,
   onOpenChange,
+  swipeDirection
 }: ItemSelectDrawerProps) {
   const [selectedId, setSelectedId] = React.useState<string>(selectedItemId)
   const isMobile = useIsMobile();
@@ -90,7 +92,7 @@ export function ItemSelectDrawer({
       open={open}
       onOpenChange={onOpenChange}
       showSwipeHandle={isMobile}
-      swipeDirection={isMobile ? "down" : "right"}
+      swipeDirection={isMobile ? "down" : swipeDirection || "right"}
     >
       <DrawerTrigger nativeButton={false} render={
 

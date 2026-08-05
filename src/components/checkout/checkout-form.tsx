@@ -486,6 +486,7 @@ export function CheckoutForm() {
                   open={openDrawerShipping}
                   onOpenChange={setOpenDrawerShipping}
                   className='bg-muted/50 '
+                  swipeDirection="left"
                 />}
             </CardContent>
           </Card>
@@ -527,6 +528,7 @@ export function CheckoutForm() {
                   open={openDrawerPayment}
                   onOpenChange={setOpenDrawerPayment}
                   className='bg-muted/50'
+                  swipeDirection="left"
                 />}
             </CardContent>
           </Card>
