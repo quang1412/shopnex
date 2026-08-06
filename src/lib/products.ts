@@ -1,6 +1,22 @@
 import { sdk } from './payload'
 import { CACHE_TIMES } from './cache-config'
 import type { Product as PayloadProduct, Collection as PayloadCollection } from '@/payload-types'
+import { type Media } from '@/payload-types'
+
+interface VariantOption {
+  option: string
+  value: string
+}
+
+interface Variant {
+  id: string
+  sku: string
+  gallery: string[]
+  price: number
+  originalPrice: number
+  stockCount: number
+  options?: VariantOption[]
+}
 
 export interface Product {
   id: string
@@ -13,7 +29,7 @@ export interface Product {
   category: string
   inStock: boolean
   featured?: boolean
-  variants?: PayloadProduct['variants']
+  variants: Variant[]
   options?: PayloadProduct['variantOptions']
   customFields: { name: string, value: string }[]
   // variant?: string
@@ -47,7 +63,15 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
       : 'Uncategorized',
     inStock: (firstVariant?.stockCount || 0) > 0,
     featured: payloadProduct.featured || false,
-    variants: payloadProduct.variants,
+    variants: payloadProduct.variants.map(v => ({
+      id: v.id!,
+      sku: v.sku || '',
+      gallery: v.gallery?.map((g) => (typeof g === 'object' ? (g.url || "") : "")) || [],
+      price: v.price || 0,
+      originalPrice: v.originalPrice || 0,
+      options: v.options || [],
+      stockCount: v.stockCount || 0,
+    })),
     options: payloadProduct.variantOptions,
     customFields: payloadProduct.customFields?.map(({ name, value }) => ({ name, value: (value || '') })) || [],
   }

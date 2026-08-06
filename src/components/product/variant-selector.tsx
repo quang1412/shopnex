@@ -14,14 +14,19 @@ interface ProductVariantSelectorProps {
 
 export function ProductVariantSelector({
   product,
-  options,
+  options: optionsProp,
   onOptionsChange,
 }: ProductVariantSelectorProps) {
   const { items: cartItems } = useCart();
 
   const toggleOption = (option: string, value: string) => {
-    const newValue = (options[option] === value ? "" : value);
-    onOptionsChange({ ...options, [option]: newValue });
+    const newOptions = { ...optionsProp, [option]: value }
+
+    if (value === optionsProp[option]) {
+      (delete newOptions[option])
+    }
+
+    onOptionsChange(newOptions);
   }
 
   const getVariant = (options: { [key: string]: string }) => {
@@ -36,41 +41,64 @@ export function ProductVariantSelector({
     return null;
   }
 
+  const optionsData = product.options.map(({ option, value: values }) => {
+    return ({
+      option,
+      values: values.map((value) => {
+        let isDisabled: boolean = false;
+
+        const testVariant = getVariant({ ...optionsProp, [option]: value })
+        const cartItem = testVariant && cartItems.find(i => i.variantId == testVariant?.id) || null;
+
+        if (!testVariant) {
+          // Tính tổng của toàn bộ các biến thể có cùng option
+          const totalRemainingStock = (product.variants.
+            filter(v => (v.options?.find(({ option: op, value: val }) => op === option && val === value))).
+            reduce((total, v) => {
+              const cartQty = cartItems.find(i => i.variantId == v.id)?.quantity || 0;
+              return (total + (v.stockCount - cartQty))
+            }, 0)
+          );
+
+          (totalRemainingStock <= 0) && (isDisabled = true);
+
+        } else {
+          (testVariant && testVariant.stockCount <= 0) && (isDisabled = true);
+
+          ((cartItem?.quantity || 0) >= (testVariant?.stockCount || 0)) && (isDisabled = true);
+        };
+
+        return ({
+          label: value,
+          disable: isDisabled,
+        })
+      })
+    })
+  });
+
   return (
     <div className='relative space-y-4'>
-      {product.options.map(({ id, option, value }) => (
-        <div key={id} className='space-y-2'>
+      {optionsData.map(({ option, values }) => (
+        <div key={option} className='space-y-2'>
           <div className=' space-x-1'>
             <span className='font-medium text-sm'>{option}:</span>
-            <span className='text-xs text-muted-foreground'>{options[option] ?? ''}</span>
+            <span className='text-xs text-muted-foreground'>{optionsProp[option] ?? ''}</span>
           </div>
           <div className='flex gap-2 flex-wrap'>
-            {value.map(value => {
-              let isDisplay: boolean = true;
-
-              const thisVariant = getVariant({ ...options, [option]: value })
-              const cartItem = thisVariant ? cartItems.find(i => i.variantId == thisVariant.id) : null;
-
-              if (thisVariant) {
-                isDisplay = Boolean((thisVariant?.stockCount || 0) > 0);
-
-                if ((cartItem?.quantity || -1) >= (thisVariant.stockCount || 0)) {
-                  isDisplay = false
-                };
-              }
+            {values.map(({ label, disable }) => {
 
               return (
                 <Button
-                  key={value}
+                  key={label}
                   size="lg"
-                  variant={!isDisplay ? "outline" : options[option] === value ? "default" : 'outline'}
-                  disabled={!isDisplay}
+                  variant={disable ? "outline" : optionsProp[option] === label ? "default" : 'outline'}
+                  disabled={disable}
                   className="cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-black/50 disabled:dark:border-white/50"
                   onClick={(e) => {
                     e.preventDefault();
-                    toggleOption(option, value)
+                    toggleOption(option, label)
                   }}
-                >{value}</Button>
+                >{label}</Button>
               )
             })}
           </div>

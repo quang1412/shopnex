@@ -11,7 +11,7 @@ import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
 import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRight, XIcon, Ruler, ChevronLeft } from 'lucide-react'
 // import { useIsMobile } from '@/hooks/use-mobile'
-import { SizeGuidDrawer } from './size-guide-drawer'
+import { SizeGuideDrawer } from './size-guide-drawer'
 
 import { toast } from 'sonner'
 import { AddToCartButton } from './add-to-cart-btn'
@@ -24,30 +24,33 @@ interface ProductDetailProps {
 const dummyGallery = Array.from({ length: 3 }).map(() => '/images/placeholder.svg')
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const { addItem } = useCart();
+  const { items: cartItems, addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
+  // const [defaultVariant_] = useState(() => (
+  //   // product.variants?.find(v => v.sku === 'SN-default') ||
+  //   // product.variants?.find(v => !v.manageStock) ||
+  //   product.variants?.find(v => (cartItems.find(({ variantId }) => (variantId == v.id))?.quantity || 0) < v.stockCount) ||
+  //   product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
+  //   product.variants?.[0]
+  // ))
+
   const isPreOrder = true;
   const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
   const savedPercent = !!regularPrice ? (100 - (product.price / (regularPrice / 100))).toFixed(1) : 0;
-
-  // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
-  const defaultVariant = product.variants?.find(v => v.sku === 'SN-default') ||
-    product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
-    product.variants?.[0];
 
   // const [selectedVariant, setSelectedVariant] = useState<NonNullable<Product['variants']>[number] | undefined | null>(
   //   defaultVariant
   // );
 
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
-    return {};
-
-    // if (!defaultVariant?.options) return {};
+    return {}
+    // if (!defaultVariant_?.options) return {};
     // return Object.fromEntries(
-    //   defaultVariant.options.map((opt) => [opt.option, opt.value])
+    //   defaultVariant_.options.map((opt) => [opt.option, opt.value])
     // );
   });
 
@@ -291,16 +294,20 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* <Separator /> */}
 
-          <ProductVariantSelector
-            product={product}
-            options={selectedOptions}
-            onOptionsChange={setSelectedOptions}
+          <div className='relative'>
+            <ProductVariantSelector
+              product={product}
+              options={selectedOptions}
+              onOptionsChange={setSelectedOptions}
+            />
 
-          // onVariantChange={(variantId) => {
-          //   toast.info(variantId || 'clear');
-          //   setSelectedVariant(!variantId ? null : product.variants?.find(v => v.id == variantId) || null)
-          // }}
-          />
+            <div className=' absolute top-0 right-0'>
+              <SizeGuideDrawer
+                label={<><Ruler className='w-4 h-4' /> Bảng size</>}
+                content="hiển thị bảng size ở đây (nếu có)"
+              />
+            </div>
+          </div>
 
           {/* Options control */}
           {/* {product.options && product.options.length > 0 && <div className='relative space-y-4'>
@@ -334,7 +341,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             ))}
 
             <div className='absolute top-0 right-0'>
-              <SizeGuidDrawer content={''} />
+              <SizeGuideDrawer content={''} />
             </div>
           </div>} */}
 
