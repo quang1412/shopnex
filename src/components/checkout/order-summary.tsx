@@ -78,16 +78,16 @@ export function OrderSummary({
 
         {/* Totals */}
         <div className="space-y-2">
-          {/* Tạm tính */}
+          {/* Tổng phụ */}
           <div className="flex justify-between gap-2 text-sm">
-            <span>Tạm tính</span>
+            <span>Tổng phụ</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
           {/* Vận chuyển */}
           <div className="flex justify-between gap-2 text-sm">
             <span className=' truncate'>
               Vận chuyển
-              {shippingMethodName ? ` (${shippingMethodName})` : ''}
+              {shippingMethodName ? <span className="text-muted-foreground"> ({shippingMethodName})</span> : ''}
             </span>
             <span className={shipping === 0 ? ' font-medium' : ''}>
               {shipping === 0 ? 'Miễn phí' : `$${shipping.toFixed(2)}`}
@@ -100,9 +100,9 @@ export function OrderSummary({
           </div>
 
           {/* discount */}
-          {<div className="flex justify-between gap-2 text-sm">
+          {!!discount && <div className="flex justify-between gap-2 text-sm">
             <span>Giảm giá</span>
-            <span>${discount.toFixed(2)}</span>
+            <span>${discount.toFixed(0)}</span>
           </div>}
         </div>
 

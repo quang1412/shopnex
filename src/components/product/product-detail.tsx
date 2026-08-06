@@ -30,13 +30,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
-  // const [defaultVariant_] = useState(() => (
-  //   // product.variants?.find(v => v.sku === 'SN-default') ||
-  //   // product.variants?.find(v => !v.manageStock) ||
-  //   product.variants?.find(v => (cartItems.find(({ variantId }) => (variantId == v.id))?.quantity || 0) < v.stockCount) ||
-  //   product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
-  //   product.variants?.[0]
-  // ))
+  const [defaultVariant_] = useState(() => (
+    // product.variants?.find(v => v.sku === 'SN-default') ||
+    // product.variants?.find(v => !v.manageStock) ||
+    product.variants?.find(v => (cartItems.find(({ variantId }) => (variantId == v.id))?.quantity || 0) < v.stockCount) ||
+    product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
+    product.variants?.[0]
+  ))
 
   const isPreOrder = true;
   const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
@@ -131,32 +131,50 @@ export function ProductDetail({ product }: ProductDetailProps) {
   }
 
   const handleAddToCart_ = async (variantId: string, qty: number) => {
+    // Fn thêm vào giỏ hàng
+
     const variant = product.variants?.find(v => v.id === variantId);
     if (!variant) return alert('vui lòng chọn biến thể sp');
 
-    // Fn thêm vào giỏ hàng
-    if (!variantSelected) return alert('vui lòng chọn biến thể sp');
+    // if (!variantSelected) return alert('vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 
     // Simulate loading
     await new Promise((resolve) => setTimeout(resolve, 500))
 
+    const item = {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: variant?.price || product.price,
+      variantId: variant?.id ?? undefined,
+      variantLabel: variant?.options?.map((o: any) => o.value).join(' • ') || undefined,
+      stock: variant.stockCount || 0,
+    }
+
     for (let i = 0; i < qty; i++) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        price: variant?.price || product.price,
-        variantId: variant?.id ?? undefined,
-        variantLabel: variant?.options?.map((o: any) => o.value).join(' • ') || undefined,
-        stock: variant.stockCount || 0,
-      })
+      addItem(item)
     }
 
     setSelectedOptions({});
     setIsLoading(false);
-    toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
+    // toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
+    toast.success(
+      <div className="flex items-center gap-3">
+        <Image
+          width={45}
+          height={45}
+          src={product.image || "/images/placeholder.svg"}
+          alt="Thumbnail"
+          className="h-10 w-10 rounded-lg object-cover"
+        />
+        <div>
+          <p className="font-semibold">Đã thêm {qty} sp vào giỏ hàng</p>
+          <p className="text-sm text-muted-foreground">{item.name} ({item.variantLabel})</p>
+        </div>
+      </div>
+    );
   }
 
 

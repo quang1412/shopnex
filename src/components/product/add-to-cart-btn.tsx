@@ -34,32 +34,29 @@ export function AddToCartButton({
   const quantityInCart = itemInCart?.quantity || 0;
   const remainingStockAllowed = Math.max(0, (variant?.stockCount || 0) - quantityInCart);
 
-  useEffect(() => {
-    setInputQty(1);
-  }, [variant])
+  useEffect(() => { setInputQty(1) }, [variant]);
 
-  const onClickATC = () => {
-    if (remainingStockAllowed === 0 || inputQty > remainingStockAllowed) return;
-
-    variantId && handleAddToCart?.(variantId, inputQty);
+  const handleChangeQuantity = (qty: number) => {
+    !isLoading && variantId && setInputQty(qty);
   }
 
-  const onClickBuyNow = () => {
+  const hangleClickATC = () => {
+    if (!variantId || remainingStockAllowed === 0 || inputQty > remainingStockAllowed) return;
+    handleAddToCart?.(variantId, inputQty);
+  }
+
+  const handleClickBuyNow = () => {
     variantId && handlleBuyNow?.(variantId);
   }
 
   return (
-    <fieldset disabled={isLoading || !variantId} className='space-y-4'>
+    <div className='space-y-4'>
       <div className="flex items-center gap-4">
 
         <QuantityControler
           value={inputQty}
-          onValueChange={setInputQty}
+          onValueChange={handleChangeQuantity}
           max={remainingStockAllowed || 1}
-          min={1}
-        // className='border-0'
-        // buttonVariant="outline"
-        // disabled={!variantId}
         />
 
       </div>
@@ -67,23 +64,19 @@ export function AddToCartButton({
       <div className='flex gap-4'>
         <Button
           size="lg"
-          onClick={onClickATC}
+          onClick={hangleClickATC}
           disabled={remainingStockAllowed === 0}
           className="flex-1"
         >
-          {!variant ? "Chọn một biến thể"
-            : isLoading ? <><Spinner />&nbsp;Đang thêm...</>
-              : "Thêm vào giỏ"}
-        </ Button>
+          {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}
+        </Button>
         <Button
           size="lg"
-          onClick={onClickBuyNow}
+          onClick={handleClickBuyNow}
           variant="outline"
           className="w-[30%]"
-        >
-          Mua ngay
-        </Button>
+        >Mua ngay</Button>
       </div>
-    </fieldset>
+    </div>
   )
 }

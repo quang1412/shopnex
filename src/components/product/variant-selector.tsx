@@ -4,7 +4,8 @@
 import { Product } from "@/lib/products";
 import { useCart } from "@/hooks/use-cart";
 
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface ProductVariantSelectorProps {
   product: Product,
@@ -27,6 +28,10 @@ export function ProductVariantSelector({
     }
 
     onOptionsChange(newOptions);
+  }
+
+  const handleClearOptions = () => {
+    onOptionsChange({})
   }
 
   const getVariant = (options: { [key: string]: string }) => {
@@ -104,6 +109,14 @@ export function ProductVariantSelector({
           </div>
         </div>
       ))}
+      {Object.keys(optionsProp).length > 0 && <Button
+        className="absolute right-0 bottom-0 text-destructive"
+        size="sm"
+        variant="link"
+        onClick={handleClearOptions}
+      >
+        <Trash2 /> Xóa
+      </Button>}
     </div>
   );
 }

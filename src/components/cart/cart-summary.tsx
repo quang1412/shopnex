@@ -8,13 +8,24 @@ import Link from "next/link"
 import { ShoppingCart, } from "lucide-react"
 // import { ArrowLeft, CreditCard, CircleCheckBig, Truck } from 'lucide-react'
 
+interface CartSummaryProps {
+  tax?: number
+  shipping?: number
+  shippingMethodName?: string
+  freeShippingMinOrder?: number
+}
 
-export function CartSummary() {
+export function CartSummary({
+  tax: taxProp,
+  shipping: shippingProp,
+  shippingMethodName,
+  freeShippingMinOrder
+}: CartSummaryProps) {
   const { items, getTotalPrice, getTotalItems } = useCart()
 
   const subtotal = getTotalPrice()
-  const shipping = subtotal > 50 ? 0 : 9.99
-  const tax = subtotal * 0.08 // 8% tax
+  const shipping = shippingProp ?? (subtotal > 50 ? 0 : 9.99)
+  const tax = taxProp ?? (subtotal * 0.08) // 8% tax
   const total = subtotal + shipping + tax
 
   const totalItems = getTotalItems()
@@ -34,13 +45,13 @@ export function CartSummary() {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Tổng phụ ({totalItems} sp)</span>
+            <span>Tổng phụ <span className="text-muted-foreground">({totalItems} sp)</span></span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1">
-              {/* <Truck className="h-3 w-3" /> */}
               Vận chuyển
+              {shippingMethodName ? <span className="text-muted-foreground"> ({shippingMethodName})</span> : ''}
             </span>
             <span className={shipping === 0 ? "text-primary font-medium" : ""}>
               {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
@@ -55,16 +66,17 @@ export function CartSummary() {
         <Separator />
 
         <div className="flex justify-between font-semibold text-lg">
-          <span>Tổng cộng</span>
+          <span>Tạm tính</span>
           <span>${total.toFixed(2)}</span>
         </div>
 
-        {subtotal < 50 && (
+        {freeShippingMinOrder && subtotal < freeShippingMinOrder && (
           <div className="text-xs text-muted-foreground bg-accent/50 p-3 rounded-lg border border-accent">
-            Add ${(50 - subtotal).toFixed(2)} more for free shipping!
+            Thêm ${(freeShippingMinOrder - subtotal).toFixed(0)} vào đơn hàng để được MIỄN PHÍ vận chuyển!
           </div>
         )}
       </CardContent>
+
       {/* <CardFooter className="flex flex-col gap-3">
         <Link href="/checkout" className="w-full">
           <Button size="lg" className="w-full">
@@ -77,6 +89,7 @@ export function CartSummary() {
           </Button>
         </Link>
       </CardFooter> */}
+
     </Card>
   )
 }

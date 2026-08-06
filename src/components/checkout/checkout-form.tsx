@@ -15,7 +15,7 @@ import {
   CardTitle,
   CardAction,
 } from '@/components/ui/card'
-import { Field } from '@/components/ui/field'
+// import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 // import { Checkbox } from '@/components/ui/checkbox'
@@ -38,12 +38,12 @@ import {
 
 import { toast } from 'sonner'
 
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group"
+// import {
+//   InputGroup,
+//   InputGroupAddon,
+//   InputGroupButton,
+//   InputGroupInput,
+// } from "@/components/ui/input-group"
 // import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 import { AddressAutoComplete, LocationSelector } from '../address/address-autocomplete'
@@ -302,7 +302,7 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='h-full @container/form '>
+    <form onSubmit={handleSubmit} className='h-full @container/form pb-14 md:p-0'>
       <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-8 h-full  z-10">
 
         {/* Col-1 */}
@@ -348,7 +348,7 @@ export function CheckoutForm() {
                 Thông tin giao hàng
               </CardTitle>
               <CardAction>
-                <Button className="text-muted-foreground" variant="link" size="xs" >Chọn</Button>
+                <Button className="text-muted-foreground" variant="link" size="xs" >Danh sách</Button>
               </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -459,7 +459,7 @@ export function CheckoutForm() {
               <CardAction>
                 <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerShipping(true);
-                }}>Chọn</Button>
+                }}>Thay đổi</Button>
               </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -501,7 +501,7 @@ export function CheckoutForm() {
               <CardAction>
                 <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
                   setOpenDrawerPayment(true);
-                }}>Chọn</Button>
+                }}>Thay đổi</Button>
               </CardAction>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -565,13 +565,16 @@ export function CheckoutForm() {
                     <TicketPercent className="h-4 w-4" />
                     Mã giảm giá
                   </CardTitle>
-
                 </Label>
+
+                <CardAction>
+                  <Button className="text-muted-foreground" variant="link" size="xs" onClick={(e) => {
+
+                  }}>Danh sách</Button>
+                </CardAction>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-
-                  {/* <Field orientation="horizontal"> */}
                   <div className='flex gap-2'>
                     <Input
                       id="giftCard"
@@ -589,7 +592,6 @@ export function CheckoutForm() {
                       disabled={!formData.giftCard || isGiftCardLoading}
                       onClick={handleGiftCardVerify}
                     >Áp dụng</Button>
-                    {/* </Field> */}
                   </div>
                 </div>
               </CardContent>
@@ -605,27 +607,35 @@ export function CheckoutForm() {
               className='bg-muted/50'
             />
 
-            <div className=" space-y-4">
-              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
-                    Đang gửi...
-                  </>
-                ) : (
-                  <>
-                    <CircleCheckBig className="h-4 w-4 mr-2" />
-                    Đặt hàng
-                  </>
-                )}
-              </Button>
+            <div className="fixed flex flex-wrap items-center  -safe flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
+              <div className='md:w-full'>
+                <Button type="submit" size="lg" className="w-full px-6" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
+                      Đang gửi...
+                    </>
+                  ) : (
+                    <>
+                      {/* <CircleCheckBig className="h-4 w-4 mr-2" /> */}
+                      Đặt hàng
+                    </>
+                  )}
+                </Button>
+              </div>
 
-              <Link href="/cart">
+              <Link href="/cart" className='hidden md:block w-full'>
                 <Button variant="outline" size="lg" className="w-full bg-transparent">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Trở lại giỏ hàng
+                  Về giỏ hàng
                 </Button>
               </Link>
+
+              <div className='md:hidden text-end text-sm '>
+                <div>Tổng cộng: <span className='font-semibold'>${total}</span></div>
+                <div>Tiết kiệm: <span className='font-semibold'>$0</span></div>
+              </div>
+
             </div>
           </div>
         </div>

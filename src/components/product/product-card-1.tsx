@@ -71,7 +71,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   if (viewMode === 'list') {
     return (
       <Item variant="outline" render={
-        <Link href={`/dashboard/products/${product.id}`}>
+        <Link href={`/dashboard/products/${product.slug}`}>
           <div className='flex flex-row gap-2'>
 
             {/* <ItemMedia variant="image">
@@ -119,7 +119,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
 
       {/* Image */}
       <div className='relative aspect-square rounded-xl overflow-hidden'>
-        <Link href={`/dashboard/products/${product.id}`} >
+        <Link href={`/dashboard/products/${product.slug}`} >
           <Image
             width={200}
             height={200}
@@ -140,7 +140,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
 
         {/* Name */}
         <p className='truncate font-semibold'>
-          <Link href={`/dashboard/products/${product.id}`}>{product.name}</Link>
+          <Link href={`/dashboard/products/${product.slug}`}>{product.name}</Link>
         </p>
 
         {/* Prices */}
@@ -166,7 +166,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   // return (
   //   <Card size="sm" className="relative mx-auto w-full max-w-sm pt-0">
   //     <Badge className='z-30 absolute top-2 right-2 bg-primary/50' >30% off</Badge>
-  //     <Link href={`/dashboard/products/${product.id}`} className='relative '>
+  //     <Link href={`/dashboard/products/${product.slug}`} className='relative '>
   //       <Image
   //         width={200}
   //         height={200}
@@ -183,7 +183,7 @@ export function ProductCard({ product, viewMode = 'grid', className }: ProductCa
   //       </CardDescription>
 
   //       <CardTitle className='truncate'>
-  //         <Link href={`/dashboard/products/${product.id}`}>{product.name}</Link>
+  //         <Link href={`/dashboard/products/${product.slug}`}>{product.name}</Link>
   //       </CardTitle>
 
   //       <div className='flex gap-1 items-center'>

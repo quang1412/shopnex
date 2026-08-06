@@ -20,6 +20,7 @@ interface Variant {
 
 export interface Product {
   id: string
+  slug: string
   name: string
   description: string
   price: number
@@ -50,6 +51,7 @@ function transformProduct(payloadProduct: PayloadProduct): Product {
 
   return {
     id: payloadProduct.id.toString(),
+    slug: payloadProduct.handle || payloadProduct.id.toString(),
     name: payloadProduct.title,
     description: payloadProduct.description || '',
     price: firstVariant?.price || 0,
@@ -126,6 +128,39 @@ export async function getProduct(id: string): Promise<Product | undefined> {
     )
 
     return transformProduct(product)
+  } catch (error) {
+    console.error('Failed to fetch product:', error)
+    return undefined
+  }
+}
+
+
+
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  try {
+    const product = await sdk.find(
+      {
+        collection: 'products',
+        where: {
+          handle: {
+            equals: slug
+          }
+        },
+        populate: {
+          collections: {
+            title: true,
+          },
+        },
+        limit: 1,
+      },
+      {
+        next: {
+          revalidate: CACHE_TIMES.products,
+        },
+      },
+    )
+
+    return transformProduct(product.docs[0])
   } catch (error) {
     console.error('Failed to fetch product:', error)
     return undefined

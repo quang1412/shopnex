@@ -43,7 +43,7 @@ export function SizeGuideDrawer({
       swipeDirection={isMobile ? "down" : "right"}
     >
       <DrawerTrigger render={
-        <Button variant="ghost" size="sm">
+        <Button variant="link" size="sm">
           {label}
         </Button>
       } />

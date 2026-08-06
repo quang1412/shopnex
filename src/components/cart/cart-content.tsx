@@ -8,8 +8,45 @@ import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 import { ShoppingBag, ArrowLeft, CircleCheckBig } from 'lucide-react'
 
+import {
+  getPaymentMethods,
+  getShippingMethods,
+  createOrder,
+  calculateShipping,
+  calculateTax,
+  calculateTotal,
+  giftCardVerify,
+  calculateDiscount,
+  type PaymentMethod,
+  type ShippingMethod,
+  type GiftCard,
+} from '@/lib/checkout';
+import { useEffect, useState } from 'react'
+
 export function CartContent() {
-  const { items, clearCart } = useCart()
+  const { items, clearCart, getTotalPrice } = useCart()
+  const subTotal = getTotalPrice();
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>();
+
+  const tax = calculateTax(subTotal)
+  const shipping = calculateShipping(subTotal, (shippingMethod || null))
+
+  useEffect(() => {
+    const getMethod = async () => {
+      const methods = await getShippingMethods();
+      const activeMethod = methods.filter(method => (method.enabled)).sort((a, b) => {
+        (a.freeShippingMinOrder || 999999) - (b.freeShippingMinOrder || 999999)
+        return 0;
+      })?.[0] || methods[0]
+      setShippingMethod(activeMethod);
+
+      console.log({ activeMethod });
+
+    }
+    getMethod();
+  }, []);
+
+
 
   if (items.length === 0) {
     return (
@@ -80,10 +117,14 @@ export function CartContent() {
         {/* Cart Summary */}
         <div>
           <div className="sticky top-8  space-y-6">
-            <CartSummary />
+            <CartSummary
+              tax={tax}
+              shipping={shipping}
+              shippingMethodName={shippingMethod?.name}
+              freeShippingMinOrder={shippingMethod?.freeShippingMinOrder}
+            />
 
-            <div className=" space-y-4">
-
+            <div className="space-y-4 ">
               <Button
                 size="lg"
                 nativeButton={false}

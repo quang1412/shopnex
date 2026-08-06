@@ -17,19 +17,22 @@ interface QuantityControlerProps {
   placeholder?: string
   disabled?: boolean
   className?: string
-  buttonVariant?: 'default' | 'outline' | 'ghost' | 'secondary' | "destructive" | "link" | null
+  buttonsVariant?: 'default' | 'outline' | 'ghost' | 'secondary' | "destructive" | "link" | null
 }
 
 export function QuantityControler({
   value,
-  min = 0,
-  max = 999,
   onValueChange,
-  disabled = false,
+  min: minProp = 1,
+  max: maxProp = 9999,
   placeholder,
   className,
-  buttonVariant = "ghost",
+  disabled = false,
+  buttonsVariant = "ghost",
 }: QuantityControlerProps) {
+
+  const min = Math.min(1, minProp, maxProp);
+  const max = Math.max(1, minProp, maxProp);
 
   const handleValueChange = (value: number) => {
     if (value < min || value > max) return;
@@ -50,7 +53,7 @@ export function QuantityControler({
         <InputGroupAddon align="inline-start">
           <InputGroupButton
             disabled={disabled}
-            variant={buttonVariant}
+            variant={buttonsVariant}
             onClick={handleMinus}
             className="px-3"
           >-</InputGroupButton>
@@ -59,18 +62,16 @@ export function QuantityControler({
           disabled={disabled}
           inputMode="numeric"
           placeholder={placeholder}
-          value={value || min || ""}
-          onChange={e => {
-            const valStr = e.target.value;
-            const val = Number(valStr) || min || 0;
-            handleValueChange(val);
-          }}
+          value={value || ""}
           className="text-center w-[2rem] text-sm"
+          onChange={e => {
+            handleValueChange(Number(e.target.value) || 0);
+          }}
         />
         <InputGroupAddon align="inline-end">
           <InputGroupButton
             disabled={disabled}
-            variant={buttonVariant}
+            variant={buttonsVariant}
             onClick={handleAdd}
             className="px-3"
           >+</InputGroupButton>
