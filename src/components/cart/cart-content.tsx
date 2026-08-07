@@ -69,13 +69,13 @@ export function CartContent() {
   }
 
   return (
-    <div className='@container/cart'>
+    <div className='@container/cart pb-14 md:p-0'>
       <div className="grid grid-cols-1 @2xl/cart:grid-cols-2 gap-8 ">
         {/* Col-1 */}
         {/* Cart Items */}
         <div className=" space-y-6">
-          <div className="flex items-center justify-between hidden">
-            <h2 className="text-xl font-semibold">Sản phẩm ({items.length})</h2>
+          <div className="flex items-center justify-between ">
+            <h2 className="text-xl">Sản phẩm ({items.length})</h2>
             <Button
               variant="ghost"
               size="sm"
@@ -90,7 +90,7 @@ export function CartContent() {
             {items.map((item, index) => (
               <CartItem
                 key={index + item.id + item.variantId}
-                className='bg-muted/50'
+                className='bg-white'
                 variant="outline"
                 item={item}
               />
@@ -124,31 +124,31 @@ export function CartContent() {
               freeShippingMinOrder={shippingMethod?.freeShippingMinOrder}
             />
 
-            <div className="space-y-4 ">
-              <Button
-                size="lg"
-                nativeButton={false}
-                className="w-full"
-                render={
-                  <Link href="/checkout" className="w-full mb-4">
-                    <CircleCheckBig className="h-4 w-4 mr-2" />
-                    Mua hàng
-                  </Link>
-                }
-              />
+            <div className=" fixed flex flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
 
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full bg-transparent"
-                nativeButton={false}
-                render={
-                  <Link href="/dashboard/products">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Trở lại shop
-                  </Link>
-                }
-              />
+              <div className='flex-1'>
+                <Button
+                  size="lg"
+                  nativeButton={false}
+                  className="w-full"
+                  render={
+                    <Link href="/checkout" className=" ">
+                      {/* <CircleCheckBig className="h-4 w-4 mr-2" /> */}
+                      Mua hàng
+                    </Link>
+                  }
+                />
+              </div>
+
+              <Link href="/dashboard/products">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full bg-transparent" >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Trở lại shop
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

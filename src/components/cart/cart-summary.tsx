@@ -35,7 +35,7 @@ export function CartSummary({
   }
 
   return (
-    <Card className="bg-muted/50">
+    <Card className="">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShoppingCart className="h-4 w-4" />

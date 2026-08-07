@@ -286,7 +286,7 @@ export function CheckoutForm() {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 space-y-6">
+      <div className="text-center space-y-6 py-16">
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold">Your cart is empty</h2>
           <p className="text-muted-foreground">Add some products before checking out</p>
@@ -303,13 +303,13 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className='h-full @container/form pb-14 md:p-0'>
-      <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-8 h-full  z-10">
+      <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-4 md:gap-8 h-full z-10">
 
         {/* Col-1 */}
         {/* Checkout Form */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Contact Information */}
-          <Card className='bg-muted/50'>
+          <Card className=' '>
             {/* <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Mail className="h-4 w-4" />
@@ -333,7 +333,7 @@ export function CheckoutForm() {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 placeholder="john@example.com"
-                className='bg-muted/50 border-border'
+                className='bg-muted/10 border-border'
                 required
               />
               {/* </div> */}
@@ -341,7 +341,7 @@ export function CheckoutForm() {
           </Card>
 
           {/* Shipping Address */}
-          <Card className='bg-muted/50'>
+          <Card className=' '>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPinCheck className="h-4 w-4" />
@@ -360,7 +360,7 @@ export function CheckoutForm() {
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
                     placeholder="John"
-                    className='bg-muted/50 border-border'
+                    className='bg-muted/10 border-border'
                     required
                   />
                 </div>
@@ -371,7 +371,7 @@ export function CheckoutForm() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Doe"
-                    className='bg-muted/50 border-border'
+                    className='bg-muted/10 border-border'
                     required
                   />
                 </div>
@@ -380,7 +380,7 @@ export function CheckoutForm() {
               <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
                 <AddressAutoComplete
-                  className='w-full bg-muted/50 border-border'
+                  className='w-full bg-muted/10 border-border'
                   value={formData.address}
                   onInputValueChange={value => { handleInputChange('address', value) }}
                   onAddressSelect={data => {
@@ -402,7 +402,7 @@ export function CheckoutForm() {
                   <LocationSelector
                     type='province'
                     defaultValue={formData.provinceCode}
-                    className='bg-muted/50 text-base md:text-sm'
+                    className='bg-muted/10 text-base md:text-sm'
                     onValueChange={value => {
                       console.log({ value });
                       handleInputChange('provinceName', value?.label || '');
@@ -423,7 +423,7 @@ export function CheckoutForm() {
                     type='ward'
                     parentCode={formData.provinceCode}
                     defaultValue={formData.wardCode}
-                    className='bg-muted/50 text-base md:text-sm'
+                    className='bg-muted/10 text-base md:text-sm'
                     onValueChange={value => {
                       console.log({ 'ward': value });
                       handleInputChange('wardName', value?.label || '');
@@ -438,7 +438,7 @@ export function CheckoutForm() {
             </CardContent>
           </Card>
 
-          {/* <Card className='bg-muted/50'>
+          {/* <Card className=' '>
             <CardContent className="space-y-3">
               <div>
                 {[formData.wardCode, formData.districtCode, formData.provinceCode].join(' - ')}
@@ -450,7 +450,7 @@ export function CheckoutForm() {
           </Card> */}
 
           {/* Shipping Methods Drawer */}
-          <Card className='bg-muted/50'>
+          <Card className=' '>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-4 w-4" />
@@ -485,14 +485,14 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerShipping}
                   onOpenChange={setOpenDrawerShipping}
-                  className='bg-muted/50 '
+                  className='bg-muted/10 '
                   swipeDirection="left"
                 />}
             </CardContent>
           </Card>
 
           {/* Payment Methods Drawer */}
-          <Card className='bg-muted/50'>
+          <Card className=' '>
             <CardHeader >
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
@@ -527,13 +527,13 @@ export function CheckoutForm() {
                   }}
                   open={openDrawerPayment}
                   onOpenChange={setOpenDrawerPayment}
-                  className='bg-muted/50'
+                  className='bg-muted/10'
                   swipeDirection="left"
                 />}
             </CardContent>
           </Card>
 
-          <Card className='bg-muted/50'>
+          <Card className=' '>
             <CardHeader>
               <Label htmlFor="orderNote">
                 <CardTitle className="flex items-center gap-2">
@@ -546,7 +546,7 @@ export function CheckoutForm() {
               <Textarea
                 id="orderNote"
                 placeholder='Lưu ý của bạn dành cho shop'
-                className='resize-none bg-muted/50 border-border '
+                className='resize-none bg-muted/10 border-border '
               />
             </CardContent>
           </Card>
@@ -557,8 +557,8 @@ export function CheckoutForm() {
         {/* Col-2 */}
         {/* Order Summary */}
         <div>
-          <div className="sticky top-6 space-y-6">
-            <Card className='bg-muted/50'>
+          <div className="sticky top-6 space-y-4 md:space-y-6">
+            <Card className=' '>
               <CardHeader>
                 <Label htmlFor="giftCard">
                   <CardTitle className="flex items-center gap-2">
@@ -583,7 +583,7 @@ export function CheckoutForm() {
                       value={formData.giftCard}
                       onChange={({ target: { value } }) => (handleInputChange('giftCard', value))}
                       disabled={isGiftCardLoading}
-                      className='bg-muted/50 border-border'
+                      className='bg-muted/10 border-border'
                     />
                     <Button
                       type="button"
@@ -604,11 +604,11 @@ export function CheckoutForm() {
               discount={discount}
               total={total}
               shippingMethodName={selectedShipping?.name}
-              className='bg-muted/50'
+              className=' '
             />
 
-            <div className="fixed flex flex-wrap items-center  -safe flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
-              <div className='md:w-full'>
+            <div className="fixed flex  flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
+              <div className='flex-1'>
                 <Button type="submit" size="lg" className="w-full px-6" disabled={isLoading}>
                   {isLoading ? (
                     <>
@@ -618,23 +618,23 @@ export function CheckoutForm() {
                   ) : (
                     <>
                       {/* <CircleCheckBig className="h-4 w-4 mr-2" /> */}
-                      Đặt hàng
+                      Đặt hàng (${total})
                     </>
                   )}
                 </Button>
               </div>
 
-              <Link href="/cart" className='hidden md:block w-full'>
+              <Link href="/cart" className=''>
                 <Button variant="outline" size="lg" className="w-full bg-transparent">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Về giỏ hàng
                 </Button>
               </Link>
 
-              <div className='md:hidden text-end text-sm '>
+              {/* <div className='md:hidden text-end text-sm '>
                 <div>Tổng cộng: <span className='font-semibold'>${total}</span></div>
                 <div>Tiết kiệm: <span className='font-semibold'>$0</span></div>
-              </div>
+              </div> */}
 
             </div>
           </div>
