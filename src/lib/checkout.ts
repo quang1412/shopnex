@@ -131,6 +131,7 @@ export async function giftCardVerify(code: string): Promise<{
     }
   } catch (e: any) {
     return {
+      success: false,
       error: e instanceof Error ? e.message : 'unknow error',
     }
   }

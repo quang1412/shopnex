@@ -119,10 +119,9 @@ export function ProductListing({ products, categories, initialSearchQuery }: Pro
             categories={categories}
             onFiltersChange={setFilters}
             defaultFilter={filters}
-            className="sticky top-8"
+            className="sticky top-22"
           />
         </div>
-
 
 
         {/* Products */}

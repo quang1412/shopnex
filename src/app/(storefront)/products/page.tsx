@@ -45,7 +45,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <div className="space-y-6">
             <div className="space-y-2">
               <h1 className="text-3xl sm:text-4xl font-bold">
-                {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
+                {searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : 'Tất cả sản phẩm'}
               </h1>
               <p className="text-muted-foreground">
                 {searchQuery

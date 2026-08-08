@@ -26,7 +26,6 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
 
-import { useAuth } from '@/contexts/auth-context'
 
 const _data = {
   navSecondary: [
@@ -67,7 +66,6 @@ const _data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
-  const { user, logout, loading: authLoading } = useAuth()
 
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
@@ -99,30 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarSupportCard />
-
-        {authLoading ? <>
-          <Button nativeButton={false} className="w-full" size="lg" variant="ghost" render={
-            <Skeleton className="w-full h-full" />
-          } />
-        </> :
-          !user ? <>
-            <div className="flex items-center space-x-2">
-              <Button nativeButton={false} variant="default" size="lg" className="w-full" render={
-                <Link href="/auth/v2/login">
-                  <User /> <span className="">Đăng nhập</span>
-                </Link>
-              }></Button>
-            </div>
-          </> : <>
-            <NavUser
-              user={{
-                name: `${user.firstName} ${user.lastName}`,
-                avatar: '',
-                email: user.email,
-              }}
-              onLogout={logout}
-            />
-          </>}
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

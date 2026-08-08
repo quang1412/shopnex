@@ -88,7 +88,7 @@ export function CheckoutForm() {
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([])
   const [selectedShipping, setSelectedShipping] = useState<ShippingMethod | null>(null)
 
-  const [isGiftCardLoading, setIsGiftCardLoading] = useState<boolean>(false)
+  // const [isGiftCardLoading, setIsGiftCardLoading] = useState<boolean>(false)
   // const [discount, setDiscount] = useState<number>(0);
   const [giftCard, setGiftCard] = useState<GiftCard | null>(null);
 
@@ -162,33 +162,50 @@ export function CheckoutForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleGiftCardVerify = async () => {
-    if (!formData.giftCard) return;
-    try {
-      setIsGiftCardLoading(true);
-      const { data, error } = await giftCardVerify(formData.giftCard)
-      if (error || !data) {
-        throw new Error(error || 'Mã giảm giá không hợp lệ');
-      };
-
-      setGiftCard(data);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Mã giảm giá không hợp lệ');
-    } finally {
-      setIsGiftCardLoading(false);
-    }
-  };
-
   const subtotal = getTotalPrice()
   const shippingCost = calculateShipping(subtotal, selectedShipping)
   const tax = calculateTax(subtotal)
   const discount = !giftCard ? 0 : calculateDiscount(giftCard, formData.paymentMethodId, formData.shippingMethodId, subtotal)
   const total = calculateTotal(subtotal, shippingCost, tax, discount)
 
-  useEffect(() => {
-    console.log({ giftCard, discount });
+  const handleGiftCardVerify = async () => {
+    if (!formData.giftCard) return;
+    try {
+      setGiftCard(null);
+      // setIsGiftCardLoading(true);
+      const { data, error } = await giftCardVerify(formData.giftCard)
+      if (error || !data) {
+        throw new Error(error || 'Mã giảm giá không hợp lệ');
+      };
 
-  }, [giftCard, discount])
+      const shippings = data.paymentMethodIds;
+      const payments = data.paymentMethodIds;
+
+      const shipping = formData.shippingMethodId;
+      const payment = formData.paymentMethodId;
+
+      if (shippings && shippings.length > 0 && !shippings.includes(shipping)) {
+        throw new Error('Phương thức vận chuyển không phù hợp')
+      }
+
+      if (payments && payments.length > 0 && !payments.includes(payment)) {
+        throw new Error('Phương thức thanh toán không phù hợp')
+      }
+
+      if (subtotal < data.minOrderTotal) {
+        throw new Error('Giá trị đơn hàng chưa đủ điều kiện')
+      }
+
+      setGiftCard(data);
+      toast.success(`Đã áp dụng mã giảm giá`);
+
+    } catch (e) {
+      toast.error("Mã giảm giá không hợp lệ", { description: e instanceof Error ? e.message : 'unknown' });
+      handleInputChange('giftCard', '');
+    } finally {
+      // setIsGiftCardLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

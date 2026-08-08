@@ -9,6 +9,7 @@ import { Trash2 } from "lucide-react";
 
 interface ProductVariantSelectorProps {
   product: Product,
+
   options: { [key: string]: string }
   onOptionsChange: (opts: { [key: string]: string }) => void
 }
@@ -19,14 +20,14 @@ export function ProductVariantSelector({
   onOptionsChange,
 }: ProductVariantSelectorProps) {
   const { items: cartItems } = useCart();
+  const variants = product.variants
+  const productOptions = product.options
 
   const toggleOption = (option: string, value: string) => {
     const newOptions = { ...optionsProp, [option]: value }
-
     if (value === optionsProp[option]) {
       (delete newOptions[option])
     }
-
     onOptionsChange(newOptions);
   }
 
@@ -34,50 +35,35 @@ export function ProductVariantSelector({
     onOptionsChange({})
   }
 
-  const getVariant = (options: { [key: string]: string }) => {
-    const variant = product.variants?.find((variant) => {
-      const isDeff = variant.options?.find((op) => op.value !== options[op.option]);
-      return !isDeff;
+  const optionValidate = (option: string, value: string) => {
+    const testOptions = { ...optionsProp, [option]: value }
+
+    const testVariants = variants.filter(variant => {
+      const isDeff = variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
+      return !isDeff
     });
-    return variant;
+
+    const totalRemainingStock = testVariants.reduce((total, variant) => {
+      if (variant.stockCount == 0) return total;
+
+      const cartQty = cartItems.find(i => i.variantId == variant.id)?.quantity || 0;
+      return (total + (variant.stockCount - cartQty))
+    }, 0);
+
+    return totalRemainingStock > 0
   };
 
-  if (!product?.options || product.options.length === 0) {
+  if (!productOptions || productOptions.length === 0) {
     return null;
-  }
+  };
 
-  const optionsData = product.options.map(({ option, value: values }) => {
+  const optionsData = productOptions.map(({ option, value: values }) => {
     return ({
       option,
-      values: values.map((value) => {
-        let isDisabled: boolean = false;
-
-        const testVariant = getVariant({ ...optionsProp, [option]: value })
-        const cartItem = testVariant && cartItems.find(i => i.variantId == testVariant?.id) || null;
-
-        if (!testVariant) {
-          // Tính tổng của toàn bộ các biến thể có cùng option
-          const totalRemainingStock = (product.variants.
-            filter(v => (v.options?.find(({ option: op, value: val }) => op === option && val === value))).
-            reduce((total, v) => {
-              const cartQty = cartItems.find(i => i.variantId == v.id)?.quantity || 0;
-              return (total + (v.stockCount - cartQty))
-            }, 0)
-          );
-
-          (totalRemainingStock <= 0) && (isDisabled = true);
-
-        } else {
-          (testVariant && testVariant.stockCount <= 0) && (isDisabled = true);
-
-          ((cartItem?.quantity || 0) >= (testVariant?.stockCount || 0)) && (isDisabled = true);
-        };
-
-        return ({
-          label: value,
-          disable: isDisabled,
-        })
-      })
+      values: values.map((value) => ({
+        label: value,
+        disable: !optionValidate(option, value),
+      }))
     })
   });
 
@@ -91,7 +77,6 @@ export function ProductVariantSelector({
           </div>
           <div className='flex gap-2 flex-wrap'>
             {values.map(({ label, disable }) => {
-
               return (
                 <Button
                   key={label}

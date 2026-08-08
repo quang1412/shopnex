@@ -73,7 +73,7 @@ export function CartContent() {
       <div className="grid grid-cols-1 @2xl/cart:grid-cols-2 gap-8 ">
         {/* Col-1 */}
         {/* Cart Items */}
-        <div className=" space-y-6">
+        <div className=" space-y-4 md:space-y-6">
           <div className="flex items-center justify-between ">
             <h2 className="text-xl">Sản phẩm ({items.length})</h2>
             <Button
@@ -111,12 +111,14 @@ export function CartContent() {
               </div>
             ))}
           </div> */}
+
+
         </div>
 
         {/* Col-2 */}
         {/* Cart Summary */}
         <div>
-          <div className="sticky top-8  space-y-6">
+          <div className="sticky top-22  space-y-4 md:space-y-6">
             <CartSummary
               tax={tax}
               shipping={shipping}

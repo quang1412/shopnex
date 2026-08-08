@@ -23,21 +23,12 @@ import { getInitials } from "@/lib/utils";
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
 
-export function NavUser({
-  user,
-  onLogout
-}: {
-  onLogout: () => Promise<void>
-  readonly user: {
-    readonly name: string;
-    readonly email: string;
-    readonly avatar: string;
-  };
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar();
 
-  // const { user, logout, loading } = useAuth()
+  const { user, logout, loading } = useAuth()
   const router = useRouter()
   // const [isLoggingOut, setIsLoggingOut] = useState(false)
 
@@ -46,13 +37,37 @@ export function NavUser({
   const handleLogout = async () => {
     try {
       // setIsLoggingOut(true);
-      await onLogout();
+      await logout();
       router.push('/auth/v2/login');
     } catch (e: any) {
       toast.error(e.message);
     } finally {
       // setIsLoggingOut(false)
     }
+  }
+
+
+  if (loading) {
+    return <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+  }
+
+
+  if (!user) {
+    return (
+      <div className="flex items-center space-x-2">
+        <Button nativeButton={false} variant="default" size="lg" className="w-full" render={
+          <Link href="/auth/v2/login">
+            <User /> <span className="">Đăng nhập</span>
+          </Link>
+        }></Button>
+      </div>
+    )
+  }
+
+  const user_ = {
+    avatar: avatarPlaceholder,
+    email: user.email,
+    name: [user.firstName, user.lastName].join(' ')
   }
 
   return (
@@ -68,12 +83,12 @@ export function NavUser({
             }
           >
             <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={user.avatar || avatarPlaceholder} alt={user.email} />
-              <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
+              <AvatarImage src={user_.avatar || avatarPlaceholder} alt={user_.email} />
+              <AvatarFallback className="rounded-lg">{getInitials(user_.name)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-muted-foreground text-xs">{user.email}</span>
+              <span className="truncate font-medium">{user_.name}</span>
+              <span className="truncate text-muted-foreground text-xs">{user_.email}</span>
             </div>
             <EllipsisVertical className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -85,12 +100,12 @@ export function NavUser({
           >
             <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar || avatarPlaceholder} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
+                <AvatarImage src={user_.avatar || avatarPlaceholder} alt={user_.name} />
+                <AvatarFallback className="rounded-lg">{getInitials(user_.name)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-muted-foreground text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user_.name}</span>
+                <span className="truncate text-muted-foreground text-xs">{user_.email}</span>
               </div>
             </div>
             <DropdownMenuSeparator />

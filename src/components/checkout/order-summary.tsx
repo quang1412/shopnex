@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useCart } from '@/hooks/use-cart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -48,9 +49,15 @@ export function OrderSummary({
   const discount = propDiscount ?? 0
   const total = propTotal ?? subtotal + shipping + tax - discount
 
+  const [giftCardLoading, setGiftCardLoading] = useState<boolean>(false)
 
-  const handleGiftCardVerify = () => {
-    onGiftCardVerify?.(giftCard)
+  const handleGiftCardVerify = async () => {
+    try {
+      setGiftCardLoading(true)
+      await onGiftCardVerify?.(giftCard)
+    } finally {
+      setGiftCardLoading(false)
+    }
   }
   return (
     <Card className={className ? className : ''}>
@@ -133,16 +140,23 @@ export function OrderSummary({
               placeholder="Nhập mã giảm giá (nếu có)"
               value={giftCard}
               onChange={({ target: { value } }) => onGiftCardChange?.(value)}
-              disabled={undefined}
+              disabled={giftCardLoading}
+              onKeyDown={(e) => {
+                if (e.key == 'Enter') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return
+                };
+              }}
               className='bg-muted/10 border-border'
             />
             <Button
               type="button"
               variant="outline"
               className="text-xs"
-              disabled={undefined}
+              disabled={giftCardLoading}
               onClick={handleGiftCardVerify}
-            >Áp dụng</Button>
+            >{giftCardLoading ? "Loading..." : "Áp dụng"}</Button>
           </div>
         </div>
 

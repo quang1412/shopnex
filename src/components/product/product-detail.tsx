@@ -4,12 +4,10 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from "@/components/ui/button-group"
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import type { Product } from '@/lib/products'
-import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Star, ChevronRight, XIcon, Ruler, ChevronLeft } from 'lucide-react'
+import { Heart, Share2, Star, ChevronRight, Ruler, } from 'lucide-react'
 // import { useIsMobile } from '@/hooks/use-mobile'
 import { SizeGuideDrawer } from './size-guide-drawer'
 
@@ -26,25 +24,12 @@ const dummyGallery = Array.from({ length: 3 }).map(() => '/images/placeholder.sv
 export function ProductDetail({ product }: ProductDetailProps) {
   const { items: cartItems, addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  // const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-
-  // đặt biến thể mặc định, hoặc lấy biến thể đầu tiên
-  const [defaultVariant_] = useState(() => (
-    // product.variants?.find(v => v.sku === 'SN-default') ||
-    // product.variants?.find(v => !v.manageStock) ||
-    product.variants?.find(v => (cartItems.find(({ variantId }) => (variantId == v.id))?.quantity || 0) < v.stockCount) ||
-    product.variants?.find(v => (v.stockCount && v.stockCount > 0)) ||
-    product.variants?.[0]
-  ))
 
   const isPreOrder = true;
   const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
   const savedPercent = !!regularPrice ? (100 - (product.price / (regularPrice / 100))).toFixed(1) : 0;
-
-  // const [selectedVariant, setSelectedVariant] = useState<NonNullable<Product['variants']>[number] | undefined | null>(
-  //   defaultVariant
-  // );
 
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
     return {}
@@ -58,77 +43,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
     const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
     return !isDeff;
   });
-
-  // const updateOption = (option: string, value: string) => {
-  //   setSelectedOptions(prev => ({ ...prev, [option]: value }));
-  //   setQuantity(1);
-  // };
-
-  // const toggleOption = (option: string, value: string) => {
-  //   // Fn cập nhật options
-  //   setSelectedOptions(prev => {
-  //     const update = ({ ...prev, [option]: value });
-  //     if (prev?.[option] === value) {
-  //       delete update[option];
-  //     }
-  //     return update;
-  //   });
-  //   setQuantity(1);
-  // };
-
-  // const clearOptions = () => {
-  //   // Fn xoá các options 
-  //   setSelectedOptions(null);
-  //   setQuantity(1);
-  // };
-
-  // React.useEffect(() => {
-  //   // Fn xác định biến thể dựa theo các options của client.
-  //   const variant = !selectedOptions ? null : product.variants?.find(variant => {
-  //     const isDeff = variant.options?.find(opt => (opt.value !== selectedOptions[opt.option]))
-  //     return isDeff ? 0 : 1
-  //   });
-  //   setSelectedVariant(variant);
-  // }, [selectedOptions]);
-
-  // const isOptionSelectable = (option: string, value: string): boolean => {
-  //   // Fn check xem các options nào tiếp theo có thể chọn, dựa trên options hiện tại của client và các biến thể
-  //   const testOptions = { ...selectedOptions, [option]: value };
-
-  //   const matchedVariants = product.variants?.filter((variant) => {
-  //     const isDeff = Boolean(variant.options?.find(({ option: o, value: v }) => (testOptions[o] && testOptions[o] != v)))
-  //     return isDeff ? 0 : 1
-  //   }).filter(({ stockCount }) => (stockCount && stockCount > 0));
-
-  //   const isSelectable = Boolean(matchedVariants?.length);
-  //   return isSelectable;
-  // };
-
-  // DELETE
-  const handleAddToCart = async () => {
-    // Fn thêm vào giỏ hàng
-    if (!variantSelected) return alert('vui lòng chọn biến thể sp');
-
-    setIsLoading(true);
-
-    // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        price: variantSelected?.price || product.price,
-        variantId: variantSelected?.id ?? undefined,
-        variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') ?? undefined,
-        stock: variantSelected.stockCount || 0,
-      })
-    }
-
-    setIsLoading(false);
-    toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
-  }
 
   const handleAddToCart_ = async (variantId: string, qty: number) => {
     // Fn thêm vào giỏ hàng
@@ -159,7 +73,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
     setSelectedOptions({});
     setIsLoading(false);
-    // toast.success(`Đã thêm ${quantity} sp vào giỏ hàng`, { description: product.name });
+
     toast.success(
       <div className="flex items-center gap-3">
         <Image
@@ -177,16 +91,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
     );
   }
 
-
   const gallery = [...product.images, ...dummyGallery,]
 
   return (
-    <div className="container mx-auto pb-8 space-y-4 4xl:overflow-x-auto 4xl:scrollbar-none 4xl:h-[calc(100vh-4em)] w-full">
+    // <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8  space-y-4 4xl:overflow-x-auto 4xl:scrollbar-none 4xl:h-[calc(100vh-4em)] w-full">
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start  ">
 
         {/* Product Images */}
-        <div className='@container/gallery 4xl:sticky 4xl:top-0 self-start'>
+        <div className='@container/gallery xl:sticky xl:top-22 self-start'>
           <div className="flex gap-4 flex-col @lg/gallery:flex-row-reverse">
             {/* Main Image */}
             <div className='flex-1'>
@@ -226,7 +140,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
 
         {/* Product Info */}
-        <div className="space-y-6 lg:col-span-1  ">
+        <div className="space-y-6">
 
           {/* Header */}
           <div className="space-y-4">
@@ -240,9 +154,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   {/* breadcrumb   */}
                   {[
-                    { label: 'Home', url: '/dashboard' },
-                    { label: 'Products', url: '/dashboard/products' },
-                    { label: product.category, url: `/dashboard/products?category=${product.category}` }
+                    { label: 'Home', url: '/' },
+                    { label: 'Products', url: '/products' },
+                    { label: product.category, url: `/products?category=${product.category}` }
                   ].map((path, index) => (
                     <React.Fragment key={path.url}>
                       {index > 0 && <ChevronRight className='w-4 h-4' />}
@@ -312,6 +226,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* <Separator /> */}
 
+          {/* Options control */}
           <div className='relative'>
             <ProductVariantSelector
               product={product}
@@ -327,42 +242,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           </div>
 
-          {/* Options control */}
-          {/* {product.options && product.options.length > 0 && <div className='relative space-y-4'>
 
-            {product.options.map(({ id, option, value }) => (
-              <div key={id} className='space-y-2'>
-                <div className=' space-x-1'>
-                  <span className='font-medium text-sm'>{option}:</span>
-                  <span className='text-xs text-muted-foreground'>{selectedOptions?.[option] ?? ''}</span>
-                </div>
-                <div className='flex gap-2 flex-wrap'>
-                  {value.map(value => {
-                    const isDisabled = !isOptionSelectable(option, value);
-
-                    return (
-                      <Button
-                        key={value}
-                        size="lg"
-                        variant={isDisabled ? "outline" : selectedOptions?.[option] === value ? "default" : 'outline'}
-                        disabled={isDisabled}
-                        className="cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-black/80 disabled:dark:border-white/80"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleOption(option, value)
-                        }}
-                      >{value}</Button>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-
-            <div className='absolute top-0 right-0'>
-              <SizeGuideDrawer content={''} />
-            </div>
-          </div>} */}
-
+          {/* Add to Cart */}
           <AddToCartButton
             variant={variantSelected}
             handleAddToCart={handleAddToCart_}
@@ -373,68 +254,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
             }}
             isLoading={isLoading}
           />
-
-          {/* Add to Cart */}
-          {/* DELETE */}
-          <div className="space-y-4 hidden">
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border rounded-lg p-0.5">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={!variantSelected || quantity <= 1}
-                >
-                  -
-                </Button>
-                <span className=" min-w-[3rem] text-center">{quantity}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setQuantity(quantity + 1)}
-                  disabled={!variantSelected || quantity >= 100}
-                >
-                  +
-                </Button>
-              </div>
-
-              <span className="text-sm text-muted-foreground">
-                {isPreOrder ? "Đặt trước có hàng sau 02 ngày" : product.inStock ? 'Sẵn hàng' : 'Hết hàng'}
-              </span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-              <Button
-                size="lg"
-                onClick={handleAddToCart}
-                // disabled={!product.inStock || isLoading || !selectedVariant}
-                disabled={isLoading || !(product.inStock || (variantSelected?.stockCount && variantSelected.stockCount > 0))}
-                className="sm:flex-1"
-              >
-                {isLoading ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
-                ) : (
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                )}
-                {isLoading ? 'Đang thêm...' : 'Thêm vào Giỏ'}
-              </Button>
-
-              <Button variant="outline" size="lg" className="  sm:w-[33.33%] bg-transparent">
-                Mua ngay
-              </Button>
-
-              <div className=' w-full '>
-                {/* after ATC button content */}
-                <p className='text-xs text-muted-foreground text-center'>Bạn chọn nhầm size? chúng mình hỗ trợ đổi size miễn phí.</p>
-              </div>
-
-            </div>
-
-          </div>
-          {/* DELETE */}
-
           <Separator />
+
+          {/* Custom fields */}
+          <div className='space-y-2'>
+            {product.customFields.map((i, index) => (
+              <p key={index} className='w-full flex justify-between text-sm'>
+                <span className='text-muted-foreground'>{i.name}</span>
+                <span >{i.value}</span>
+              </p>
+            ))}
+          </div>
 
           {/* Features */}
           {/* <div className="space-y-4">
@@ -464,24 +294,15 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           </div> */}
 
-          {/* Features */}
-          <div className='space-y-2'>
-            {product.customFields.map((i, index) => (
-              <p key={index} className='w-full flex justify-between text-sm'>
-                <span className='text-muted-foreground'>{i.name}</span>
-                <span >{i.value}</span>
-              </p>
-            ))}
-          </div>
-
-          {/* <div className='space-y-6'>
+          <div className='space-y-6'>
             {Array.from({ length: 4 }).map((i, index) => (
               <div className='border rounded-lg p-4' key={index}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, nobis ratione iusto provident inventore aperiam, dolore molestias labore aut enim saepe esse veniam, tempora culpa id alias adipisci natus expedita!</div>
             ))}
-          </div> */}
+          </div>
+
+
         </div>
       </div>
-      {/* <div>{JSON.stringify(candidateVariants?.map(c => c.options))}</div> */}
     </div>
   )
 }

@@ -27,7 +27,13 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 
-export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolean }) {
+export function CartDrawer({
+  showCartDrawer = false,
+  variant
+}: {
+  showCartDrawer?: boolean,
+  variant?: "link" | "default" | "outline" | "secondary" | "ghost" | "destructive" | null
+}) {
   const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(showCartDrawer)
   const { items, getTotalPrice, getTotalItems } = useCart()
@@ -54,7 +60,7 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
   const shipping = Math.floor(Math.random() * (90 - 0 + 1)) + 0;
 
   if (!isMounted) {
-    return <Button variant="default" size="icon" className="relative">
+    return <Button variant={variant} size="icon" className="relative">
       <ShoppingCart className="h-5 w-5" />
       <span className="sr-only">Giỏ hàng</span>
     </Button>
@@ -68,12 +74,12 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
       swipeDirection={isMobile ? "down" : "right"}
     >
       <DrawerTrigger render={
-        <Button variant="default" size="icon" className="relative">
+        <Button variant={variant} size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
           {totalItems > 0 && (
             <Badge
-              // variant="destructive"
-              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/50 text-accent"
+              variant="destructive"
+              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs "
             >
               {totalItems}
             </Badge>
@@ -149,13 +155,13 @@ export function CartDrawer({ showCartDrawer = false }: { showCartDrawer?: boolea
               </div>
 
               <div className="space-y-2">
-                <Button onClick={undefined} nativeButton={false} className=" w-full" render={
+                <Button onClick={undefined} size="lg" nativeButton={false} className=" w-full" render={
                   <Link href="/checkout" >
                     Mua hàng
                   </Link>
                 }>
                 </Button>
-                <DrawerClose render={<Button className=" w-full" variant="outline">Đóng</Button>} />
+                <DrawerClose render={<Button size="lg" className=" w-full" variant="outline">Đóng</Button>} />
               </div>
             </DrawerFooter>
           </>)}

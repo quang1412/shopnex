@@ -49,7 +49,7 @@ export default function OrderPendingPage() {
               <div className="mx-auto w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center">
                 <Clock className="h-8 w-8 text-yellow-500" />
               </div>
-              <h1 className="text-3xl font-bold">Đơn hàng đã được nhận!</h1>
+              <h1 className="text-3xl font-bold">Đơn hàng đã được tạo!</h1>
               <p className="text-muted-foreground">
                 Vui lòng hoàn thành thanh toán để xác nhận đơn hàng
                 {/* Your order is awaiting payment. Please complete your bank transfer to confirm it. */}
