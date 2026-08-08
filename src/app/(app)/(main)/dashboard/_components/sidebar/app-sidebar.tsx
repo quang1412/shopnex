@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 
-import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings } from "lucide-react";
+import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings, User } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Sidebar,
@@ -22,6 +25,8 @@ import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
+
+import { useAuth } from '@/contexts/auth-context'
 
 const _data = {
   navSecondary: [
@@ -61,6 +66,9 @@ const _data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const { user, logout, loading: authLoading } = useAuth()
+
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.values.sidebar_variant,
@@ -91,7 +99,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarSupportCard />
-        <NavUser user={rootUser} />
+
+        {authLoading ? <>
+          <Button nativeButton={false} className="w-full" size="lg" variant="ghost" render={
+            <Skeleton className="w-full h-full" />
+          } />
+        </> :
+          !user ? <>
+            <div className="flex items-center space-x-2">
+              <Button nativeButton={false} variant="default" size="lg" className="w-full" render={
+                <Link href="/auth/v2/login">
+                  <User /> <span className="">Đăng nhập</span>
+                </Link>
+              }></Button>
+            </div>
+          </> : <>
+            <NavUser
+              user={{
+                name: `${user.firstName} ${user.lastName}`,
+                avatar: '',
+                email: user.email,
+              }}
+              onLogout={logout}
+            />
+          </>}
       </SidebarFooter>
     </Sidebar>
   );

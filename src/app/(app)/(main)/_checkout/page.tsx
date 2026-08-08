@@ -35,6 +35,8 @@ export default function CheckoutPage() {
           <CheckoutForm />
         </div>
       </div>
+
+      <Footer />
     </main>
 
   )

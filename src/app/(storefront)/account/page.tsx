@@ -25,7 +25,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/account/login')
+      router.push('/auth/v2/login')
     }
   }, [user, loading, router])
 

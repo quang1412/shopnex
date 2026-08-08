@@ -35,6 +35,8 @@ export default function CartPage() {
           <CartContent />
         </div>
       </div>
+
+
     </main>
   )
 }

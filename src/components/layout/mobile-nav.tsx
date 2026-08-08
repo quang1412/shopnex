@@ -10,10 +10,10 @@ export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
 
   const navItems = [
-    { href: '/', label: 'Home', icon: Home },
-    { href: '/products', label: 'Products', icon: Package },
-    { href: '/categories', label: 'Categories', icon: Grid3X3 },
-    { href: '/about', label: 'About', icon: Info },
+    { href: '/', label: 'Trang chủ', icon: Home },
+    { href: '/products', label: 'Sản phẩm', icon: Package },
+    { href: '/categories', label: 'Danh mục', icon: Grid3X3 },
+    { href: '/about', label: 'Giới thiệu', icon: Info },
   ]
 
   return (
@@ -36,13 +36,13 @@ export function MobileNav() {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 space-y-4 px-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Tìm sản phẩm..."
               className="w-full pl-10 pr-4 py-2 border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -68,15 +68,15 @@ export function MobileNav() {
           {/* Quick Actions */}
           <div className="pt-4 border-t space-y-2">
             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Quick Actions
+              Lối tắt
             </h3>
-            <Link href="/cart" onClick={() => setIsOpen(false)}>
-              <Button variant="outline" className="w-full justify-start bg-transparent">
-                View Cart
-              </Button>
-            </Link>
+            <Button variant="outline" className="w-full justify-start bg-transparent" nativeButton={false} render={
+              <Link href="/cart" onClick={() => setIsOpen(false)}>
+                Giỏ hàng
+              </Link>
+            } />
             <Link href="/checkout" onClick={() => setIsOpen(false)}>
-              <Button className="w-full justify-start">Checkout</Button>
+              <Button className="w-full justify-start">Mua hàng</Button>
             </Link>
           </div>
         </div>

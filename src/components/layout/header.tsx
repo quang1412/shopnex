@@ -29,19 +29,19 @@ export function Header() {
                             href="/products"
                             className="text-foreground hover:text-primary transition-colors"
                         >
-                            Products
+                            Sản phẩm
                         </Link>
                         <Link
                             href="/categories"
                             className="text-foreground hover:text-primary transition-colors"
                         >
-                            Categories
+                            Danh mục
                         </Link>
                         <Link
                             href="/about"
                             className="text-foreground hover:text-primary transition-colors"
                         >
-                            About
+                            Giới thiệu
                         </Link>
                     </nav>
 

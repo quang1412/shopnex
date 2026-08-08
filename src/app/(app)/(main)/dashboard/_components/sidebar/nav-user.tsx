@@ -23,56 +23,30 @@ import { getInitials } from "@/lib/utils";
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/auth-context'
-
-// import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function NavUser({
-  // user,
+  user,
+  onLogout
 }: {
-    // readonly user: {
-    //   readonly name: string;
-    //   readonly email: string;
-    //   readonly avatar: string;
-    // };
-  }) {
+  onLogout: () => Promise<void>
+  readonly user: {
+    readonly name: string;
+    readonly email: string;
+    readonly avatar: string;
+  };
+}) {
   const { isMobile } = useSidebar();
 
-  const { user, logout, loading } = useAuth()
+  // const { user, logout, loading } = useAuth()
   const router = useRouter()
   // const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  // const avatarPlaceholder = 'https://avatars.githubusercontent.com/u/43849669';
-
-  const activeUser = user as any;
-
-  if (loading) {
-    return <Button nativeButton={false} className="w-full" size="lg" variant="ghost" render={
-      <Skeleton className="w-full h-full" />
-    } />
-  }
-
-  if (!activeUser) {
-    return (
-      <div className="flex items-center space-x-2">
-        <Button nativeButton={false} variant="default" size="lg" className="w-full" render={
-          <Link href="/auth/v2/login">
-            <User /> Đăng nhập
-          </Link>
-        }></Button>
-        {/* <Link href="/account/login">
-              <Button variant="ghost" size="sm" render={<User className="h-4 w-4" />}></Button>
-            </Link> */}
-
-      </div>
-    )
-  }
+  const avatarPlaceholder = 'https://avatars.githubusercontent.com/u/43849669';
 
   const handleLogout = async () => {
     try {
       // setIsLoggingOut(true);
-      await logout();
+      await onLogout();
       router.push('/auth/v2/login');
     } catch (e: any) {
       toast.error(e.message);
@@ -80,8 +54,6 @@ export function NavUser({
       // setIsLoggingOut(false)
     }
   }
-
-  activeUser.avatar = 'https://avatars.githubusercontent.com/u/43849669';
 
   return (
     <SidebarMenu>
@@ -96,12 +68,12 @@ export function NavUser({
             }
           >
             <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={activeUser.avatar || undefined} alt={activeUser.email} />
-              <AvatarFallback className="rounded-lg">{getInitials([activeUser.firstName, activeUser.lastName].join(' '))}</AvatarFallback>
+              <AvatarImage src={user.avatar || avatarPlaceholder} alt={user.email} />
+              <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{activeUser.firstName}</span>
-              <span className="truncate text-muted-foreground text-xs">{activeUser.email}</span>
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-muted-foreground text-xs">{user.email}</span>
             </div>
             <EllipsisVertical className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -113,12 +85,12 @@ export function NavUser({
           >
             <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={activeUser.avatar || undefined} alt={activeUser.firstName} />
-                <AvatarFallback className="rounded-lg">{getInitials([activeUser.firstName, activeUser.lastName].join(' '))}</AvatarFallback>
+                <AvatarImage src={user.avatar || avatarPlaceholder} alt={user.name} />
+                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeUser.firstName}</span>
-                <span className="truncate text-muted-foreground text-xs">{activeUser.email}</span>
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-muted-foreground text-xs">{user.email}</span>
               </div>
             </div>
             <DropdownMenuSeparator />

@@ -102,11 +102,11 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           )
         }
       />
-      <DialogContent className="max-w-2xl p-0 gap-0">
+      <DialogContent className="max-w-md md:max-w-lg lg:max-w-xl mx-auto p-0 gap-0">
         <div className="flex items-center border-b px-6 py-4">
           <Search className="h-5 w-5 text-muted-foreground mr-3" />
           <Input
-            placeholder="Search products..."
+            placeholder="Tìm sản phẩm..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -124,7 +124,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           {/* Search Results */}
           {query && (
             <div className="p-6">
-              <h3 className="font-semibold mb-4">Products</h3>
+              <h3 className="font-semibold mb-4">Sản phẩm</h3>
               {loading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -167,13 +167,13 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
                     className="w-full mt-4"
                     onClick={() => handleSearch(query)}
                   >
-                    View all results for "{query}"
+                    Xem tất cả kết quả cho "{query}"
                   </Button>
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No products found for "{query}"</p>
+                  <p>Không có sản phẩm nào khớp với "{query}"</p>
                 </div>
               )}
             </div>
@@ -187,7 +187,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      Recent Searches
+                      Gần đây
                     </h3>
                     <Button
                       variant="ghost"
@@ -195,7 +195,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
                       onClick={clearRecentSearches}
                       className="text-xs"
                     >
-                      Clear
+                      Xoá
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -216,7 +216,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
               <div>
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Popular Searches
+                  Phổ biến
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {popularSearches.map((search, index) => (

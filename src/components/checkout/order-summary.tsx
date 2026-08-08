@@ -5,8 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+import { Label } from '../ui/label'
 
 interface OrderSummaryProps {
+  className?: string
   subtotal?: number
   shipping?: number
   tax?: number
@@ -14,10 +18,14 @@ interface OrderSummaryProps {
   total?: number
   shippingMethodName?: string
   shippingFullAddress?: string
-  className?: string
+
+  giftCard?: string
+  onGiftCardChange?: (data: string) => void
+  onGiftCardVerify?: (data: string) => Promise<void>
 }
 
 export function OrderSummary({
+  className,
   subtotal: propSubtotal,
   shipping: propShipping,
   tax: propTax,
@@ -25,10 +33,13 @@ export function OrderSummary({
   total: propTotal,
   shippingMethodName,
   shippingFullAddress,
-  className,
+
+  giftCard = '',
+  onGiftCardChange,
+  onGiftCardVerify,
 
 }: OrderSummaryProps) {
-  const { items, getTotalPrice } = useCart()
+  const { items, getTotalPrice } = useCart();
 
   // Use provided values or fallback to cart calculations
   const subtotal = propSubtotal ?? getTotalPrice()
@@ -37,6 +48,10 @@ export function OrderSummary({
   const discount = propDiscount ?? 0
   const total = propTotal ?? subtotal + shipping + tax - discount
 
+
+  const handleGiftCardVerify = () => {
+    onGiftCardVerify?.(giftCard)
+  }
   return (
     <Card className={className ? className : ''}>
       <CardHeader>
@@ -107,6 +122,32 @@ export function OrderSummary({
         </div>
 
         <Separator />
+
+        <div className="space-y-2">
+          <Label htmlFor="giftCard">Mã giảm giá</Label>
+
+          <div className='flex gap-2'>
+            <Input
+              id="giftCard"
+              type="giftcard"
+              placeholder="Nhập mã giảm giá (nếu có)"
+              value={giftCard}
+              onChange={({ target: { value } }) => onGiftCardChange?.(value)}
+              disabled={undefined}
+              className='bg-muted/10 border-border'
+            />
+            <Button
+              type="button"
+              variant="outline"
+              className="text-xs"
+              disabled={undefined}
+              onClick={handleGiftCardVerify}
+            >Áp dụng</Button>
+          </div>
+        </div>
+
+        <Separator />
+
 
         <div className="flex justify-between gap-2 font-semibold text-lg">
           <span>Tổng</span>

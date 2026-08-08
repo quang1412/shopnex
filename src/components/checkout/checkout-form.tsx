@@ -302,7 +302,7 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='h-full @container/form pb-14 md:p-0'>
+    <form onSubmit={handleSubmit} className='h-full @container/form pb-14 md:pb-0'>
       <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-4 md:gap-8 h-full z-10">
 
         {/* Col-1 */}
@@ -557,8 +557,8 @@ export function CheckoutForm() {
         {/* Col-2 */}
         {/* Order Summary */}
         <div>
-          <div className="sticky top-6 space-y-4 md:space-y-6">
-            <Card className=' '>
+          <div className="sticky top-22 space-y-4 md:space-y-6">
+            {/* <Card className=' '>
               <CardHeader>
                 <Label htmlFor="giftCard">
                   <CardTitle className="flex items-center gap-2">
@@ -595,7 +595,7 @@ export function CheckoutForm() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <OrderSummary
               subtotal={subtotal}
@@ -605,6 +605,9 @@ export function CheckoutForm() {
               total={total}
               shippingMethodName={selectedShipping?.name}
               className=' '
+              giftCard={formData.giftCard}
+              onGiftCardChange={val => handleInputChange('giftCard', val)}
+              onGiftCardVerify={handleGiftCardVerify}
             />
 
             <div className="fixed flex  flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
