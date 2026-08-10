@@ -137,37 +137,6 @@ export const Products: CollectionConfig = {
     HandleField(),
 
     {
-      name: 'attributes',
-      type: 'array',
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'name',
-              label: 'Tên thuộc tính',
-              type: 'relationship',
-              relationTo: 'attributes',
-            },
-            {
-              name: 'values',
-              label: 'Giá trị thuộc tính',
-              type: 'text',
-              hasMany: true,
-              admin: {
-                // Nhúng Custom Component đã tạo ở Bước 1 vào đây
-                components: {
-                  Field: '@/collections/Products/fields/SelectedValuesField#SelectedValuesField',
-                },
-              },
-            }
-          ]
-        },
-
-      ]
-    },
-
-    {
       type: 'collapsible',
       admin: {
         initCollapsed: true,

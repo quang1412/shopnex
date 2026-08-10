@@ -27,8 +27,9 @@ export const Attributes: CollectionConfig = {
     },
 
     HandleField('name'),
+
     {
-      name: 'swatchType',
+      name: 'swatch',
       type: 'select',
       admin: {
         description: "Kiểu hiển thị Swatch",
@@ -50,38 +51,25 @@ export const Attributes: CollectionConfig = {
       fields: [
         {
           name: 'label',
-          label: 'Tên giá trị (Ví dụ: Đỏ, XL)',
+          label: 'Nhãn giá trị (Ví dụ: Đỏ, XL)',
           type: 'text',
           required: true,
         },
         {
-          name: 'value',
-          label: 'Mã định danh (Value)',
+          name: 'slug',
           unique: true,
           type: 'text',
-          // required: true,
+          required: true,
         },
         {
-          name: 'colorCode',
-          label: 'Mã màu (Hex)',
-          type: 'text',
-          admin: {
-            condition: (data, siblingData) => {
-              return data?.swatchType === 'color'
-            },
-          },
-        },
-        {
-          name: 'image',
-          label: 'Hình ảnh Swatch',
-          type: 'upload',
-          relationTo: 'media', // Giả sử bạn có collection media để upload ảnh
-          admin: {
-            condition: (data, siblingData) => {
-              return data?.swatchType === 'image'
-            },
-          },
-
+          name: 'meta',
+          type: 'group',
+          fields: [
+            {
+              name: 'colorHex',
+              type: 'text',
+            }
+          ]
         }
       ],
     },

@@ -308,13 +308,6 @@ export interface Product {
   description?: string | null;
   collections?: (number | Collection)[] | null;
   handle?: string | null;
-  attributes?:
-    | {
-        name?: (number | null) | Attribute;
-        values?: string[] | null;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * Choose the options for this product.
    */
@@ -415,28 +408,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "attributes".
- */
-export interface Attribute {
-  id: number;
-  name: string;
-  handle?: string | null;
-  /**
-   * Kiểu hiển thị Swatch
-   */
-  swatchType: 'label' | 'color' | 'image';
-  values: {
-    label: string;
-    value?: string | null;
-    colorCode?: string | null;
-    image?: (number | null) | Media;
-    id?: string | null;
-  }[];
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payments".
  */
 export interface Payment {
@@ -520,6 +491,29 @@ export interface Location {
   hours?: string | null;
   enabled?: boolean | null;
   isPickupLocation?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attributes".
+ */
+export interface Attribute {
+  id: number;
+  name: string;
+  handle?: string | null;
+  /**
+   * Kiểu hiển thị Swatch
+   */
+  swatch: 'label' | 'color' | 'image';
+  values: {
+    label: string;
+    slug: string;
+    meta?: {
+      colorHex?: string | null;
+    };
+    id?: string | null;
+  }[];
   updatedAt: string;
   createdAt: string;
 }
@@ -911,13 +905,6 @@ export interface ProductsSelect<T extends boolean = true> {
   description?: T;
   collections?: T;
   handle?: T;
-  attributes?:
-    | T
-    | {
-        name?: T;
-        values?: T;
-        id?: T;
-      };
   variantOptions?:
     | T
     | {
@@ -966,14 +953,17 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface AttributesSelect<T extends boolean = true> {
   name?: T;
   handle?: T;
-  swatchType?: T;
+  swatch?: T;
   values?:
     | T
     | {
         label?: T;
-        value?: T;
-        colorCode?: T;
-        image?: T;
+        slug?: T;
+        meta?:
+          | T
+          | {
+              colorHex?: T;
+            };
         id?: T;
       };
   updatedAt?: T;

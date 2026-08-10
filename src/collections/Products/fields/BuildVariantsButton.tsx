@@ -98,25 +98,20 @@ function generateVariantCombinations(options: Option[]): Variant[] {
 const VariantGenerator = ({ path }: { path: string } & ClientFieldProps) => {
   const { setValue } = useField({ path })
 
-  const [fields] = useAllFormFields()
-
-  const formData = reduceFieldsToValues(fields, true)
+  // const [fields] = useAllFormFields()
+  // const formData = reduceFieldsToValues(fields, true)
+  // console.log(formData)
 
   const options = useFormFields(([fields]) =>
     Object.entries(fields)
-      .filter(([key]) => key.startsWith('attributes.'))
+      .filter(([key]) => key.startsWith('variantOptions.'))
       .reduce<Record<string, any>>((acc, [key, field]) => {
-
         acc[key] = field
-
         return acc
       }, {}),
   )
 
   const { variantOptions } = reduceFieldsToValues(options, true, true) || {}
-
-  console.log(formData)
-  // console.log(variantOptions)
 
   const fieldDispatch = useFormFields(([, dispatch]) => dispatch)
 

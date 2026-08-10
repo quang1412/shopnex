@@ -7,7 +7,7 @@ export const SelectedValuesField: React.FC<{ path: string }> = ({ path }) => {
   // 1. Xác định đường dẫn chính xác của dòng hiện tại trong Array Field
   // path sẽ có dạng: "productAttributes.0.selectedValues"
   const baseFieldPath = path.substring(0, path.lastIndexOf('.')) // "productAttributes.0"
-  const attributeDocPath = `${baseFieldPath}.name`
+  const attributeDocPath = `${baseFieldPath}.attribute`
 
   // 2. Lấy dữ liệu và trạng thái của trường selectedValues hiện tại
   const { value, setValue } = useField<string[]>({ path })
@@ -39,7 +39,7 @@ export const SelectedValuesField: React.FC<{ path: string }> = ({ path }) => {
         if (data?.values && Array.isArray(data.values)) {
           const dynamicOptions = data.values.map((item: any) => ({
             label: item.label,
-            value: item.value, // Lưu trực tiếp text value vào DB sản phẩm
+            value: item.slug, // Lưu trực tiếp text value vào DB sản phẩm
           }))
           setOptions(dynamicOptions)
         }
@@ -72,7 +72,6 @@ export const SelectedValuesField: React.FC<{ path: string }> = ({ path }) => {
           }
         }}
         hasMany={true}
-      // isMulti={true} // Bật tính năng chọn nhiều giá trị
       />
     </div>
   )

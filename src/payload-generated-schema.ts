@@ -57,11 +57,7 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
-export const enum_attributes_swatch_type = pgEnum('enum_attributes_swatch_type', [
-  'label',
-  'color',
-  'image',
-])
+export const enum_attributes_swatch = pgEnum('enum_attributes_swatch', ['label', 'color', 'image'])
 export const enum_users_roles = pgEnum('enum_users_roles', ['super-admin', 'admin', 'customer'])
 export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
@@ -254,28 +250,6 @@ export const products_sales_channels = pgTable(
   ],
 )
 
-export const products_attributes = pgTable(
-  'products_attributes',
-  {
-    _order: integer('_order').notNull(),
-    _parentID: integer('_parent_id').notNull(),
-    id: varchar('id').primaryKey(),
-    name: integer('name_id').references(() => attributes.id, {
-      onDelete: 'set null',
-    }),
-  },
-  (columns) => [
-    index('products_attributes_order_idx').on(columns._order),
-    index('products_attributes_parent_id_idx').on(columns._parentID),
-    index('products_attributes_name_idx').on(columns.name),
-    foreignKey({
-      columns: [columns['_parentID']],
-      foreignColumns: [products.id],
-      name: 'products_attributes_parent_id_fk',
-    }).onDelete('cascade'),
-  ],
-)
-
 export const products_variant_options = pgTable(
   'products_variant_options',
   {
@@ -447,17 +421,13 @@ export const attributes_values = pgTable(
     _parentID: integer('_parent_id').notNull(),
     id: varchar('id').primaryKey(),
     label: varchar('label').notNull(),
-    value: varchar('value'),
-    colorCode: varchar('color_code'),
-    image: integer('image_id').references(() => media.id, {
-      onDelete: 'set null',
-    }),
+    slug: varchar('slug').notNull(),
+    meta_colorHex: varchar('meta_color_hex'),
   },
   (columns) => [
     index('attributes_values_order_idx').on(columns._order),
     index('attributes_values_parent_id_idx').on(columns._parentID),
-    uniqueIndex('attributes_values_value_idx').on(columns.value),
-    index('attributes_values_image_idx').on(columns.image),
+    uniqueIndex('attributes_values_slug_idx').on(columns.slug),
     foreignKey({
       columns: [columns['_parentID']],
       foreignColumns: [attributes.id],
@@ -472,7 +442,7 @@ export const attributes = pgTable(
     id: serial('id').primaryKey(),
     name: varchar('name').notNull(),
     handle: varchar('handle'),
-    swatchType: enum_attributes_swatch_type('swatch_type').notNull().default('label'),
+    swatch: enum_attributes_swatch('swatch').notNull().default('label'),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -1225,18 +1195,6 @@ export const relations_products_sales_channels = relations(products_sales_channe
     relationName: 'salesChannels',
   }),
 }))
-export const relations_products_attributes = relations(products_attributes, ({ one }) => ({
-  _parentID: one(products, {
-    fields: [products_attributes._parentID],
-    references: [products.id],
-    relationName: 'attributes',
-  }),
-  name: one(attributes, {
-    fields: [products_attributes.name],
-    references: [attributes.id],
-    relationName: 'name',
-  }),
-}))
 export const relations_products_variant_options = relations(
   products_variant_options,
   ({ one }) => ({
@@ -1302,9 +1260,6 @@ export const relations_products = relations(products, ({ many }) => ({
   salesChannels: many(products_sales_channels, {
     relationName: 'salesChannels',
   }),
-  attributes: many(products_attributes, {
-    relationName: 'attributes',
-  }),
   variantOptions: many(products_variant_options, {
     relationName: 'variantOptions',
   }),
@@ -1326,11 +1281,6 @@ export const relations_attributes_values = relations(attributes_values, ({ one }
     fields: [attributes_values._parentID],
     references: [attributes.id],
     relationName: 'values',
-  }),
-  image: one(media, {
-    fields: [attributes_values.image],
-    references: [media.id],
-    relationName: 'image',
   }),
 }))
 export const relations_attributes = relations(attributes, ({ many }) => ({
@@ -1571,7 +1521,7 @@ type DatabaseSchema = {
   enum_orders_order_status: typeof enum_orders_order_status
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
-  enum_attributes_swatch_type: typeof enum_attributes_swatch_type
+  enum_attributes_swatch: typeof enum_attributes_swatch
   enum_users_roles: typeof enum_users_roles
   enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
@@ -1586,7 +1536,6 @@ type DatabaseSchema = {
   carts: typeof carts
   collections: typeof collections
   products_sales_channels: typeof products_sales_channels
-  products_attributes: typeof products_attributes
   products_variant_options: typeof products_variant_options
   products_variants_options: typeof products_variants_options
   products_variants: typeof products_variants
@@ -1626,7 +1575,6 @@ type DatabaseSchema = {
   relations_carts: typeof relations_carts
   relations_collections: typeof relations_collections
   relations_products_sales_channels: typeof relations_products_sales_channels
-  relations_products_attributes: typeof relations_products_attributes
   relations_products_variant_options: typeof relations_products_variant_options
   relations_products_variants_options: typeof relations_products_variants_options
   relations_products_variants: typeof relations_products_variants

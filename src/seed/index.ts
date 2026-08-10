@@ -502,6 +502,7 @@ const seed = async () => {
     data: {
       name: 'COD - thanh toán khi nhận hàng',
       enabled: true,
+      fee: 10,
       providers: [
         {
           blockType: 'manual',
@@ -518,7 +519,6 @@ const seed = async () => {
     data: {
       name: 'Chuyển khoản trước',
       enabled: true,
-      fee: 10,
       providers: [
         {
           blockType: 'manual',
@@ -629,9 +629,10 @@ const seed = async () => {
     collection: 'attributes',
     data: {
       name: 'Màu sắc',
-      swatchType: 'label',
+      swatch: 'label',
       values: [
-        { label: 'Trắng', value: 'trang', }
+        { label: 'Trắng', slug: 'trang', },
+        { label: 'Đen', slug: 'den', }
       ],
     },
   })
