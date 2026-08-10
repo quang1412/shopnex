@@ -57,7 +57,13 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
+export const enum_attributes_swatch_type = pgEnum('enum_attributes_swatch_type', [
+  'label',
+  'color',
+  'image',
+])
 export const enum_users_roles = pgEnum('enum_users_roles', ['super-admin', 'admin', 'customer'])
+export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
   ['cod', 'bankTransfer', 'inStore', 'other'],
@@ -248,6 +254,28 @@ export const products_sales_channels = pgTable(
   ],
 )
 
+export const products_attributes = pgTable(
+  'products_attributes',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    name: integer('name_id').references(() => attributes.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (columns) => [
+    index('products_attributes_order_idx').on(columns._order),
+    index('products_attributes_parent_id_idx').on(columns._parentID),
+    index('products_attributes_name_idx').on(columns.name),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [products.id],
+      name: 'products_attributes_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
 export const products_variant_options = pgTable(
   'products_variant_options',
   {
@@ -412,6 +440,53 @@ export const products_rels = pgTable(
   ],
 )
 
+export const attributes_values = pgTable(
+  'attributes_values',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    label: varchar('label').notNull(),
+    value: varchar('value'),
+    colorCode: varchar('color_code'),
+    image: integer('image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (columns) => [
+    index('attributes_values_order_idx').on(columns._order),
+    index('attributes_values_parent_id_idx').on(columns._parentID),
+    uniqueIndex('attributes_values_value_idx').on(columns.value),
+    index('attributes_values_image_idx').on(columns.image),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [attributes.id],
+      name: 'attributes_values_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const attributes = pgTable(
+  'attributes',
+  {
+    id: serial('id').primaryKey(),
+    name: varchar('name').notNull(),
+    handle: varchar('handle'),
+    swatchType: enum_attributes_swatch_type('swatch_type').notNull().default('label'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    index('attributes_handle_idx').on(columns.handle),
+    index('attributes_updated_at_idx').on(columns.updatedAt),
+    index('attributes_created_at_idx').on(columns.createdAt),
+  ],
+)
+
 export const users_roles = pgTable(
   'users_roles',
   {
@@ -540,9 +615,8 @@ export const gift_cards = pgTable(
   {
     id: serial('id').primaryKey(),
     code: varchar('code').notNull(),
+    type: enum_gift_cards_type('type').notNull().default('amount'),
     value: numeric('value', { mode: 'number' }).notNull(),
-    minOrderTotal: numeric('min_order_total', { mode: 'number' }).notNull(),
-    startDate: timestamp('start_date', { mode: 'string', withTimezone: true, precision: 3 }),
     expiryDate: timestamp('expiry_date', { mode: 'string', withTimezone: true, precision: 3 }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
@@ -565,16 +639,12 @@ export const gift_cards_rels = pgTable(
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
     usersID: integer('users_id'),
-    paymentsID: integer('payments_id'),
-    shippingID: integer('shipping_id'),
   },
   (columns) => [
     index('gift_cards_rels_order_idx').on(columns.order),
     index('gift_cards_rels_parent_idx').on(columns.parent),
     index('gift_cards_rels_path_idx').on(columns.path),
     index('gift_cards_rels_users_id_idx').on(columns.usersID),
-    index('gift_cards_rels_payments_id_idx').on(columns.paymentsID),
-    index('gift_cards_rels_shipping_id_idx').on(columns.shippingID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [gift_cards.id],
@@ -584,16 +654,6 @@ export const gift_cards_rels = pgTable(
       columns: [columns['usersID']],
       foreignColumns: [users.id],
       name: 'gift_cards_rels_users_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['paymentsID']],
-      foreignColumns: [payments.id],
-      name: 'gift_cards_rels_payments_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['shippingID']],
-      foreignColumns: [shipping.id],
-      name: 'gift_cards_rels_shipping_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -666,8 +726,10 @@ export const payments = pgTable(
   'payments',
   {
     id: serial('id').primaryKey(),
+    _order: varchar('_order'),
     name: varchar('name').notNull(),
     enabled: boolean('enabled').default(true),
+    fee: numeric('fee', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -676,6 +738,7 @@ export const payments = pgTable(
       .notNull(),
   },
   (columns) => [
+    index('payments__order_idx').on(columns._order),
     index('payments_updated_at_idx').on(columns.updatedAt),
     index('payments_created_at_idx').on(columns.createdAt),
   ],
@@ -735,6 +798,7 @@ export const shipping = pgTable(
   'shipping',
   {
     id: serial('id').primaryKey(),
+    _order: varchar('_order'),
     name: varchar('name').notNull(),
     enabled: boolean('enabled').default(true),
     location: integer('location_id').references(() => locations.id, {
@@ -748,6 +812,7 @@ export const shipping = pgTable(
       .notNull(),
   },
   (columns) => [
+    index('shipping__order_idx').on(columns._order),
     index('shipping_location_idx').on(columns.location),
     index('shipping_updated_at_idx').on(columns.updatedAt),
     index('shipping_created_at_idx').on(columns.createdAt),
@@ -914,6 +979,7 @@ export const payload_locked_documents_rels = pgTable(
     cartsID: integer('carts_id'),
     collectionsID: integer('collections_id'),
     productsID: integer('products_id'),
+    attributesID: integer('attributes_id'),
     usersID: integer('users_id'),
     mediaID: integer('media_id'),
     policiesID: integer('policies_id'),
@@ -932,6 +998,7 @@ export const payload_locked_documents_rels = pgTable(
     index('payload_locked_documents_rels_carts_id_idx').on(columns.cartsID),
     index('payload_locked_documents_rels_collections_id_idx').on(columns.collectionsID),
     index('payload_locked_documents_rels_products_id_idx').on(columns.productsID),
+    index('payload_locked_documents_rels_attributes_id_idx').on(columns.attributesID),
     index('payload_locked_documents_rels_users_id_idx').on(columns.usersID),
     index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID),
     index('payload_locked_documents_rels_policies_id_idx').on(columns.policiesID),
@@ -965,6 +1032,11 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns['productsID']],
       foreignColumns: [products.id],
       name: 'payload_locked_documents_rels_products_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['attributesID']],
+      foreignColumns: [attributes.id],
+      name: 'payload_locked_documents_rels_attributes_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['usersID']],
@@ -1153,6 +1225,18 @@ export const relations_products_sales_channels = relations(products_sales_channe
     relationName: 'salesChannels',
   }),
 }))
+export const relations_products_attributes = relations(products_attributes, ({ one }) => ({
+  _parentID: one(products, {
+    fields: [products_attributes._parentID],
+    references: [products.id],
+    relationName: 'attributes',
+  }),
+  name: one(attributes, {
+    fields: [products_attributes.name],
+    references: [attributes.id],
+    relationName: 'name',
+  }),
+}))
 export const relations_products_variant_options = relations(
   products_variant_options,
   ({ one }) => ({
@@ -1218,6 +1302,9 @@ export const relations_products = relations(products, ({ many }) => ({
   salesChannels: many(products_sales_channels, {
     relationName: 'salesChannels',
   }),
+  attributes: many(products_attributes, {
+    relationName: 'attributes',
+  }),
   variantOptions: many(products_variant_options, {
     relationName: 'variantOptions',
   }),
@@ -1232,6 +1319,23 @@ export const relations_products = relations(products, ({ many }) => ({
   }),
   _rels: many(products_rels, {
     relationName: '_rels',
+  }),
+}))
+export const relations_attributes_values = relations(attributes_values, ({ one }) => ({
+  _parentID: one(attributes, {
+    fields: [attributes_values._parentID],
+    references: [attributes.id],
+    relationName: 'values',
+  }),
+  image: one(media, {
+    fields: [attributes_values.image],
+    references: [media.id],
+    relationName: 'image',
+  }),
+}))
+export const relations_attributes = relations(attributes, ({ many }) => ({
+  values: many(attributes_values, {
+    relationName: 'values',
   }),
 }))
 export const relations_users_roles = relations(users_roles, ({ one }) => ({
@@ -1268,16 +1372,6 @@ export const relations_gift_cards_rels = relations(gift_cards_rels, ({ one }) =>
     fields: [gift_cards_rels.usersID],
     references: [users.id],
     relationName: 'users',
-  }),
-  paymentsID: one(payments, {
-    fields: [gift_cards_rels.paymentsID],
-    references: [payments.id],
-    relationName: 'payments',
-  }),
-  shippingID: one(shipping, {
-    fields: [gift_cards_rels.shippingID],
-    references: [shipping.id],
-    relationName: 'shipping',
   }),
 }))
 export const relations_gift_cards = relations(gift_cards, ({ many }) => ({
@@ -1388,6 +1482,11 @@ export const relations_payload_locked_documents_rels = relations(
       references: [products.id],
       relationName: 'products',
     }),
+    attributesID: one(attributes, {
+      fields: [payload_locked_documents_rels.attributesID],
+      references: [attributes.id],
+      relationName: 'attributes',
+    }),
     usersID: one(users, {
       fields: [payload_locked_documents_rels.usersID],
       references: [users.id],
@@ -1472,7 +1571,9 @@ type DatabaseSchema = {
   enum_orders_order_status: typeof enum_orders_order_status
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
+  enum_attributes_swatch_type: typeof enum_attributes_swatch_type
   enum_users_roles: typeof enum_users_roles
+  enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
   enum_exports_format: typeof enum_exports_format
   enum_exports_drafts: typeof enum_exports_drafts
@@ -1485,6 +1586,7 @@ type DatabaseSchema = {
   carts: typeof carts
   collections: typeof collections
   products_sales_channels: typeof products_sales_channels
+  products_attributes: typeof products_attributes
   products_variant_options: typeof products_variant_options
   products_variants_options: typeof products_variants_options
   products_variants: typeof products_variants
@@ -1492,6 +1594,8 @@ type DatabaseSchema = {
   products: typeof products
   products_texts: typeof products_texts
   products_rels: typeof products_rels
+  attributes_values: typeof attributes_values
+  attributes: typeof attributes
   users_roles: typeof users_roles
   users_sessions: typeof users_sessions
   users: typeof users
@@ -1522,6 +1626,7 @@ type DatabaseSchema = {
   relations_carts: typeof relations_carts
   relations_collections: typeof relations_collections
   relations_products_sales_channels: typeof relations_products_sales_channels
+  relations_products_attributes: typeof relations_products_attributes
   relations_products_variant_options: typeof relations_products_variant_options
   relations_products_variants_options: typeof relations_products_variants_options
   relations_products_variants: typeof relations_products_variants
@@ -1529,6 +1634,8 @@ type DatabaseSchema = {
   relations_products_texts: typeof relations_products_texts
   relations_products_rels: typeof relations_products_rels
   relations_products: typeof relations_products
+  relations_attributes_values: typeof relations_attributes_values
+  relations_attributes: typeof relations_attributes
   relations_users_roles: typeof relations_users_roles
   relations_users_sessions: typeof relations_users_sessions
   relations_users: typeof relations_users

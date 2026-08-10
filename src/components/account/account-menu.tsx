@@ -46,7 +46,7 @@ export function AccountMenu() {
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
-        <Button nativeButton={false} variant="default" size="icon" render={
+        <Button nativeButton={false} variant="ghost" size="icon" render={
           <Link href="/auth/v2/login">
             <User className="h-5 w-5" />
           </Link>
@@ -54,7 +54,6 @@ export function AccountMenu() {
       </div>
     )
   }
-
 
   const user_ = {
     avatar: avatarPlaceholder,

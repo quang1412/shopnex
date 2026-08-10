@@ -26,10 +26,16 @@ import { useEffect, useState } from 'react'
 export function CartContent() {
   const { items, clearCart, getTotalPrice } = useCart()
   const subTotal = getTotalPrice();
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>();
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod | null>(null);
 
   const tax = calculateTax(subTotal)
-  const shipping = calculateShipping(subTotal, (shippingMethod || null))
+
+  const {
+    shippingCost: shipping,
+    amountToFreeShipping,
+    freeShippingProgress,
+    freeShippingMinOrder,
+  } = calculateShipping(subTotal, shippingMethod)
 
   useEffect(() => {
     const getMethod = async () => {
@@ -39,9 +45,7 @@ export function CartContent() {
         return 0;
       })?.[0] || methods[0]
       setShippingMethod(activeMethod);
-
       console.log({ activeMethod });
-
     }
     getMethod();
   }, []);
@@ -58,8 +62,11 @@ export function CartContent() {
           <h2 className="text-2xl font-semibold">Giỏ hàng vẫn trống</h2>
           <p className="text-muted-foreground">Hãy thêm một vài sản phẩm đầu tiên.</p>
         </div>
-        <Link href="/dashboard/shop">
-          <Button size="lg">
+        <Link href="/products">
+          <Button
+            size="lg"
+            variant="ghost"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Trở lại shop
           </Button>
@@ -69,13 +76,13 @@ export function CartContent() {
   }
 
   return (
-    <div className='@container/cart pb-14 md:p-0'>
-      <div className="grid grid-cols-1 @2xl/cart:grid-cols-2 gap-8 ">
+    <div className='@container/cart '>
+      <div className="grid grid-cols-1 @2xl/cart:grid-cols-2 gap-4 md:gap-8 ">
         {/* Col-1 */}
         {/* Cart Items */}
         <div className=" space-y-4 md:space-y-6">
           <div className="flex items-center justify-between ">
-            <h2 className="text-xl">Sản phẩm ({items.length})</h2>
+            <h2 className="text-lg">Sản phẩm ({items.length})</h2>
             <Button
               variant="ghost"
               size="sm"
@@ -97,12 +104,12 @@ export function CartContent() {
             ))}
           </div>
 
-          <Link href="/dashboard/products">
-            <Button variant="outline" className="w-full sm:w-auto bg-transparent">
+          {/* <Link href="/products">
+            <Button variant="ghost" className="w-full sm:w-auto bg-transparent">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Trở lại shop
             </Button>
-          </Link>
+          </Link> */}
 
           {/* <div>
             {Array.from({ length: 10 }).map(e => (
@@ -111,7 +118,6 @@ export function CartContent() {
               </div>
             ))}
           </div> */}
-
 
         </div>
 
@@ -123,7 +129,7 @@ export function CartContent() {
               tax={tax}
               shipping={shipping}
               shippingMethodName={shippingMethod?.name}
-              freeShippingMinOrder={shippingMethod?.freeShippingMinOrder}
+              amountToFreeShipping={amountToFreeShipping}
             />
 
             <div className=" fixed flex flex-row-reverse md:flex-col gap-4 border-t md:border-0 p-4 md:p-0 bg-white md:bg-transparent w-full bottom-0 left-0 md:relative ">
@@ -134,17 +140,14 @@ export function CartContent() {
                   nativeButton={false}
                   className="w-full"
                   render={
-                    <Link href="/checkout" className=" ">
-                      {/* <CircleCheckBig className="h-4 w-4 mr-2" /> */}
-                      Mua hàng
-                    </Link>
+                    <Link href="/checkout">Mua hàng</Link>
                   }
                 />
               </div>
 
-              <Link href="/dashboard/products">
+              <Link href="/products">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
                   className="w-full bg-transparent" >
                   <ArrowLeft className="h-4 w-4 mr-2" />

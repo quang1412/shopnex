@@ -2,7 +2,6 @@
 
 import type { ClientFieldProps } from 'payload'
 
-import { useAllFormFields } from '@payloadcms/ui'
 import { Button, toast, useField, useFormFields } from '@payloadcms/ui'
 import { reduceFieldsToValues } from 'payload/shared'
 import React, { useCallback } from 'react'
@@ -98,25 +97,16 @@ function generateVariantCombinations(options: Option[]): Variant[] {
 const VariantGenerator = ({ path }: { path: string } & ClientFieldProps) => {
   const { setValue } = useField({ path })
 
-  const [fields] = useAllFormFields()
-
-  const formData = reduceFieldsToValues(fields, true)
-
   const options = useFormFields(([fields]) =>
     Object.entries(fields)
-      .filter(([key]) => key.startsWith('attributes.'))
+      .filter(([key]) => key.startsWith('variantOptions.'))
       .reduce<Record<string, any>>((acc, [key, field]) => {
-
         acc[key] = field
-
         return acc
       }, {}),
   )
 
-  const { variantOptions } = reduceFieldsToValues(options, true, true) || {}
-
-  console.log(formData)
-  // console.log(variantOptions)
+  const { variantOptions } = reduceFieldsToValues(options, true) || {}
 
   const fieldDispatch = useFormFields(([, dispatch]) => dispatch)
 

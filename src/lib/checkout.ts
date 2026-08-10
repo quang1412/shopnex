@@ -1,10 +1,13 @@
 import { sdk } from './payload'
 
+// import type { Payment } from '@/payload-types'
+
 export interface PaymentMethod {
   id: string
   name: string
   enabled: boolean
   providers: any[]
+  fee: number
 }
 
 export interface ShippingMethod {
@@ -19,9 +22,7 @@ export interface ShippingMethod {
 
 export interface GiftCard {
   code: string
-  shippingMethodIds?: string[],
-  paymentMethodIds?: string[],
-  minOrderTotal: number,
+  type: 'percent' | 'amount'
   value: number,
 }
 
@@ -69,6 +70,7 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
       name: payment.name,
       enabled: payment.enabled ?? false,
       providers: payment.providers || [],
+      fee: payment.fee || 0,
     }))
   } catch (error) {
     console.error('Failed to fetch payment methods:', error)
@@ -123,10 +125,8 @@ export async function giftCardVerify(code: string): Promise<{
       success: true,
       data: {
         code: data.code,
-        paymentMethodIds: data.paymentMethods?.map((m: any) => String(typeof m == 'object' ? m.id : m)),
-        shippingMethodIds: data.shippingMethods?.map((s: any) => String(typeof s == 'object' ? s.id : s)),
-        minOrderTotal: data.minOrderTotal,
         value: data.value,
+        type: data.type
       },
     }
   } catch (e: any) {
@@ -137,18 +137,15 @@ export async function giftCardVerify(code: string): Promise<{
   }
 };
 
-export function calculateDiscount(giftCard: GiftCard, payment: string, shipping: string, subtotal: number) {
-  // Kiểm tra các điều kiện.
-  if (
-    (giftCard.paymentMethodIds && giftCard.paymentMethodIds.length > 0 && !giftCard.paymentMethodIds.includes(payment)) ||
-    (giftCard.shippingMethodIds && giftCard.shippingMethodIds.length > 0 && !giftCard.shippingMethodIds.includes(shipping)) ||
-    giftCard.minOrderTotal > subtotal
-  ) {
-    return 0;
+export function calculateDiscount(giftCard: GiftCard, subTotal: number) {
+  let amount: number = 0;
+  if (giftCard.type == 'percent') {
+    amount = subTotal * (giftCard.value / 100);
   }
-
-  // return Math.min(subtotal, giftCard.value);
-  return giftCard.value;
+  if (giftCard.type == 'amount') {
+    amount = giftCard.value;
+  }
+  return Math.min(subTotal, amount);
 }
 
 export async function createOrder(orderData: {
@@ -174,6 +171,7 @@ export async function createOrder(orderData: {
   shippingMethodId: string
   subtotal: number
   shipping: number
+  payment: number
   tax: number
   total: number
 }): Promise<{ orderId?: string; redirectUrl?: string | null; error?: string }> {
@@ -185,6 +183,7 @@ export async function createOrder(orderData: {
       shippingMethodId: orderData.shippingMethodId,
       subtotal: orderData.subtotal,
       shipping: orderData.shipping,
+      payment: orderData.payment,
       tax: orderData.tax,
       total: orderData.total,
     }
@@ -230,21 +229,38 @@ async function getShopHandle(): Promise<string> {
   return process.env.NEXT_PUBLIC_SHOP_HANDLE || 'npkr9uofi3n'
 }
 
-export function calculateShipping(subtotal: number, shippingMethod: ShippingMethod | null): number {
-  if (!shippingMethod) return 0
+export function calculateShipping(subtotal: number, shippingMethod: ShippingMethod | null) {
+  let shippingCost: number = 0;
+  let freeShippingMinOrder: number | undefined = shippingMethod?.freeShippingMinOrder
+  let amountToFreeShipping: number | undefined;
+  let freeShippingProgress: number = 0;
 
-  // Free shipping threshold
-  if (shippingMethod.freeShippingMinOrder && subtotal >= shippingMethod.freeShippingMinOrder) {
-    return 0
+  if (shippingMethod) {
+
+    shippingCost = shippingMethod.baseRate;
+
+    if (freeShippingMinOrder) {
+      amountToFreeShipping = freeShippingMinOrder - subtotal;
+      freeShippingProgress = (subtotal / freeShippingMinOrder) * 100
+      // Free shipping threshold
+      if (subtotal >= freeShippingMinOrder) {
+        shippingCost = 0
+      }
+    }
   }
 
-  return shippingMethod.baseRate
+  return {
+    shippingCost,
+    freeShippingMinOrder,
+    amountToFreeShipping,
+    freeShippingProgress,
+  };
 }
 
-export function calculateTax(subtotal: number, taxRate: number = 0): number {
+export function calculateTax(subtotal: number, taxRate: number = 0.1): number {
   return subtotal * taxRate
 }
 
-export function calculateTotal(subtotal: number, shipping: number, tax: number, discount: number = 0): number {
-  return Math.max(0, ((subtotal + shipping + tax - discount) || 0));
+export function calculateTotal(subtotal: number, shipping: number, payment: number, tax: number, discount: number = 0): number {
+  return Math.max(0, subtotal + shipping + payment + tax - discount);
 }

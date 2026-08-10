@@ -18,7 +18,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 bg-muted/40">
+      <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="space-y-8   mx-auto">
             <div className="space-y-2">

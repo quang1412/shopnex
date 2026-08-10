@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 // import { Checkbox } from '@/components/ui/checkbox'
 import { OrderSummary } from './order-summary'
-import { ArrowLeft, CreditCard, CircleCheckBig, Truck, Mail, MapIcon, MapPinCheck, TicketPercent, NotebookPen } from 'lucide-react'
+import { ArrowLeft, CreditCard, Truck, Mail, MapPinCheck, NotebookPen } from 'lucide-react'
 import Link from 'next/link'
 import {
   getPaymentMethods,
@@ -85,6 +85,8 @@ export function CheckoutForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null)
+
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([])
   const [selectedShipping, setSelectedShipping] = useState<ShippingMethod | null>(null)
 
@@ -135,6 +137,7 @@ export function CheckoutForm() {
           ...prev,
           paymentMethodId: payments[0].id,
         }))
+        setSelectedPayment(payments[0])
       }
 
       // Set default shipping method
@@ -155,6 +158,11 @@ export function CheckoutForm() {
     setSelectedShipping(shipping || null)
   }, [formData.shippingMethodId, shippingMethods]);
 
+  useEffect(() => {
+    const payment = paymentMethods.find((p) => p.id === formData.paymentMethodId)
+    setSelectedPayment(payment || null)
+  }, [formData.paymentMethodId, paymentMethods]);
+
   const handleInputChange = (field: keyof CheckoutFormData, value: string | boolean) => {
     if (['wardName', 'districtName', 'provinceName'].includes(field) && typeof value === 'string') {
       value = fixLocalName(value);
@@ -163,10 +171,12 @@ export function CheckoutForm() {
   }
 
   const subtotal = getTotalPrice()
-  const shippingCost = calculateShipping(subtotal, selectedShipping)
+  const { shippingCost } = calculateShipping(subtotal, selectedShipping);
+  const paymentFee = selectedPayment?.fee || 0
   const tax = calculateTax(subtotal)
-  const discount = !giftCard ? 0 : calculateDiscount(giftCard, formData.paymentMethodId, formData.shippingMethodId, subtotal)
-  const total = calculateTotal(subtotal, shippingCost, tax, discount)
+
+  const discount = giftCard && calculateDiscount(giftCard, subtotal) || 0;
+  const total = calculateTotal(subtotal, shippingCost, paymentFee, tax, discount)
 
   const handleGiftCardVerify = async () => {
     if (!formData.giftCard) return;
@@ -177,24 +187,6 @@ export function CheckoutForm() {
       if (error || !data) {
         throw new Error(error || 'Mã giảm giá không hợp lệ');
       };
-
-      const shippings = data.paymentMethodIds;
-      const payments = data.paymentMethodIds;
-
-      const shipping = formData.shippingMethodId;
-      const payment = formData.paymentMethodId;
-
-      if (shippings && shippings.length > 0 && !shippings.includes(shipping)) {
-        throw new Error('Phương thức vận chuyển không phù hợp')
-      }
-
-      if (payments && payments.length > 0 && !payments.includes(payment)) {
-        throw new Error('Phương thức thanh toán không phù hợp')
-      }
-
-      if (subtotal < data.minOrderTotal) {
-        throw new Error('Giá trị đơn hàng chưa đủ điều kiện')
-      }
 
       setGiftCard(data);
       toast.success(`Đã áp dụng mã giảm giá`);
@@ -242,6 +234,7 @@ export function CheckoutForm() {
         shippingMethodId: formData.shippingMethodId,
         subtotal: subtotal,
         shipping: shippingCost,
+        payment: paymentFee,
         // giftCard: giftCard?.code,
         // discount: discount,
         tax: tax,
@@ -284,8 +277,6 @@ export function CheckoutForm() {
         tax: tax,
         customerInfo: {
           email: formData.email,
-          // name: formData.fullName,
-          // address: ([formData.address, formData.wardName, formData.districtName, formData.provinceName]).filter(Boolean).join(', '),
         },
         shippingMethod: selectedShipping?.name,
         date: new Date().toISOString(),
@@ -319,7 +310,7 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='h-full @container/form pb-14 md:pb-0'>
+    <form onSubmit={handleSubmit} className='h-full @container/form pb-10 md:pb-0'>
       <div className="grid grid-cols-1 @2xl/form:grid-cols-2 gap-4 md:gap-8 h-full z-10">
 
         {/* Col-1 */}
@@ -617,6 +608,7 @@ export function CheckoutForm() {
             <OrderSummary
               subtotal={subtotal}
               shipping={shippingCost}
+              payment={paymentFee}
               tax={tax}
               discount={discount}
               total={total}
@@ -645,7 +637,7 @@ export function CheckoutForm() {
               </div>
 
               <Link href="/cart" className=''>
-                <Button variant="outline" size="lg" className="w-full bg-transparent">
+                <Button variant="ghost" size="lg" className="w-full bg-transparent">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Về giỏ hàng
                 </Button>

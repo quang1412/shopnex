@@ -4,7 +4,7 @@ import { admins, anyone } from "@/access/roles";
 
 import { groups } from "./groups";
 
-export const CustomShipping: Block = {
+const CustomShipping: Block = {
   slug: "custom-shipping",
   admin: {
     disableBlockName: true,
@@ -98,6 +98,7 @@ export const Shipping: CollectionConfig = {
         description: "Select a shipping provider",
       },
       blocks: [CustomShipping],
+      maxRows: 1,
     },
   ],
   labels: {

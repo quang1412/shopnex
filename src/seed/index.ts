@@ -14,6 +14,7 @@ function generateRandomString(length: number) {
 const seed = async () => {
   const payload = await getPayload({ config })
 
+  console.log('Creating account...')
   await payload.create({
     collection: 'users',
     data: {
@@ -499,7 +500,7 @@ const seed = async () => {
   await payload.create({
     collection: 'payments',
     data: {
-      name: 'Cash on Delivery',
+      name: 'COD - thanh toán khi nhận hàng',
       enabled: true,
       providers: [
         {
@@ -515,19 +516,19 @@ const seed = async () => {
   await payload.create({
     collection: 'payments',
     data: {
-      name: 'Bank Transfer',
+      name: 'Chuyển khoản trước',
       enabled: true,
+      fee: 10,
       providers: [
         {
           blockType: 'manual',
           methodType: 'bankTransfer',
           instructions:
-            'Transfer the total amount to our bank account. Your order will be processed once payment is confirmed.',
+            'Khách hàng CK trước qua ngân hàng, Momo, Zalo..., đơn hàng sẽ được thực hiện ngay khi hoàn tất thanh toán.',
           details: [
-            { label: 'Bank Name', value: 'First National Bank' },
-            { label: 'Account Number', value: '1234567890' },
-            { label: 'Routing Number', value: '021000021' },
-            { label: 'Account Holder', value: 'ShopNex LLC' },
+            { label: 'Ngân hàng', value: 'MBbank' },
+            { label: 'Số tài khoản', value: '1234567890' },
+            { label: 'Tên tài khoản', value: 'Nguyen Thi A' },
           ],
         },
       ],
@@ -555,12 +556,12 @@ const seed = async () => {
   await payload.create({
     collection: 'shipping',
     data: {
-      name: 'Standard Shipping',
+      name: 'CPN tiêu chuẩn',
       enabled: true,
       shippingProvider: [
         {
           blockType: 'custom-shipping',
-          baseRate: 9.99,
+          baseRate: 25,
           freeShippingMinOrder: 100,
           estimatedDeliveryDays: '5-7 business days',
           notes:
@@ -573,12 +574,12 @@ const seed = async () => {
   await payload.create({
     collection: 'shipping',
     data: {
-      name: 'Express Shipping',
+      name: 'Giao hàng hoả tốc',
       enabled: true,
       shippingProvider: [
         {
           blockType: 'custom-shipping',
-          baseRate: 24.99,
+          baseRate: 50,
           estimatedDeliveryDays: '2-3 business days',
           notes: 'Express delivery with priority handling. Perfect for urgent orders.',
         },
@@ -607,7 +608,7 @@ const seed = async () => {
     collection: 'shipping',
     data: {
       name: 'Local Pickup',
-      enabled: true,
+      enabled: false,
       shippingProvider: [
         {
           blockType: 'custom-shipping',
@@ -616,6 +617,21 @@ const seed = async () => {
           notes:
             'Pick up your order from our store. We will notify you when your order is ready for pickup.',
         },
+      ],
+    },
+  })
+
+
+
+  // Create attributes
+  console.log('Creating attributes...')
+  await payload.create({
+    collection: 'attributes',
+    data: {
+      name: 'Màu sắc',
+      swatchType: 'label',
+      values: [
+        { label: 'Trắng', value: 'trang', }
       ],
     },
   })

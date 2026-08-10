@@ -3,17 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useCart } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
-// import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet'
-// import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '../ui/progress'
 import { CartItem } from './cart-item'
 import Link from 'next/link'
-import { ShoppingCart, ShoppingBag, Package } from 'lucide-react'
-
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from "sonner"
+import { ShoppingCart, ShoppingBag, Truck } from 'lucide-react'
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -27,6 +22,12 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 
+import {
+  getShippingMethods,
+  calculateShipping,
+  type ShippingMethod,
+} from '@/lib/checkout';
+
 export function CartDrawer({
   showCartDrawer = false,
   variant
@@ -38,10 +39,21 @@ export function CartDrawer({
   const [open, setOpen] = useState(showCartDrawer)
   const { items, getTotalPrice, getTotalItems } = useCart()
 
-  // const [totalItems, setTotalItems] = useState<number>(0);
-
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
+
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod | null>(null)
+
+  useEffect(() => {
+    const fetchMethod = async () => {
+      const methods = await getShippingMethods();
+      const method = methods.
+        filter(m => (m.freeShippingMinOrder !== undefined)).
+        sort((a, b) => ((a.freeShippingMinOrder || 999999) - (b.freeShippingMinOrder || 999999)))[0];
+      setShippingMethod(method || null);
+    };
+    fetchMethod();
+  }, []);
 
   // const [deliveryTime, setDeliveryTime] = useState("asap")
   const isMobile = useIsMobile()
@@ -54,10 +66,15 @@ export function CartDrawer({
     setIsMounted(true);
   }, []);
 
-  const amountToFreeShipping = 1000;
-  const freeShippingProgress = 50;
+  // const amountToFreeShipping = (freeShippingMinOrder || 0) - totalPrice;
+  // const freeShippingProgress = freeShippingMinOrder ? (totalPrice / freeShippingMinOrder) * 100 : 0;
 
-  const shipping = Math.floor(Math.random() * (90 - 0 + 1)) + 0;
+  const {
+    shippingCost: shipping,
+    amountToFreeShipping,
+    freeShippingProgress,
+    freeShippingMinOrder,
+  } = calculateShipping(totalPrice, shippingMethod)
 
   if (!isMounted) {
     return <Button variant={variant} size="icon" className="relative">
@@ -91,7 +108,7 @@ export function CartDrawer({
         <DrawerHeader>
           <DrawerTitle>Giỏ hàng</DrawerTitle>
           <DrawerDescription>
-            {totalItems ? `${totalItems} ${totalItems > 1 ? "items" : "item"}` : ""}
+            {totalItems ? `${totalItems} sản phẩm` : ""}
           </DrawerDescription>
         </DrawerHeader>
         {items.length === 0 ? (
@@ -108,18 +125,17 @@ export function CartDrawer({
           <>
             {/* Free Shipping Progress */}
             <div className="bg-muted/30 p-4">
-              {amountToFreeShipping > 0 ? (
+              {!!amountToFreeShipping && amountToFreeShipping > 0 ? (
                 <div className="space-y-2">
                   <div className="text-sm">
-                    Add ${amountToFreeShipping.toFixed(2)} more for free
-                    shipping
+                    Thêm ${amountToFreeShipping.toFixed(2)} để đủ điều kiện MIỄN PHÍ vận chuyển.
                   </div>
                   <Progress value={freeShippingProgress} className="h-2" />
                 </div>
               ) : (
                 <div className="text-primary flex items-center gap-2 text-sm">
-                  <Package className="h-4 w-4" />
-                  <span>You&apos;ve unlocked free shipping!</span>
+                  <Truck className="h-4 w-4" />
+                  <span>Đã đủ điều kiện MIỄN PHÍ vận chuyển!</span>
                 </div>
               )}
             </div>
@@ -138,18 +154,18 @@ export function CartDrawer({
             <DrawerFooter>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Subtotal</span>
+                  <span>Tổng giá trị</span>
                   <span>${(totalPrice).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Shipping</span>
+                  <span>Vận chuyển</span>
                   <span>
                     {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-medium">
-                  <span>Total</span>
+                  <span>Tổng phụ</span>
                   <span>${(totalPrice + shipping).toFixed(2)}</span>
                 </div>
               </div>

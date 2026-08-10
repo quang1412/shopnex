@@ -1,4 +1,4 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, Validate } from "payload";
 
 import { admins } from "@/access/roles";
 import { generateGiftCardCode } from "@/utils/generate-gift-card-code";
@@ -12,6 +12,14 @@ const rateLimiter = new RateLimiterMemory({
   duration: 60,
   points: 5,
 });
+
+const valueValidation: Validate = (value, { siblingData }) => {
+  const type = siblingData.type;
+  if (type == 'percent' && value > 100) {
+    return ' Giá trị phần trăm không hợp lệ';
+  }
+  return true;
+}
 
 export const GiftCards: CollectionConfig = {
   slug: "gift-cards",
@@ -43,6 +51,9 @@ export const GiftCards: CollectionConfig = {
 
           await rateLimiter.consume(ip, 1);
 
+          const userId = req.user?.id || -1;
+          const today = new Date().toISOString();
+
           const giftCards = await req.payload.find({
             collection: "gift-cards",
             limit: 1,
@@ -50,25 +61,21 @@ export const GiftCards: CollectionConfig = {
               code: {
                 equals: req.query.code,
               },
+              or: [
+                { customers: { exists: false } },
+                { customers: { equals: userId } }
+              ],
+              expiryDate: {
+                greater_than: today
+              }
             },
           });
 
           const doc = giftCards.docs?.[0];
 
-          // if (!doc?.code) {
-          //   return Response.json({
-          //     message: "Mã giảm giá không hợp lệ", statusCode: 400,
-          //   })
-          // };
+          // const validUsers = (doc?.customers || []).map(c => (typeof c == 'object' ? c.id : c));
 
-          const validUsers = (doc?.customers || []).map(c => (typeof c == 'object' ? c.id : c));
-
-          if (
-            !doc?.code
-            || (validUsers.length > 0 && !validUsers.includes(req.user?.id || -1))
-            || (doc.startDate && new Date(doc.startDate) > new Date())
-            || (doc.expiryDate && new Date(doc.expiryDate) < new Date())
-          ) {
+          if (!doc?.code) {
             return Response.json({
               message: "Mã giảm giá không hợp lệ", statusCode: 400,
             })
@@ -97,81 +104,46 @@ export const GiftCards: CollectionConfig = {
       type: 'row',
       fields: [
         {
-          name: "value",
-          type: "number",
-          label: "Giá trị (đ)",
+          name: 'type',
+          label: 'Loại mã giảm giá',
+          type: 'select',
           required: true,
-          min: 0,
+          options: [
+            { label: 'Phần trăm', value: 'percent', },
+            { label: 'Số tiền', value: 'amount', }
+          ],
+          defaultValue: 'amount',
           admin: {
             width: '50%',
-          },
+          }
         },
         {
-          name: "minOrderTotal",
+          name: "value",
+          label: "Giá trị",
           type: "number",
-          label: "Đơn hàng tối thiểu (đ)",
           required: true,
           min: 0,
           admin: {
             width: '50%',
           },
+          validate: valueValidation,
         },
       ]
     },
     {
-      type: 'row',
-      fields: [
-        {
-          name: "startDate",
-          type: "date",
-          admin: {
-            width: '50%',
-            description: "Thời gian mã giảm giá băt đầu có hiệu lực",
-            date: {
-              pickerAppearance: 'dayAndTime',
-              // Formats how the selected date/time renders in the input box
-              // Uses date-fns formatting tokens
-              displayFormat: 'dd/MM/yyyy HH:mm',
-              // Optional: Forces the time selection intervals (e.g., every 15 minutes)
-              timeIntervals: 15,
-            },
-          },
-          label: "Thời gian bắt đầu",
-          validate: (value, { siblingData }) => {
-            const { expiryDate } = siblingData as { expiryDate: string };
-            if (value && expiryDate && new Date(value) > new Date(expiryDate)) {
-              return 'Thời gian bắt đầu không được lớn hơn thời gian kết thúc';
-            }
-            return true;
-          },
+      name: "expiryDate",
+      label: "Ngày hết hạn",
+      type: "date",
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+          // Formats how the selected date/time renders in the input box
+          // Uses date-fns formatting tokens
+          displayFormat: 'dd/MM/yyyy HH:mm',
+          // Optional: Forces the time selection intervals (e.g., every 15 minutes)
+          timeIntervals: 15,
         },
-        {
-          name: "expiryDate",
-          type: "date",
-          admin: {
-            width: '50%',
-            description: "Thời gian mã giảm giá hết hạn",
-            date: {
-              pickerAppearance: 'dayAndTime',
-              // Formats how the selected date/time renders in the input box
-              // Uses date-fns formatting tokens
-              displayFormat: 'dd/MM/yyyy HH:mm',
-              // Optional: Forces the time selection intervals (e.g., every 15 minutes)
-              timeIntervals: 15,
-            },
-          },
-          label: "Thời gian kết thúc",
-          validate: (value, { siblingData }) => {
-            const { startDate } = siblingData as { startDate: string };
-
-            if (value && startDate && new Date(value) < new Date(startDate)) {
-              return 'Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu';
-            }
-
-            return true;
-          },
-        },
-      ]
+      },
     },
     {
       name: "customers",
@@ -182,29 +154,10 @@ export const GiftCards: CollectionConfig = {
         position: "sidebar",
         placeholder: 'Tất cả khách hàng',
       },
-      label: "Khách hàng",
-    },
-    {
-      name: 'paymentMethods',
-      type: 'relationship',
-      relationTo: 'payments',
-      hasMany: true,
-      admin: {
-        position: "sidebar",
-        placeholder: 'Tất cả phương thức',
+      label: {
+        singular: 'Khách hàng',
+        plural: 'Danh sách khách hàng',
       },
-      label: "Phương thức thanh toán",
-    },
-    {
-      name: 'shippingMethods',
-      type: 'relationship',
-      relationTo: 'shipping',
-      hasMany: true,
-      admin: {
-        position: "sidebar",
-        placeholder: 'Tất cả phương thức',
-      },
-      label: "Phương thức vận chuyển",
     },
   ],
 };

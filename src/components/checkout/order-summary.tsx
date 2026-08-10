@@ -14,6 +14,7 @@ interface OrderSummaryProps {
   className?: string
   subtotal?: number
   shipping?: number
+  payment?: number
   tax?: number
   discount?: number
   total?: number
@@ -29,6 +30,7 @@ export function OrderSummary({
   className,
   subtotal: propSubtotal,
   shipping: propShipping,
+  payment: propPayment,
   tax: propTax,
   discount: propDiscount,
   total: propTotal,
@@ -45,6 +47,7 @@ export function OrderSummary({
   // Use provided values or fallback to cart calculations
   const subtotal = propSubtotal ?? getTotalPrice()
   const shipping = propShipping ?? (subtotal > 50 ? 0 : 9.99)
+  const payment = propPayment ?? 0
   const tax = propTax ?? subtotal * 0.08
   const discount = propDiscount ?? 0
   const total = propTotal ?? subtotal + shipping + tax - discount
@@ -112,7 +115,16 @@ export function OrderSummary({
               {shippingMethodName ? <span className="text-muted-foreground"> ({shippingMethodName})</span> : ''}
             </span>
             <span className={shipping === 0 ? ' font-medium' : ''}>
-              {shipping === 0 ? 'Miễn phí' : `$${shipping.toFixed(2)}`}
+              {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+            </span>
+          </div>
+          {/* Thanh toán */}
+          <div className="flex justify-between gap-2 text-sm">
+            <span className=' truncate'>
+              Phí thanh toán
+            </span>
+            <span className={payment === 0 ? ' font-medium' : ''}>
+              {payment === 0 ? 'FREE' : `$${payment.toFixed(2)}`}
             </span>
           </div>
           {/* Thuế */}

@@ -58,11 +58,10 @@ export async function manualCheckout({
       })),
       subtotal,
       shippingCost,
+      paymentFee: payment.fee || 0, // todo: bổ sung trong tương lai
       taxAmount: taxAmount || 0,
       customer: {
         email: customer?.email,
-        // fullName: customer?.fullName,
-        // phone: customer?.phone,
       },
     },
   }

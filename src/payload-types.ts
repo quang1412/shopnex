@@ -71,6 +71,7 @@ export interface Config {
     carts: Cart;
     collections: Collection;
     products: Product;
+    attributes: Attribute;
     users: User;
     media: Media;
     policies: Policy;
@@ -96,6 +97,7 @@ export interface Config {
     carts: CartsSelect<false> | CartsSelect<true>;
     collections: CollectionsSelect<false> | CollectionsSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    attributes: AttributesSelect<false> | AttributesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     policies: PoliciesSelect<false> | PoliciesSelect<true>;
@@ -306,6 +308,13 @@ export interface Product {
   description?: string | null;
   collections?: (number | Collection)[] | null;
   handle?: string | null;
+  attributes?:
+    | {
+        name?: (number | null) | Attribute;
+        values?: string[] | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Choose the options for this product.
    */
@@ -406,6 +415,28 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attributes".
+ */
+export interface Attribute {
+  id: number;
+  name: string;
+  handle?: string | null;
+  /**
+   * Kiểu hiển thị Swatch
+   */
+  swatchType: 'label' | 'color' | 'image';
+  values: {
+    label: string;
+    value?: string | null;
+    colorCode?: string | null;
+    image?: (number | null) | Media;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payments".
  */
 export interface Payment {
@@ -413,6 +444,7 @@ export interface Payment {
   _order?: string | null;
   name: string;
   enabled?: boolean | null;
+  fee?: number | null;
   providers?:
     | {
         methodType: 'cod' | 'bankTransfer' | 'inStore' | 'other';
@@ -510,19 +542,10 @@ export interface Policy {
 export interface GiftCard {
   id: number;
   code: string;
+  type: 'percent' | 'amount';
   value: number;
-  minOrderTotal: number;
-  /**
-   * Thời gian mã giảm giá băt đầu có hiệu lực
-   */
-  startDate?: string | null;
-  /**
-   * Thời gian mã giảm giá hết hạn
-   */
   expiryDate?: string | null;
   customers?: (number | User)[] | null;
-  paymentMethods?: (number | Payment)[] | null;
-  shippingMethods?: (number | Shipping)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -715,6 +738,10 @@ export interface PayloadLockedDocument {
         value: number | Product;
       } | null)
     | ({
+        relationTo: 'attributes';
+        value: number | Attribute;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -884,6 +911,13 @@ export interface ProductsSelect<T extends boolean = true> {
   description?: T;
   collections?: T;
   handle?: T;
+  attributes?:
+    | T
+    | {
+        name?: T;
+        values?: T;
+        id?: T;
+      };
   variantOptions?:
     | T
     | {
@@ -921,6 +955,26 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attributes_select".
+ */
+export interface AttributesSelect<T extends boolean = true> {
+  name?: T;
+  handle?: T;
+  swatchType?: T;
+  values?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        colorCode?: T;
+        image?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -985,13 +1039,10 @@ export interface PoliciesSelect<T extends boolean = true> {
  */
 export interface GiftCardsSelect<T extends boolean = true> {
   code?: T;
+  type?: T;
   value?: T;
-  minOrderTotal?: T;
-  startDate?: T;
   expiryDate?: T;
   customers?: T;
-  paymentMethods?: T;
-  shippingMethods?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1015,6 +1066,7 @@ export interface PaymentsSelect<T extends boolean = true> {
   _order?: T;
   name?: T;
   enabled?: T;
+  fee?: T;
   providers?:
     | T
     | {

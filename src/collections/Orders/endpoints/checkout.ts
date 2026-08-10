@@ -137,7 +137,6 @@ const calculateShippingCost = async (shippingMethodId: string, subtotal: number,
   return baseRate
 }
 
-
 const providers: Record<string, (data: any) => Promise<any>> = {
   stripe: stripeCheckout,
   manual: manualCheckout,
@@ -160,14 +159,13 @@ const getPaymentProvider = async (paymentMethodId: string, req: any) => {
 
   const paymentMethod = payment.providers[0].blockType
   const handler = providers[paymentMethod]
+  const fee = payment.fee || 0;
 
   if (!handler) {
     throw new Error(`Unsupported payment provider: ${paymentMethod}`)
   }
 
-  // const paymentDiscount = payment.discount
-
-  return { paymentMethod, handler, payment, }
+  return { paymentMethod, handler, payment, fee }
 }
 
 export const checkoutEndpoint: Endpoint = {
@@ -195,7 +193,7 @@ export const checkoutEndpoint: Endpoint = {
         !customerInfo.email ||
         !customerInfo.phone ||
         !customerInfo.fullName ||
-        !customerInfo.address
+        !customerInfo.fullAddress
       ) {
         return Response.json({ error: 'Customer information is required' }, { status: 400 })
       }
@@ -211,19 +209,16 @@ export const checkoutEndpoint: Endpoint = {
       // Validate items with current stock and pricing
       const { subtotal, validatedItems } = await validateAndCalculateOrderTotals(items, req)
 
-      // Get payment provider handler
-      const { paymentMethod, handler, payment, } = await getPaymentProvider(paymentMethodId, req)
-
       // Calculate shipping cost based on subtotal
       const shippingCost = await calculateShippingCost(shippingMethodId, subtotal, req);
 
-      // Đảm bảo phí ship phải lớn hơn 0
-      // const shippingCostDiscounted = Math.max(0, (shippingCost - paymentMethodShippingDiscount));
+      // Get payment provider handler
+      const { paymentMethod, handler, payment, fee: paymentFee } = await getPaymentProvider(paymentMethodId, req)
 
       // Calculate tax (you can implement tax logic here)
       const taxRate = 0.08 // 8% tax rate - make this configurable
       const taxAmount = subtotal * taxRate
-      const finalTotal = subtotal + shippingCost + taxAmount
+      const finalTotal = subtotal + shippingCost + paymentFee + taxAmount
 
       // Get shipping details
       const shipping = await req.payload.findByID({
@@ -266,8 +261,8 @@ export const checkoutEndpoint: Endpoint = {
         orderId,
         cart,
         customer: customerInfo,
-        payment,
         shipping,
+        payment,
         total: finalTotal,
         subtotal,
         shippingCost,

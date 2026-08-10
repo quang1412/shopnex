@@ -15,7 +15,7 @@ export const adminPluginAccess: Access = ({ req }) => {
 }
 
 export const admins: isAdmin = ({ req: { user } }) => {
-  return checkRole(['admin'], user)
+  return checkRole(['admin', 'super-admin'], user)
 }
 
 export const anyone: Access = () => {

@@ -51,31 +51,38 @@ export function AddToCartButton({
 
   return (
     <div className='space-y-4'>
-      <div className="flex items-center gap-4">
 
+      <div className="flex items-center gap-4">
         <QuantityControler
           value={inputQty}
           onValueChange={handleChangeQuantity}
           max={remainingStockAllowed || 1}
         />
-
       </div>
 
-      <div className='flex gap-4'>
-        <Button
-          size="lg"
-          onClick={hangleClickATC}
-          disabled={remainingStockAllowed === 0}
-          className="flex-1"
-        >
-          {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}
-        </Button>
-        <Button
-          size="lg"
-          onClick={handleClickBuyNow}
-          variant="outline"
-          className="w-[30%]"
-        >Mua ngay</Button>
+      <div className='w-full flex flex-col md:flex-row gap-4 items-center '>
+        <div className='flex-1 w-full'>
+          <Button
+            size="lg"
+            onClick={handleClickBuyNow}
+            variant="default"
+            className="w-full"
+            disabled={remainingStockAllowed === 0}
+          >Mua ngay</Button>
+        </div>
+
+        <div className='w-full md:w-[40%]'>
+          <Button
+            size="lg"
+            variant="outline"
+            // variant="secondary"
+            onClick={hangleClickATC}
+            disabled={remainingStockAllowed === 0}
+            className="w-full"
+          >
+            {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}
+          </Button>
+        </div>
       </div>
     </div>
   )
