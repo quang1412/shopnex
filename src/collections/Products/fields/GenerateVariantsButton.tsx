@@ -81,3 +81,4 @@ export const GenerateVariantsButton = () => {
     </div>
   )
 }
+export default React.memo(GenerateVariantsButton)
