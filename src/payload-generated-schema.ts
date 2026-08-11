@@ -13,9 +13,9 @@ import {
   uniqueIndex,
   foreignKey,
   integer,
+  serial,
   varchar,
   timestamp,
-  serial,
   numeric,
   jsonb,
   boolean,
@@ -23,6 +23,7 @@ import {
   pgEnum,
 } from '@payloadcms/db-postgres/drizzle/pg-core'
 import { sql, relations } from '@payloadcms/db-postgres/drizzle'
+export const enum_users_roles = pgEnum('enum_users_roles', ['super-admin', 'admin', 'customer'])
 export const enum_orders_timeline_type = pgEnum('enum_orders_timeline_type', [
   'note',
   'order_created',
@@ -50,6 +51,11 @@ export const enum_orders_order_status = pgEnum('enum_orders_order_status', [
   'delivered',
   'canceled',
 ])
+export const enum_attributes_swatch_type = pgEnum('enum_attributes_swatch_type', [
+  'label',
+  'color',
+  'image',
+])
 export const enum_products_sales_channels = pgEnum('enum_products_sales_channels', [
   'all',
   'onlineStore',
@@ -57,12 +63,6 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
-export const enum_attributes_swatch_type = pgEnum('enum_attributes_swatch_type', [
-  'label',
-  'color',
-  'image',
-])
-export const enum_users_roles = pgEnum('enum_users_roles', ['super-admin', 'admin', 'customer'])
 export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
@@ -82,6 +82,80 @@ export const enum_payload_jobs_task_slug = pgEnum('enum_payload_jobs_task_slug',
   'inline',
   'createCollectionExport',
 ])
+
+export const users_roles = pgTable(
+  'users_roles',
+  {
+    order: integer('order').notNull(),
+    parent: integer('parent_id').notNull(),
+    value: enum_users_roles('value'),
+    id: serial('id').primaryKey(),
+  },
+  (columns) => [
+    index('users_roles_order_idx').on(columns.order),
+    index('users_roles_parent_idx').on(columns.parent),
+    foreignKey({
+      columns: [columns['parent']],
+      foreignColumns: [users.id],
+      name: 'users_roles_parent_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const users_sessions = pgTable(
+  'users_sessions',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 }),
+    expiresAt: timestamp('expires_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
+  },
+  (columns) => [
+    index('users_sessions_order_idx').on(columns._order),
+    index('users_sessions_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [users.id],
+      name: 'users_sessions_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const users = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    firstName: varchar('first_name'),
+    lastName: varchar('last_name'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    email: varchar('email').notNull(),
+    resetPasswordToken: varchar('reset_password_token'),
+    resetPasswordExpiration: timestamp('reset_password_expiration', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    salt: varchar('salt'),
+    hash: varchar('hash'),
+    loginAttempts: numeric('login_attempts', { mode: 'number' }).default(0),
+    lockUntil: timestamp('lock_until', { mode: 'string', withTimezone: true, precision: 3 }),
+  },
+  (columns) => [
+    index('users_updated_at_idx').on(columns.updatedAt),
+    index('users_created_at_idx').on(columns.createdAt),
+    uniqueIndex('users_email_idx').on(columns.email),
+  ],
+)
 
 export const orders_timeline = pgTable(
   'orders_timeline',
@@ -235,6 +309,54 @@ export const collections = pgTable(
   ],
 )
 
+export const attributes = pgTable(
+  'attributes',
+  {
+    id: serial('id').primaryKey(),
+    handle: varchar('handle'),
+    name: varchar('name').notNull(),
+    swatchType: enum_attributes_swatch_type('swatch_type').notNull().default('label'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    index('attributes_handle_idx').on(columns.handle),
+    index('attributes_updated_at_idx').on(columns.updatedAt),
+    index('attributes_created_at_idx').on(columns.createdAt),
+  ],
+)
+
+export const attribute_values = pgTable(
+  'attribute_values',
+  {
+    id: serial('id').primaryKey(),
+    label: varchar('label').notNull(),
+    handle: varchar('handle'),
+    swatch: varchar('swatch'),
+    attribute: integer('attribute_id')
+      .notNull()
+      .references(() => attributes.id, {
+        onDelete: 'set null',
+      }),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    index('attribute_values_handle_idx').on(columns.handle),
+    index('attribute_values_attribute_idx').on(columns.attribute),
+    index('attribute_values_updated_at_idx').on(columns.updatedAt),
+    index('attribute_values_created_at_idx').on(columns.createdAt),
+  ],
+)
+
 export const products_sales_channels = pgTable(
   'products_sales_channels',
   {
@@ -272,6 +394,30 @@ export const products_attributes = pgTable(
       columns: [columns['_parentID']],
       foreignColumns: [products.id],
       name: 'products_attributes_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const products_product_attributes = pgTable(
+  'products_product_attributes',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    attribute: integer('attribute_id')
+      .notNull()
+      .references(() => attributes.id, {
+        onDelete: 'set null',
+      }),
+  },
+  (columns) => [
+    index('products_product_attributes_order_idx').on(columns._order),
+    index('products_product_attributes_parent_id_idx').on(columns._parentID),
+    index('products_product_attributes_attribute_idx').on(columns.attribute),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [products.id],
+      name: 'products_product_attributes_parent_id_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -414,6 +560,8 @@ export const products_rels = pgTable(
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
     collectionsID: integer('collections_id'),
+    variantsID: integer('variants_id'),
+    'attribute-valuesID': integer('attribute_values_id'),
     mediaID: integer('media_id'),
   },
   (columns) => [
@@ -421,6 +569,8 @@ export const products_rels = pgTable(
     index('products_rels_parent_idx').on(columns.parent),
     index('products_rels_path_idx').on(columns.path),
     index('products_rels_collections_id_idx').on(columns.collectionsID),
+    index('products_rels_variants_id_idx').on(columns.variantsID),
+    index('products_rels_attribute_values_id_idx').on(columns['attribute-valuesID']),
     index('products_rels_media_id_idx').on(columns.mediaID),
     foreignKey({
       columns: [columns['parent']],
@@ -433,6 +583,16 @@ export const products_rels = pgTable(
       name: 'products_rels_collections_fk',
     }).onDelete('cascade'),
     foreignKey({
+      columns: [columns['variantsID']],
+      foreignColumns: [variants.id],
+      name: 'products_rels_variants_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['attribute-valuesID']],
+      foreignColumns: [attribute_values.id],
+      name: 'products_rels_attribute_values_fk',
+    }).onDelete('cascade'),
+    foreignKey({
       columns: [columns['mediaID']],
       foreignColumns: [media.id],
       name: 'products_rels_media_fk',
@@ -440,39 +600,48 @@ export const products_rels = pgTable(
   ],
 )
 
-export const attributes_values = pgTable(
-  'attributes_values',
+export const variants_attribute_options = pgTable(
+  'variants_attribute_options',
   {
     _order: integer('_order').notNull(),
     _parentID: integer('_parent_id').notNull(),
     id: varchar('id').primaryKey(),
-    label: varchar('label').notNull(),
-    value: varchar('value'),
-    colorCode: varchar('color_code'),
-    image: integer('image_id').references(() => media.id, {
-      onDelete: 'set null',
-    }),
+    attribute: integer('attribute_id')
+      .notNull()
+      .references(() => attributes.id, {
+        onDelete: 'set null',
+      }),
+    value: integer('value_id')
+      .notNull()
+      .references(() => attribute_values.id, {
+        onDelete: 'set null',
+      }),
   },
   (columns) => [
-    index('attributes_values_order_idx').on(columns._order),
-    index('attributes_values_parent_id_idx').on(columns._parentID),
-    uniqueIndex('attributes_values_value_idx').on(columns.value),
-    index('attributes_values_image_idx').on(columns.image),
+    index('variants_attribute_options_order_idx').on(columns._order),
+    index('variants_attribute_options_parent_id_idx').on(columns._parentID),
+    index('variants_attribute_options_attribute_idx').on(columns.attribute),
+    index('variants_attribute_options_value_idx').on(columns.value),
     foreignKey({
       columns: [columns['_parentID']],
-      foreignColumns: [attributes.id],
-      name: 'attributes_values_parent_id_fk',
+      foreignColumns: [variants.id],
+      name: 'variants_attribute_options_parent_id_fk',
     }).onDelete('cascade'),
   ],
 )
 
-export const attributes = pgTable(
-  'attributes',
+export const variants = pgTable(
+  'variants',
   {
     id: serial('id').primaryKey(),
-    name: varchar('name').notNull(),
-    handle: varchar('handle'),
-    swatchType: enum_attributes_swatch_type('swatch_type').notNull().default('label'),
+    sku: varchar('sku').notNull(),
+    price: numeric('price', { mode: 'number' }).notNull(),
+    stock: numeric('stock', { mode: 'number' }).notNull().default(0),
+    product: integer('product_id')
+      .notNull()
+      .references(() => products.id, {
+        onDelete: 'set null',
+      }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -481,83 +650,10 @@ export const attributes = pgTable(
       .notNull(),
   },
   (columns) => [
-    index('attributes_handle_idx').on(columns.handle),
-    index('attributes_updated_at_idx').on(columns.updatedAt),
-    index('attributes_created_at_idx').on(columns.createdAt),
-  ],
-)
-
-export const users_roles = pgTable(
-  'users_roles',
-  {
-    order: integer('order').notNull(),
-    parent: integer('parent_id').notNull(),
-    value: enum_users_roles('value'),
-    id: serial('id').primaryKey(),
-  },
-  (columns) => [
-    index('users_roles_order_idx').on(columns.order),
-    index('users_roles_parent_idx').on(columns.parent),
-    foreignKey({
-      columns: [columns['parent']],
-      foreignColumns: [users.id],
-      name: 'users_roles_parent_fk',
-    }).onDelete('cascade'),
-  ],
-)
-
-export const users_sessions = pgTable(
-  'users_sessions',
-  {
-    _order: integer('_order').notNull(),
-    _parentID: integer('_parent_id').notNull(),
-    id: varchar('id').primaryKey(),
-    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 }),
-    expiresAt: timestamp('expires_at', {
-      mode: 'string',
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-  },
-  (columns) => [
-    index('users_sessions_order_idx').on(columns._order),
-    index('users_sessions_parent_id_idx').on(columns._parentID),
-    foreignKey({
-      columns: [columns['_parentID']],
-      foreignColumns: [users.id],
-      name: 'users_sessions_parent_id_fk',
-    }).onDelete('cascade'),
-  ],
-)
-
-export const users = pgTable(
-  'users',
-  {
-    id: serial('id').primaryKey(),
-    firstName: varchar('first_name'),
-    lastName: varchar('last_name'),
-    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
-      .defaultNow()
-      .notNull(),
-    email: varchar('email').notNull(),
-    resetPasswordToken: varchar('reset_password_token'),
-    resetPasswordExpiration: timestamp('reset_password_expiration', {
-      mode: 'string',
-      withTimezone: true,
-      precision: 3,
-    }),
-    salt: varchar('salt'),
-    hash: varchar('hash'),
-    loginAttempts: numeric('login_attempts', { mode: 'number' }).default(0),
-    lockUntil: timestamp('lock_until', { mode: 'string', withTimezone: true, precision: 3 }),
-  },
-  (columns) => [
-    index('users_updated_at_idx').on(columns.updatedAt),
-    index('users_created_at_idx').on(columns.createdAt),
-    uniqueIndex('users_email_idx').on(columns.email),
+    uniqueIndex('variants_sku_idx').on(columns.sku),
+    index('variants_product_idx').on(columns.product),
+    index('variants_updated_at_idx').on(columns.updatedAt),
+    index('variants_created_at_idx').on(columns.createdAt),
   ],
 )
 
@@ -975,12 +1071,14 @@ export const payload_locked_documents_rels = pgTable(
     order: integer('order'),
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
+    usersID: integer('users_id'),
     ordersID: integer('orders_id'),
     cartsID: integer('carts_id'),
     collectionsID: integer('collections_id'),
-    productsID: integer('products_id'),
     attributesID: integer('attributes_id'),
-    usersID: integer('users_id'),
+    'attribute-valuesID': integer('attribute_values_id'),
+    productsID: integer('products_id'),
+    variantsID: integer('variants_id'),
     mediaID: integer('media_id'),
     policiesID: integer('policies_id'),
     'gift-cardsID': integer('gift_cards_id'),
@@ -994,12 +1092,16 @@ export const payload_locked_documents_rels = pgTable(
     index('payload_locked_documents_rels_order_idx').on(columns.order),
     index('payload_locked_documents_rels_parent_idx').on(columns.parent),
     index('payload_locked_documents_rels_path_idx').on(columns.path),
+    index('payload_locked_documents_rels_users_id_idx').on(columns.usersID),
     index('payload_locked_documents_rels_orders_id_idx').on(columns.ordersID),
     index('payload_locked_documents_rels_carts_id_idx').on(columns.cartsID),
     index('payload_locked_documents_rels_collections_id_idx').on(columns.collectionsID),
-    index('payload_locked_documents_rels_products_id_idx').on(columns.productsID),
     index('payload_locked_documents_rels_attributes_id_idx').on(columns.attributesID),
-    index('payload_locked_documents_rels_users_id_idx').on(columns.usersID),
+    index('payload_locked_documents_rels_attribute_values_id_idx').on(
+      columns['attribute-valuesID'],
+    ),
+    index('payload_locked_documents_rels_products_id_idx').on(columns.productsID),
+    index('payload_locked_documents_rels_variants_id_idx').on(columns.variantsID),
     index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID),
     index('payload_locked_documents_rels_policies_id_idx').on(columns.policiesID),
     index('payload_locked_documents_rels_gift_cards_id_idx').on(columns['gift-cardsID']),
@@ -1012,6 +1114,11 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns['parent']],
       foreignColumns: [payload_locked_documents.id],
       name: 'payload_locked_documents_rels_parent_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['usersID']],
+      foreignColumns: [users.id],
+      name: 'payload_locked_documents_rels_users_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['ordersID']],
@@ -1029,19 +1136,24 @@ export const payload_locked_documents_rels = pgTable(
       name: 'payload_locked_documents_rels_collections_fk',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [columns['productsID']],
-      foreignColumns: [products.id],
-      name: 'payload_locked_documents_rels_products_fk',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [columns['attributesID']],
       foreignColumns: [attributes.id],
       name: 'payload_locked_documents_rels_attributes_fk',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [columns['usersID']],
-      foreignColumns: [users.id],
-      name: 'payload_locked_documents_rels_users_fk',
+      columns: [columns['attribute-valuesID']],
+      foreignColumns: [attribute_values.id],
+      name: 'payload_locked_documents_rels_attribute_values_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['productsID']],
+      foreignColumns: [products.id],
+      name: 'payload_locked_documents_rels_products_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['variantsID']],
+      foreignColumns: [variants.id],
+      name: 'payload_locked_documents_rels_variants_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['mediaID']],
@@ -1152,6 +1264,28 @@ export const payload_migrations = pgTable(
   ],
 )
 
+export const relations_users_roles = relations(users_roles, ({ one }) => ({
+  parent: one(users, {
+    fields: [users_roles.parent],
+    references: [users.id],
+    relationName: 'roles',
+  }),
+}))
+export const relations_users_sessions = relations(users_sessions, ({ one }) => ({
+  _parentID: one(users, {
+    fields: [users_sessions._parentID],
+    references: [users.id],
+    relationName: 'sessions',
+  }),
+}))
+export const relations_users = relations(users, ({ many }) => ({
+  roles: many(users_roles, {
+    relationName: 'roles',
+  }),
+  sessions: many(users_sessions, {
+    relationName: 'sessions',
+  }),
+}))
 export const relations_orders_timeline = relations(orders_timeline, ({ one }) => ({
   _parentID: one(orders, {
     fields: [orders_timeline._parentID],
@@ -1218,6 +1352,14 @@ export const relations_collections = relations(collections, ({ one }) => ({
     relationName: 'image',
   }),
 }))
+export const relations_attributes = relations(attributes, () => ({}))
+export const relations_attribute_values = relations(attribute_values, ({ one }) => ({
+  attribute: one(attributes, {
+    fields: [attribute_values.attribute],
+    references: [attributes.id],
+    relationName: 'attribute',
+  }),
+}))
 export const relations_products_sales_channels = relations(products_sales_channels, ({ one }) => ({
   parent: one(products, {
     fields: [products_sales_channels.parent],
@@ -1237,6 +1379,21 @@ export const relations_products_attributes = relations(products_attributes, ({ o
     relationName: 'name',
   }),
 }))
+export const relations_products_product_attributes = relations(
+  products_product_attributes,
+  ({ one }) => ({
+    _parentID: one(products, {
+      fields: [products_product_attributes._parentID],
+      references: [products.id],
+      relationName: 'productAttributes',
+    }),
+    attribute: one(attributes, {
+      fields: [products_product_attributes.attribute],
+      references: [attributes.id],
+      relationName: 'attribute',
+    }),
+  }),
+)
 export const relations_products_variant_options = relations(
   products_variant_options,
   ({ one }) => ({
@@ -1292,6 +1449,16 @@ export const relations_products_rels = relations(products_rels, ({ one }) => ({
     references: [collections.id],
     relationName: 'collections',
   }),
+  variantsID: one(variants, {
+    fields: [products_rels.variantsID],
+    references: [variants.id],
+    relationName: 'variants',
+  }),
+  'attribute-valuesID': one(attribute_values, {
+    fields: [products_rels['attribute-valuesID']],
+    references: [attribute_values.id],
+    relationName: 'attribute-values',
+  }),
   mediaID: one(media, {
     fields: [products_rels.mediaID],
     references: [media.id],
@@ -1304,6 +1471,9 @@ export const relations_products = relations(products, ({ many }) => ({
   }),
   attributes: many(products_attributes, {
     relationName: 'attributes',
+  }),
+  productAttributes: many(products_product_attributes, {
+    relationName: 'productAttributes',
   }),
   variantOptions: many(products_variant_options, {
     relationName: 'variantOptions',
@@ -1321,43 +1491,34 @@ export const relations_products = relations(products, ({ many }) => ({
     relationName: '_rels',
   }),
 }))
-export const relations_attributes_values = relations(attributes_values, ({ one }) => ({
-  _parentID: one(attributes, {
-    fields: [attributes_values._parentID],
-    references: [attributes.id],
-    relationName: 'values',
+export const relations_variants_attribute_options = relations(
+  variants_attribute_options,
+  ({ one }) => ({
+    _parentID: one(variants, {
+      fields: [variants_attribute_options._parentID],
+      references: [variants.id],
+      relationName: 'attributeOptions',
+    }),
+    attribute: one(attributes, {
+      fields: [variants_attribute_options.attribute],
+      references: [attributes.id],
+      relationName: 'attribute',
+    }),
+    value: one(attribute_values, {
+      fields: [variants_attribute_options.value],
+      references: [attribute_values.id],
+      relationName: 'value',
+    }),
   }),
-  image: one(media, {
-    fields: [attributes_values.image],
-    references: [media.id],
-    relationName: 'image',
+)
+export const relations_variants = relations(variants, ({ one, many }) => ({
+  product: one(products, {
+    fields: [variants.product],
+    references: [products.id],
+    relationName: 'product',
   }),
-}))
-export const relations_attributes = relations(attributes, ({ many }) => ({
-  values: many(attributes_values, {
-    relationName: 'values',
-  }),
-}))
-export const relations_users_roles = relations(users_roles, ({ one }) => ({
-  parent: one(users, {
-    fields: [users_roles.parent],
-    references: [users.id],
-    relationName: 'roles',
-  }),
-}))
-export const relations_users_sessions = relations(users_sessions, ({ one }) => ({
-  _parentID: one(users, {
-    fields: [users_sessions._parentID],
-    references: [users.id],
-    relationName: 'sessions',
-  }),
-}))
-export const relations_users = relations(users, ({ many }) => ({
-  roles: many(users_roles, {
-    relationName: 'roles',
-  }),
-  sessions: many(users_sessions, {
-    relationName: 'sessions',
+  attributeOptions: many(variants_attribute_options, {
+    relationName: 'attributeOptions',
   }),
 }))
 export const relations_media = relations(media, () => ({}))
@@ -1462,6 +1623,11 @@ export const relations_payload_locked_documents_rels = relations(
       references: [payload_locked_documents.id],
       relationName: '_rels',
     }),
+    usersID: one(users, {
+      fields: [payload_locked_documents_rels.usersID],
+      references: [users.id],
+      relationName: 'users',
+    }),
     ordersID: one(orders, {
       fields: [payload_locked_documents_rels.ordersID],
       references: [orders.id],
@@ -1477,20 +1643,25 @@ export const relations_payload_locked_documents_rels = relations(
       references: [collections.id],
       relationName: 'collections',
     }),
-    productsID: one(products, {
-      fields: [payload_locked_documents_rels.productsID],
-      references: [products.id],
-      relationName: 'products',
-    }),
     attributesID: one(attributes, {
       fields: [payload_locked_documents_rels.attributesID],
       references: [attributes.id],
       relationName: 'attributes',
     }),
-    usersID: one(users, {
-      fields: [payload_locked_documents_rels.usersID],
-      references: [users.id],
-      relationName: 'users',
+    'attribute-valuesID': one(attribute_values, {
+      fields: [payload_locked_documents_rels['attribute-valuesID']],
+      references: [attribute_values.id],
+      relationName: 'attribute-values',
+    }),
+    productsID: one(products, {
+      fields: [payload_locked_documents_rels.productsID],
+      references: [products.id],
+      relationName: 'products',
+    }),
+    variantsID: one(variants, {
+      fields: [payload_locked_documents_rels.variantsID],
+      references: [variants.id],
+      relationName: 'variants',
     }),
     mediaID: one(media, {
       fields: [payload_locked_documents_rels.mediaID],
@@ -1565,14 +1736,14 @@ export const relations_payload_preferences = relations(payload_preferences, ({ m
 export const relations_payload_migrations = relations(payload_migrations, () => ({}))
 
 type DatabaseSchema = {
+  enum_users_roles: typeof enum_users_roles
   enum_orders_timeline_type: typeof enum_orders_timeline_type
   enum_orders_source: typeof enum_orders_source
   enum_orders_payment_status: typeof enum_orders_payment_status
   enum_orders_order_status: typeof enum_orders_order_status
+  enum_attributes_swatch_type: typeof enum_attributes_swatch_type
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
-  enum_attributes_swatch_type: typeof enum_attributes_swatch_type
-  enum_users_roles: typeof enum_users_roles
   enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
   enum_exports_format: typeof enum_exports_format
@@ -1580,13 +1751,19 @@ type DatabaseSchema = {
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug
   enum_payload_jobs_log_state: typeof enum_payload_jobs_log_state
   enum_payload_jobs_task_slug: typeof enum_payload_jobs_task_slug
+  users_roles: typeof users_roles
+  users_sessions: typeof users_sessions
+  users: typeof users
   orders_timeline: typeof orders_timeline
   orders: typeof orders
   carts_cart_items: typeof carts_cart_items
   carts: typeof carts
   collections: typeof collections
+  attributes: typeof attributes
+  attribute_values: typeof attribute_values
   products_sales_channels: typeof products_sales_channels
   products_attributes: typeof products_attributes
+  products_product_attributes: typeof products_product_attributes
   products_variant_options: typeof products_variant_options
   products_variants_options: typeof products_variants_options
   products_variants: typeof products_variants
@@ -1594,11 +1771,8 @@ type DatabaseSchema = {
   products: typeof products
   products_texts: typeof products_texts
   products_rels: typeof products_rels
-  attributes_values: typeof attributes_values
-  attributes: typeof attributes
-  users_roles: typeof users_roles
-  users_sessions: typeof users_sessions
-  users: typeof users
+  variants_attribute_options: typeof variants_attribute_options
+  variants: typeof variants
   media: typeof media
   policies: typeof policies
   gift_cards: typeof gift_cards
@@ -1620,13 +1794,19 @@ type DatabaseSchema = {
   payload_preferences: typeof payload_preferences
   payload_preferences_rels: typeof payload_preferences_rels
   payload_migrations: typeof payload_migrations
+  relations_users_roles: typeof relations_users_roles
+  relations_users_sessions: typeof relations_users_sessions
+  relations_users: typeof relations_users
   relations_orders_timeline: typeof relations_orders_timeline
   relations_orders: typeof relations_orders
   relations_carts_cart_items: typeof relations_carts_cart_items
   relations_carts: typeof relations_carts
   relations_collections: typeof relations_collections
+  relations_attributes: typeof relations_attributes
+  relations_attribute_values: typeof relations_attribute_values
   relations_products_sales_channels: typeof relations_products_sales_channels
   relations_products_attributes: typeof relations_products_attributes
+  relations_products_product_attributes: typeof relations_products_product_attributes
   relations_products_variant_options: typeof relations_products_variant_options
   relations_products_variants_options: typeof relations_products_variants_options
   relations_products_variants: typeof relations_products_variants
@@ -1634,11 +1814,8 @@ type DatabaseSchema = {
   relations_products_texts: typeof relations_products_texts
   relations_products_rels: typeof relations_products_rels
   relations_products: typeof relations_products
-  relations_attributes_values: typeof relations_attributes_values
-  relations_attributes: typeof relations_attributes
-  relations_users_roles: typeof relations_users_roles
-  relations_users_sessions: typeof relations_users_sessions
-  relations_users: typeof relations_users
+  relations_variants_attribute_options: typeof relations_variants_attribute_options
+  relations_variants: typeof relations_variants
   relations_media: typeof relations_media
   relations_policies: typeof relations_policies
   relations_gift_cards_rels: typeof relations_gift_cards_rels

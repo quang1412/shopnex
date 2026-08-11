@@ -136,36 +136,62 @@ export const Products: CollectionConfig = {
     // },
     HandleField(),
 
+    // TEST
+
+    // Khai báo cấu hình các đặc tính riêng cho sản phẩm này
     {
       name: 'attributes',
       type: 'array',
+      label: 'Thuộc tính sản phẩm',
       fields: [
         {
-          type: 'row',
-          fields: [
-            {
-              name: 'name',
-              label: 'Tên thuộc tính',
-              type: 'relationship',
-              relationTo: 'attributes',
-            },
-            {
-              name: 'values',
-              label: 'Giá trị thuộc tính',
-              type: 'text',
-              hasMany: true,
-              admin: {
-                // Nhúng Custom Component đã tạo ở Bước 1 vào đây
-                components: {
-                  Field: '@/collections/Products/fields/SelectedValuesField#SelectedValuesField',
-                },
-              },
-            }
-          ]
-        },
+          name: 'attribute',
+          type: 'relationship',
+          relationTo: 'attributes',
+          required: true,
+          label: 'Loại thuộc tính (Ví dụ: Màu sắc)',
 
-      ]
+        },
+        {
+          name: 'allowedValues',
+          type: 'relationship',
+          relationTo: 'attribute-values',
+          hasMany: true,
+          required: true,
+          label: 'Các giá trị được áp dụng cho sản phẩm này (Ví dụ: Đỏ, Xanh)',
+          // Tính năng thông minh: Chỉ cho chọn các giá trị thuộc về Loại thuộc tính đã chọn ở ô bên cạnh
+          filterOptions: ({ siblingData }) => {
+            const { attribute } = (siblingData as { attribute: any })
+            if (siblingData && attribute) {
+              return {
+                attribute: { equals: attribute },
+              };
+            }
+            return false;
+          },
+          admin: {
+            components: {
+              // Đưa component bổ trợ vào sau ô nhập liệu để bắt sự kiện thay đổi giá trị
+              afterInput: [
+                {
+                  path: '@/collections/Products/fields/ClearAttributeValueField', // Đường dẫn vật lý đến file component của bạn
+                }
+              ]
+            }
+          }
+        },
+      ],
     },
+
+    {
+      name: 'variants-test',
+      type: 'relationship',
+      relationTo: 'variants',
+      hasMany: true,
+      label: 'Danh sách biến thể (test)',
+    },
+
+    // TEST
 
     {
       type: 'collapsible',
