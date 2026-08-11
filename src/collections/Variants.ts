@@ -14,7 +14,7 @@ export const Variants: CollectionConfig = {
       type: 'row', fields: [
         { name: 'price', type: 'number', required: true, label: 'Giá tiền', admin: { width: '33.3%' } },
         { name: 'priceOriginal', type: 'number', label: 'Giá tiền tham khảo', admin: { width: '33.3%' } },
-        { name: 'stock', type: 'number', required: true, defaultValue: 0, label: 'Tồn kho', admin: { width: '33.3%' } },
+        { name: 'stockCount', type: 'number', required: true, defaultValue: 0, label: 'Tồn kho', admin: { width: '33.3%' } },
       ]
     },
     {
@@ -23,25 +23,45 @@ export const Variants: CollectionConfig = {
       relationTo: 'products',
       required: true,
       label: 'Sản phẩm chính',
-
-      defaultValue: ({ req }) => {
-        // // Lấy query parameters từ đối tượng request của Express / Payload
-        // const url = new URL(req.href, 'http://localhost'); // Node environment cần base URL để parse
-
-        // let prodId = url.href.split('/').pop() || '';
-        // if (url.searchParams.get('product_id')) {
-        //   prodId = url.searchParams.get('product_id') || ''
-        // }
-        // // const productIdFromUrl = url.searchParams.get('product_id');
-
-        // // Nếu có product_id trên URL, trả về làm giá trị mặc định cho field
-        // return prodId || undefined;
-      },
       admin: {
         position: 'sidebar',
-      }
+        // Sort options by newest first
+        sortOptions: '-createdAt',
+        allowEdit: false,
+      },
+      defaultValue: async ({ user, req }) => {
+        try {
+          // Fetch the single newest document from the target collection
+          const result = await req.payload.find({
+            collection: 'products',
+            sort: '-createdAt', // Sort by newest first
+            limit: 1, // Only grab the top item
+            depth: 0, // Performance optimization: only fetch IDs
+          })
+
+          // If a document exists, return its ID to set as the default
+          if (result.docs && result.docs.length > 0) {
+            return result.docs[0].id
+          }
+        } catch (error) {
+          console.error("Failed to fetch default relationship:", error)
+        }
+
+        return undefined
+      },
+
     },
-    { name: 'sku', type: 'text', required: true, unique: true, label: 'Mã SKU', admin: { position: 'sidebar', } },
+    {
+      name: 'sku',
+      type: 'text',
+      required: true,
+      unique: true,
+      label: 'Mã SKU',
+      defaultValue: () => {
+        return `SN-${crypto.randomUUID().slice(0, 8)}`
+      },
+      admin: { position: 'sidebar', },
+    },
     {
       name: 'attributeOptions',
       type: 'array',
@@ -85,6 +105,19 @@ export const Variants: CollectionConfig = {
           ]
         },
       ],
+    },
+    {
+      name: 'gallery',
+      label: 'Ảnh',
+      type: 'upload',
+      admin: {
+        components: {
+          // Field: "@/custom/custom-image-field#UploadField",
+        },
+        isSortable: false,
+      },
+      hasMany: true,
+      relationTo: 'media',
     },
   ],
 };

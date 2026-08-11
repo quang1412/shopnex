@@ -18,23 +18,26 @@ export const AttributeValues: CollectionConfig = {
   },
   fields: [
     {
-      name: 'attribute',
-      type: 'relationship',
-      relationTo: 'attributes',
-      required: true,
-      label: 'Thuộc tính cha',
-      admin: {
-        position: 'sidebar',
-      }
-    },
-    {
-      name: 'label',
-      type: 'text',
-      required: true,
-      label: 'Tên hiển thị (Ví dụ: Đỏ, Bản Quốc Tế)',
+      type: 'row',
+      fields: [
+        {
+          name: 'attribute',
+          type: 'relationship',
+          relationTo: 'attributes',
+          required: true,
+          label: 'Thuộc tính cha',
+          admin: { width: '50%' },
+        },
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          label: 'Tên hiển thị (Ví dụ: Đỏ, Bản Quốc Tế)',
+          admin: { width: '50%' },
+        },
+      ]
     },
     HandleField('label'),
-
 
     // TRƯỜNG DÀNH CHO LOẠI COLOR: Chỉ hiện khi thuộc tính cha có swatchType === 'color'
     {
@@ -43,6 +46,7 @@ export const AttributeValues: CollectionConfig = {
       label: 'Mã màu Hex',
       admin: {
         placeholder: '#FF0000',
+        position: 'sidebar',
         condition: (data, siblingData, { user }) => {
           // Kiểm tra xem attribute cha có swatchType là 'color' không bằng cách đọc qua API hoặc dữ liệu liên kết nếu có
           // Để đơn giản và chính xác tuyệt đối trong giao diện Admin, Payload hỗ trợ lấy thông tin động.
@@ -55,10 +59,15 @@ export const AttributeValues: CollectionConfig = {
     // Ở đây sử dụng relationship trỏ tới một collection quản lý hình ảnh (ví dụ: 'media') trong dự án của bạn
     {
       name: 'swatchImage',
-      type: 'relationship',
+      type: 'upload',
+      // type: 'relationship',
       relationTo: 'media', // Tên collection upload ảnh của bạn trong Payload
       label: 'Hình ảnh mẫu swatch',
+      admin: {
+        position: 'sidebar',
+      }
     },
 
   ],
+
 };

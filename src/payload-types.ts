@@ -309,17 +309,23 @@ export interface Product {
    */
   salesChannels?: ('all' | 'onlineStore' | 'pos' | 'mobileApp')[] | null;
   source?: 'manual' | null;
-  description?: string | null;
   collections?: (number | Collection)[] | null;
   handle?: string | null;
+  description?: string | null;
   attributes?:
     | {
         attribute: number | Attribute;
         allowedValues: (number | AttributeValue)[];
+        variation?: boolean | null;
+        visible?: boolean | null;
         id?: string | null;
       }[]
     | null;
   'variants-test'?: (number | Variant)[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+  };
   /**
    * Choose the options for this product.
    */
@@ -359,10 +365,6 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -452,7 +454,7 @@ export interface Variant {
   id: number;
   price: number;
   priceOriginal?: number | null;
-  stock: number;
+  stockCount: number;
   product: number | Product;
   sku: string;
   attributeOptions?:
@@ -462,6 +464,7 @@ export interface Variant {
         id?: string | null;
       }[]
     | null;
+  gallery?: (number | Media)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -995,17 +998,25 @@ export interface ProductsSelect<T extends boolean = true> {
   inStock?: T;
   salesChannels?: T;
   source?: T;
-  description?: T;
   collections?: T;
   handle?: T;
+  description?: T;
   attributes?:
     | T
     | {
         attribute?: T;
         allowedValues?: T;
+        variation?: T;
+        visible?: T;
         id?: T;
       };
   'variants-test'?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
   variantOptions?:
     | T
     | {
@@ -1038,12 +1049,6 @@ export interface ProductsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1054,7 +1059,7 @@ export interface ProductsSelect<T extends boolean = true> {
 export interface VariantsSelect<T extends boolean = true> {
   price?: T;
   priceOriginal?: T;
-  stock?: T;
+  stockCount?: T;
   product?: T;
   sku?: T;
   attributeOptions?:
@@ -1064,6 +1069,7 @@ export interface VariantsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  gallery?: T;
   updatedAt?: T;
   createdAt?: T;
 }

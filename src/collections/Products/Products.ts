@@ -7,6 +7,8 @@ import { groups } from '../groups'
 import { deleteMedia } from './hooks/delete-media'
 import { SeoField } from '@/fields/seo'
 import { admins, anyone } from '@/access/roles'
+import { GenerateVariantsButton } from '@/collections/Products/fields/GenerateVariantsButton'
+import { generateVariantsEndPoint } from './endpoints/generateVariants'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -111,10 +113,6 @@ export const Products: CollectionConfig = {
       defaultValue: 'manual',
       options: [{ label: 'Manual', value: 'manual' }],
     },
-    RichTextEditor({
-      name: 'description',
-      label: 'Description',
-    }),
     {
       name: 'collections',
       type: 'relationship',
@@ -135,60 +133,128 @@ export const Products: CollectionConfig = {
     //   relationTo:'',
     // },
     HandleField(),
-
+    RichTextEditor({
+      name: 'description',
+      label: 'Mô tả',
+    }),
     // TEST
 
-    // Khai báo cấu hình các đặc tính riêng cho sản phẩm này
     {
-      name: 'attributes',
-      type: 'array',
-      label: 'Thuộc tính sản phẩm',
-      fields: [
-        {
-          name: 'attribute',
-          type: 'relationship',
-          relationTo: 'attributes',
-          required: true,
-          label: 'Loại thuộc tính (Ví dụ: Màu sắc)',
+      type: 'tabs',
+      admin: {
 
-        },
+      },
+      tabs: [
         {
-          name: 'allowedValues',
-          type: 'relationship',
-          relationTo: 'attribute-values',
-          hasMany: true,
-          required: true,
-          label: 'Các giá trị được áp dụng cho sản phẩm này (Ví dụ: Đỏ, Xanh)',
-          // Tính năng thông minh: Chỉ cho chọn các giá trị thuộc về Loại thuộc tính đã chọn ở ô bên cạnh
-          filterOptions: ({ siblingData }) => {
-            const { attribute } = (siblingData as { attribute: any })
-            if (siblingData && attribute) {
-              return {
-                attribute: { equals: attribute },
-              };
-            }
-            return false;
-          },
-          admin: {
-            components: {
-              // Đưa component bổ trợ vào sau ô nhập liệu để bắt sự kiện thay đổi giá trị
-              afterInput: [
+          label: 'Thuộc tính', fields: [
+            // Khai báo cấu hình các đặc tính riêng cho sản phẩm này
+            {
+              name: 'attributes',
+              type: 'array',
+              label: 'Thuộc tính sản phẩm',
+              fields: [
                 {
-                  path: '@/collections/Products/fields/ClearAttributeValueField', // Đường dẫn vật lý đến file component của bạn
-                }
-              ]
-            }
-          }
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'attribute',
+                      type: 'relationship',
+                      relationTo: 'attributes',
+                      required: true,
+                      label: 'Thuộc tính',
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'allowedValues',
+                      type: 'relationship',
+                      relationTo: 'attribute-values',
+                      hasMany: true,
+                      required: true,
+                      label: 'Các giá trị',
+                      // Tính năng thông minh: Chỉ cho chọn các giá trị thuộc về Loại thuộc tính đã chọn ở ô bên cạnh
+                      filterOptions: ({ siblingData }) => {
+                        const { attribute } = (siblingData as { attribute: any })
+                        if (siblingData && attribute) {
+                          return {
+                            attribute: { equals: attribute },
+                          };
+                        }
+                        return false;
+                      },
+                      admin: {
+                        width: '50%',
+                        components: {
+                          // Đưa component bổ trợ vào sau ô nhập liệu để bắt sự kiện thay đổi giá trị
+                          afterInput: [
+                            {
+                              path: '@/collections/Products/fields/ClearAttributeValueField', // Đường dẫn vật lý đến file component của bạn
+                            }
+                          ]
+                        }
+                      }
+                    },
+                  ]
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'variation',
+                      label: 'Dùng cho biến thể',
+                      type: 'checkbox',
+                    },
+                    {
+                      name: 'visible',
+                      label: 'Hiển thị',
+                      type: 'checkbox',
+                    },
+                  ]
+                },
+              ],
+            },
+          ]
         },
-      ],
-    },
+        {
+          label: 'Biến thể',
+          fields: [
+            {
+              name: 'generateVariantsAction',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/collections/Products/fields/GenerateVariantsButton'
+                },
+              },
+            },
 
-    {
-      name: 'variants-test',
-      type: 'relationship',
-      relationTo: 'variants',
-      hasMany: true,
-      label: 'Danh sách biến thể (test)',
+            // {
+            //   name: 'variantsTableField',
+            //   type: 'ui',
+            //   admin: {
+            //     components: {
+            //       Field: VariantsTable,
+            //     },
+            //   },
+            // },
+            {
+              name: 'variants-test',
+              type: 'relationship',
+              relationTo: 'variants',
+              hasMany: true,
+              label: 'Danh sách biến thể (test)',
+              access: {
+                update: ({ data }) => Boolean(data?.id),
+              },
+            },
+          ]
+        },
+        {
+          label: 'SEO',
+          fields: [
+            SeoField(false),
+          ]
+        }
+      ]
     },
 
     // TEST
@@ -364,9 +430,9 @@ export const Products: CollectionConfig = {
         },
       ],
     },
-    SeoField(),
   ],
   hooks: {
     afterDelete: [deleteMedia],
   },
+  endpoints: [generateVariantsEndPoint]
 }
