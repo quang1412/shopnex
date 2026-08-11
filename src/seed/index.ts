@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { homePageData } from './home-page-data'
+import { AttributeValue } from '@/payload-types'
 
 function generateRandomString(length: number) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -622,21 +623,32 @@ const seed = async () => {
   })
 
 
-
   // Create attributes
   console.log('Creating attributes...')
-  await payload.create({
+  const colorAttribute = await payload.create({
     collection: 'attributes',
     data: {
       name: 'Màu sắc',
-      swatch: 'label',
-      values: [
-        { label: 'Trắng', slug: 'trang', },
-        { label: 'Đen', slug: 'den', }
-      ],
+      swatchType: 'label',
     },
-  })
+  });
 
+  // Create attributeValues
+  console.log('Creating attributeValues...')
+  const attributeValueItems = [
+    { label: 'Trắng', handle: 'white', attribute: colorAttribute.id, colorHex: '#ffffff' },
+    { label: 'Đen', handle: 'black', attribute: colorAttribute.id, colorHex: '#000000' },
+    { label: 'Vàng', handle: 'yellow', attribute: colorAttribute.id, colorHex: '#ffffff' },
+  ] as AttributeValue[];
+
+  await Promise.all(attributeValueItems.map(item => {
+    payload.create({
+      collection: 'attribute-values',
+      data: { ...item },
+    })
+  }))
+
+  console.log('Creating pages...')
   await payload.create({
     collection: 'pages',
     data: {

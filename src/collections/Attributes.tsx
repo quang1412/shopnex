@@ -1,9 +1,9 @@
-import type { CollectionConfig, Block, Validate } from "payload";
+// src/collections/Attributes.ts
+import type { CollectionConfig } from "payload";
 
 import { admins, anyone } from "@/access/roles";
 
 import { HandleField } from "@/fields/handle";
-import { groups } from "./groups";
 
 export const Attributes: CollectionConfig = {
   slug: "attributes",
@@ -14,64 +14,33 @@ export const Attributes: CollectionConfig = {
     update: admins,
   },
   admin: {
-    defaultColumns: ["name", "type"],
-    group: groups.products.name,
     useAsTitle: "name",
+    defaultColumns: ["name", "handle", "swatchType"],
   },
   fields: [
-    {
-      name: "name",
-      type: "text",
-      label: "Tên thuộc tính",
-      required: true,
-    },
-
     HandleField('name'),
 
     {
-      name: 'swatch',
+      name: 'name',
+      type: 'text',
+      required: true,
+      label: 'Tên thuộc tính (Ví dụ: Màu sắc, Kích thước)',
+    }, {
+      name: 'swatchType',
       type: 'select',
-      admin: {
-        description: "Kiểu hiển thị Swatch",
-        isClearable: false,
-      },
-      options: [
-        { label: 'Chữ (Label)', value: 'label' },
-        { label: 'Màu sắc (Color)', value: 'color' },
-        { label: 'Hình ảnh (Image)', value: 'image' },
-      ],
       required: true,
       defaultValue: 'label',
-    },
-    {
-      name: 'values',
-      type: 'array',
-      required: true,
-      minRows: 1,
-      fields: [
-        {
-          name: 'label',
-          label: 'Nhãn giá trị (Ví dụ: Đỏ, XL)',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'slug',
-          unique: true,
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'meta',
-          type: 'group',
-          fields: [
-            {
-              name: 'colorHex',
-              type: 'text',
-            }
-          ]
-        }
+      label: 'Loại hiển thị mẫu thử (Swatch Type)',
+      admin: {
+        isClearable: !1,
+      },
+      options: [
+        { label: 'Chữ / Nhãn thô (Text Label)', value: 'label' },
+        { label: 'Mã màu Hex (Color Box)', value: 'color' },
+        { label: 'Hình ảnh nhỏ (Image Thumbnail)', value: 'image' },
       ],
     },
   ],
 };
+
+

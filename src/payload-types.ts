@@ -67,12 +67,14 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    users: User;
     orders: Order;
     carts: Cart;
     collections: Collection;
-    products: Product;
     attributes: Attribute;
-    users: User;
+    'attribute-values': AttributeValue;
+    products: Product;
+    variants: Variant;
     media: Media;
     policies: Policy;
     'gift-cards': GiftCard;
@@ -93,12 +95,14 @@ export interface Config {
     };
   };
   collectionsSelect: {
+    users: UsersSelect<false> | UsersSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     carts: CartsSelect<false> | CartsSelect<true>;
     collections: CollectionsSelect<false> | CollectionsSelect<true>;
-    products: ProductsSelect<false> | ProductsSelect<true>;
     attributes: AttributesSelect<false> | AttributesSelect<true>;
-    users: UsersSelect<false> | UsersSelect<true>;
+    'attribute-values': AttributeValuesSelect<false> | AttributeValuesSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    variants: VariantsSelect<false> | VariantsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     policies: PoliciesSelect<false> | PoliciesSelect<true>;
     'gift-cards': GiftCardsSelect<false> | GiftCardsSelect<true>;
@@ -152,6 +156,34 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  roles?: ('super-admin' | 'admin' | 'customer')[] | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -242,34 +274,6 @@ export interface Order {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  firstName?: string | null;
-  lastName?: string | null;
-  roles?: ('super-admin' | 'admin' | 'customer')[] | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "carts".
  */
 export interface Cart {
@@ -308,6 +312,14 @@ export interface Product {
   description?: string | null;
   collections?: (number | Collection)[] | null;
   handle?: string | null;
+  attributes?:
+    | {
+        attribute: number | Attribute;
+        allowedValues: (number | AttributeValue)[];
+        id?: string | null;
+      }[]
+    | null;
+  'variants-test'?: (number | Variant)[] | null;
   /**
    * Choose the options for this product.
    */
@@ -408,6 +420,53 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attributes".
+ */
+export interface Attribute {
+  id: number;
+  handle?: string | null;
+  name: string;
+  swatchType: 'label' | 'color' | 'image';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attribute-values".
+ */
+export interface AttributeValue {
+  id: number;
+  attribute: number | Attribute;
+  label: string;
+  handle?: string | null;
+  colorHex?: string | null;
+  swatchImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variants".
+ */
+export interface Variant {
+  id: number;
+  price: number;
+  priceOriginal?: number | null;
+  stock: number;
+  product: number | Product;
+  sku: string;
+  attributeOptions?:
+    | {
+        attribute: number | Attribute;
+        value: number | AttributeValue;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payments".
  */
 export interface Payment {
@@ -491,29 +550,6 @@ export interface Location {
   hours?: string | null;
   enabled?: boolean | null;
   isPickupLocation?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "attributes".
- */
-export interface Attribute {
-  id: number;
-  name: string;
-  handle?: string | null;
-  /**
-   * Kiểu hiển thị Swatch
-   */
-  swatch: 'label' | 'color' | 'image';
-  values: {
-    label: string;
-    slug: string;
-    meta?: {
-      colorHex?: string | null;
-    };
-    id?: string | null;
-  }[];
   updatedAt: string;
   createdAt: string;
 }
@@ -716,6 +752,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: number | Order;
       } | null)
@@ -728,16 +768,20 @@ export interface PayloadLockedDocument {
         value: number | Collection;
       } | null)
     | ({
-        relationTo: 'products';
-        value: number | Product;
-      } | null)
-    | ({
         relationTo: 'attributes';
         value: number | Attribute;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'attribute-values';
+        value: number | AttributeValue;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'variants';
+        value: number | Variant;
       } | null)
     | ({
         relationTo: 'media';
@@ -812,6 +856,31 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  roles?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -891,6 +960,30 @@ export interface CollectionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attributes_select".
+ */
+export interface AttributesSelect<T extends boolean = true> {
+  handle?: T;
+  name?: T;
+  swatchType?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attribute-values_select".
+ */
+export interface AttributeValuesSelect<T extends boolean = true> {
+  attribute?: T;
+  label?: T;
+  handle?: T;
+  colorHex?: T;
+  swatchImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
@@ -905,6 +998,14 @@ export interface ProductsSelect<T extends boolean = true> {
   description?: T;
   collections?: T;
   handle?: T;
+  attributes?:
+    | T
+    | {
+        attribute?: T;
+        allowedValues?: T;
+        id?: T;
+      };
+  'variants-test'?: T;
   variantOptions?:
     | T
     | {
@@ -948,51 +1049,23 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "attributes_select".
+ * via the `definition` "variants_select".
  */
-export interface AttributesSelect<T extends boolean = true> {
-  name?: T;
-  handle?: T;
-  swatch?: T;
-  values?:
+export interface VariantsSelect<T extends boolean = true> {
+  price?: T;
+  priceOriginal?: T;
+  stock?: T;
+  product?: T;
+  sku?: T;
+  attributeOptions?:
     | T
     | {
-        label?: T;
-        slug?: T;
-        meta?:
-          | T
-          | {
-              colorHex?: T;
-            };
+        attribute?: T;
+        value?: T;
         id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect<T extends boolean = true> {
-  firstName?: T;
-  lastName?: T;
-  roles?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

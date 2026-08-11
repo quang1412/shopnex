@@ -20,6 +20,8 @@ import { Shipping } from './collections/Shipping'
 import { Pages } from './collections/Pages/Pages'
 import { Carts } from './collections/Carts/Carts'
 import { Attributes } from './collections/Attributes'
+import { AttributeValues } from './collections/AttributeValues'
+import { Variants } from './collections/Variants'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -35,12 +37,14 @@ export default buildConfig({
     },
   },
   collections: [
+    Users,
     Orders,
     Carts,
     Collections,
-    Products,
     Attributes,
-    Users,
+    AttributeValues,
+    Products,
+    Variants,
     Media,
     Policies,
     GiftCards,
