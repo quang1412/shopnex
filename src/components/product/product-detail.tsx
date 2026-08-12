@@ -22,6 +22,7 @@ interface ProductDetailProps {
 const dummyGallery = Array.from({ length: 3 }).map(() => '/images/placeholder.svg')
 
 export function ProductDetail({ product }: ProductDetailProps) {
+  const isVariable = product.type == 'variable';
   const { items: cartItems, addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   // const [quantity, setQuantity] = useState(1);
@@ -44,13 +45,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
     return !isDeff;
   });
 
-  const handleAddToCart_ = async (variantId: string, qty: number) => {
+  const handleAddToCart_ = async (qty: number) => {
     // Fn thêm vào giỏ hàng
 
-    const variant = product.variants?.find(v => v.id === variantId);
-    if (!variant) return alert('vui lòng chọn biến thể sp');
-
-    // if (!variantSelected) return alert('vui lòng chọn biến thể sp');
+    if (isVariable && !variantSelected) return alert('Vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 
@@ -61,10 +59,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
       id: product.id,
       name: product.name,
       image: product.image,
-      price: variant?.price || product.price,
-      variantId: variant?.id ?? undefined,
-      variantLabel: variant?.options?.map((o: any) => o.value).join(' • ') || undefined,
-      stock: variant.stockCount || 0,
+      price: isVariable ? (variantSelected?.price || 0) : product.price,
+      variantId: variantSelected?.id,
+      variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') || undefined,
+      stock: isVariable ? (variantSelected?.stockCount || 0) : product.stockCount,
     }
 
     for (let i = 0; i < qty; i++) {
@@ -245,12 +243,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Add to Cart */}
           <AddToCartButton
-            variant={variantSelected}
+            product={product}
+            // variant={variantSelected}
+            variantId={variantSelected?.id}
             handleAddToCart={handleAddToCart_}
-            handlleBuyNow={(id) => {
-              toast.info(`Buy now ${id}`)
-
-              setSelectedOptions({})
+            handleBuyNow={() => {
+              toast.info(`Buy now ${[product.id, variantSelected?.id].filter(Boolean).join(' / ')}`)
             }}
             isLoading={isLoading}
           />

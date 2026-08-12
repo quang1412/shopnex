@@ -5,48 +5,65 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 // import { useProductStock } from '@/hooks/use-product-stock'
-import { Product } from '@/lib/products'
+import { type Product } from '@/lib/products'
 import { QuantityControler } from './quantity-controler'
 
 import { useCart } from '@/hooks/use-cart'
 
 interface AddToCartBtnProps {
-  variant?: NonNullable<Product['variants']>[0] | null
-  handleAddToCart?: (variantId: string, qty: number) => void
-  handlleBuyNow?: (variantId: string) => void
+  product: Product
+  variantId?: string
+  handleAddToCart?: (qty: number) => void
+  handleBuyNow?: () => void
   isLoading?: boolean
 }
 
 export function AddToCartButton({
-  variant,
+  product,
+  variantId,
   handleAddToCart,
-  handlleBuyNow,
+  handleBuyNow,
   isLoading,
 }: AddToCartBtnProps) {
-  const { items } = useCart();
 
-  // const { quantityInCart, remainingStockAllowed, isMaxedOut } = useProductStock(String(variant?.id), (variant?.stockCount ?? 0));
+  const { items } = useCart();
   const [inputQty, setInputQty] = useState(1);
 
-  const variantId = variant?.id || null
+  useEffect(() => {
+    console.log({ product });
 
-  const itemInCart = items.find((i) => (i.variantId == variantId));
+  }, [product])
+
+  const isVariable = product.type == 'variable';
+  const variant = product.variants.find(v => v.id == variantId);
+  const isStockManage = Boolean(isVariable ? variant?.stockManage : product.stockManage);
+  const stock = isVariable ? (variant?.stockCount || 0) : product.stockCount
+
+  const itemInCart = items.find((i) => ((i.id == product.id) && (!isVariable || (i.variantId == variantId))));
+
   const quantityInCart = itemInCart?.quantity || 0;
-  const remainingStockAllowed = Math.max(0, (variant?.stockCount || 0) - quantityInCart);
+  const remainingStockAllowed = Math.max(0, (stock - quantityInCart));
 
-  useEffect(() => { setInputQty(1) }, [variant]);
+  useEffect(() => { setInputQty(1) }, [variantId]);
+
+  const isDisabled = () => {
+    if (isVariable && !variant) return true;
+    if (isStockManage && (remainingStockAllowed === 0 || inputQty > remainingStockAllowed)) return
+    return false
+  }
 
   const handleChangeQuantity = (qty: number) => {
-    !isLoading && variantId && setInputQty(qty);
+    if (isDisabled() || isLoading) return
+    setInputQty(qty);
   }
 
   const hangleClickATC = () => {
-    if (!variantId || remainingStockAllowed === 0 || inputQty > remainingStockAllowed) return;
-    handleAddToCart?.(variantId, inputQty);
+    if (isDisabled()) return
+    handleAddToCart?.(inputQty);
   }
 
   const handleClickBuyNow = () => {
-    variantId && handlleBuyNow?.(variantId);
+    variantId && handleBuyNow?.();
   }
 
   return (
@@ -67,7 +84,7 @@ export function AddToCartButton({
             onClick={handleClickBuyNow}
             variant="default"
             className="w-full"
-            disabled={remainingStockAllowed === 0}
+            disabled={isDisabled()}
           >Mua ngay</Button>
         </div>
 
@@ -77,7 +94,7 @@ export function AddToCartButton({
             variant="outline"
             // variant="secondary"
             onClick={hangleClickATC}
-            disabled={remainingStockAllowed === 0}
+            disabled={isDisabled()}
             className="w-full"
           >
             {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}
