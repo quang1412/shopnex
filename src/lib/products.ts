@@ -130,7 +130,6 @@ async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Prod
 
     console.log({ variantDocs });
 
-
     for (const v of variantDocs) {
       if (typeof v == 'object') {
         variants.push(transformVariant(v))
