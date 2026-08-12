@@ -1,14 +1,15 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Validate } from 'payload'
 
 import { RichTextEditor } from '@/fields/RichTextEditor/RichTextEditor'
 import { HandleField } from '@/fields/handle'
 
 import { groups } from '../groups'
 import { deleteMedia } from './hooks/delete-media'
+import { deleteVariants } from './hooks/delete-variants'
 import { SeoField } from '@/fields/seo'
 import { admins, anyone } from '@/access/roles'
-import { GenerateVariantsButton } from '@/collections/Products/fields/GenerateVariantsButton'
 import { generateVariantsEndPoint } from './endpoints/generateVariants'
+
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -142,11 +143,11 @@ export const Products: CollectionConfig = {
     {
       type: 'tabs',
       admin: {
-
       },
       tabs: [
         {
-          label: 'Thuộc tính', fields: [
+          label: 'Thuộc tính',
+          fields: [
             // Khai báo cấu hình các đặc tính riêng cho sản phẩm này
             {
               name: 'attributes',
@@ -226,27 +227,36 @@ export const Products: CollectionConfig = {
                 },
               },
             },
-
-            // {
-            //   name: 'variantsTableField',
-            //   type: 'ui',
-            //   admin: {
-            //     components: {
-            //       Field: VariantsTable,
-            //     },
-            //   },
-            // },
+            {
+              name: 'variantsList',
+              type: 'join',
+              collection: 'variants',
+              on: 'product',
+              maxDepth: 1,
+              admin: {
+                disableListFilter: true,
+                disableListColumn: true,
+              }
+            },
             {
               name: 'variants-test',
               type: 'relationship',
               relationTo: 'variants',
               hasMany: true,
+              required: true,
               label: 'Danh sách biến thể (test)',
-              access: {
-                update: ({ data }) => Boolean(data?.id),
-              },
+              filterOptions: (data) => {
+                return {
+                  product: {
+                    equals: data.id
+                  }
+                }
+              }
             },
-          ]
+          ],
+          admin: {
+            condition: (data) => Boolean(data.type === 'variable')
+          }
         },
         {
           label: 'SEO',
@@ -430,9 +440,77 @@ export const Products: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'gallery',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+      }
+    },
+    {
+      type: 'group',
+      fields: [
+        {
+          name: 'type',
+          type: 'select',
+          options: [
+            { label: 'Đơn giản', value: 'simple' },
+            { label: 'Nhiều biến thể', value: 'variable' }
+          ],
+          defaultValue: 'simple',
+          required: true,
+          admin: {
+            isClearable: false,
+          }
+        },
+
+        {
+          name: 'price',
+          label: 'Giá',
+          type: 'number',
+          defaultValue: 0,
+          min: 0,
+        },
+        {
+          name: 'originalPrice',
+          label: 'Giá tham khảo',
+          type: 'number',
+          min: 0,
+        },
+        {
+          name: 'stockManage',
+          type: 'checkbox',
+        },
+        {
+          name: 'backOrders',
+          type: 'checkbox',
+          admin: {
+            condition: (data) => (Boolean(data.stockManage))
+          }
+        },
+        {
+          name: 'stockCount',
+          label: 'Tồn kho',
+          type: 'number',
+          min: 0,
+          admin: {
+            condition: (data) => (Boolean(data.stockManage))
+          }
+        },
+      ]
+    },
   ],
   hooks: {
-    afterDelete: [deleteMedia],
+    afterDelete: [deleteMedia, deleteVariants],
+    // beforeChange: [
+    //   ({ originalDoc }) => {
+    //     const price = originalDoc.price ?? 0
+    //     const originalPrice = originalDoc.doc.originalPrice ?? 0
+    //     return { ...originalDoc, price, originalPrice }
+    //   }
+    // ]
   },
   endpoints: [generateVariantsEndPoint]
 }

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ProductDetail } from '@/components/product/product-detail'
-import { getProduct } from '@/lib/products'
+import { getProduct, getProduct_v2 } from '@/lib/products'
 import { generateProductMetadata, generateProductJsonLd } from '@/lib/seo'
 import { seoConfig } from '@/lib/seo-config'
 
@@ -17,7 +17,7 @@ interface ProductPageProps {
 export const revalidate = 3600
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = await getProduct((await params).id)
+  const product = await getProduct_v2((await params).id)
 
   if (!product) {
     return {
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct((await params).id)
+  const product = await getProduct_v2((await params).id)
 
   if (!product) {
     notFound()

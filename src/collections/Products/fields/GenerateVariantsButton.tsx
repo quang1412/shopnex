@@ -1,8 +1,10 @@
 'use client'
 import React, { useState } from 'react'
 import { useDocumentInfo } from '@payloadcms/ui'
+import { useRouter } from 'next/navigation'
 
 export const GenerateVariantsButton = () => {
+  const router = useRouter();
   const { id: productId } = useDocumentInfo()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ text: '', isError: false })
@@ -33,7 +35,8 @@ export const GenerateVariantsButton = () => {
       setMessage({ text: result.message, isError: false })
       // Tải lại trang sau khi tạo thành công để cập nhật bảng danh sách hiển thị
       setTimeout(() => {
-        window.location.reload()
+        // window.location.reload()
+        router.refresh();
       }, 1500)
 
     } catch (err: any) {

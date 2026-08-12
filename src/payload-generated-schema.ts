@@ -63,6 +63,7 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
+export const enum_products_type = pgEnum('enum_products_type', ['simple', 'variable'])
 export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
@@ -391,6 +392,8 @@ export const products_attributes = pgTable(
       .references(() => attributes.id, {
         onDelete: 'set null',
       }),
+    variation: boolean('variation'),
+    visible: boolean('visible'),
   },
   (columns) => [
     index('products_attributes_order_idx').on(columns._order),
@@ -497,10 +500,16 @@ export const products = pgTable(
     featured: boolean('featured').default(false),
     inStock: boolean('in_stock').default(true),
     source: enum_products_source('source').default('manual'),
-    description: varchar('description'),
     handle: varchar('handle'),
+    description: varchar('description'),
     meta_title: varchar('meta_title'),
     meta_description: varchar('meta_description'),
+    type: enum_products_type('type').notNull().default('simple'),
+    price: numeric('price', { mode: 'number' }).default(0),
+    originalPrice: numeric('original_price', { mode: 'number' }),
+    stockManage: boolean('stock_manage'),
+    backOrders: boolean('back_orders'),
+    stockCount: numeric('stock_count', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -617,8 +626,9 @@ export const variants = pgTable(
   {
     id: serial('id').primaryKey(),
     price: numeric('price', { mode: 'number' }).notNull(),
-    priceOriginal: numeric('price_original', { mode: 'number' }),
-    stock: numeric('stock', { mode: 'number' }).notNull().default(0),
+    originalPrice: numeric('original_price', { mode: 'number' }),
+    stockManage: boolean('stock_manage'),
+    stockCount: numeric('stock_count', { mode: 'number' }).notNull().default(0),
     product: integer('product_id')
       .notNull()
       .references(() => products.id, {
@@ -637,6 +647,33 @@ export const variants = pgTable(
     uniqueIndex('variants_sku_idx').on(columns.sku),
     index('variants_updated_at_idx').on(columns.updatedAt),
     index('variants_created_at_idx').on(columns.createdAt),
+  ],
+)
+
+export const variants_rels = pgTable(
+  'variants_rels',
+  {
+    id: serial('id').primaryKey(),
+    order: integer('order'),
+    parent: integer('parent_id').notNull(),
+    path: varchar('path').notNull(),
+    mediaID: integer('media_id'),
+  },
+  (columns) => [
+    index('variants_rels_order_idx').on(columns.order),
+    index('variants_rels_parent_idx').on(columns.parent),
+    index('variants_rels_path_idx').on(columns.path),
+    index('variants_rels_media_id_idx').on(columns.mediaID),
+    foreignKey({
+      columns: [columns['parent']],
+      foreignColumns: [variants.id],
+      name: 'variants_rels_parent_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['mediaID']],
+      foreignColumns: [media.id],
+      name: 'variants_rels_media_fk',
+    }).onDelete('cascade'),
   ],
 )
 
@@ -1481,6 +1518,18 @@ export const relations_variants_attribute_options = relations(
     }),
   }),
 )
+export const relations_variants_rels = relations(variants_rels, ({ one }) => ({
+  parent: one(variants, {
+    fields: [variants_rels.parent],
+    references: [variants.id],
+    relationName: '_rels',
+  }),
+  mediaID: one(media, {
+    fields: [variants_rels.mediaID],
+    references: [media.id],
+    relationName: 'media',
+  }),
+}))
 export const relations_variants = relations(variants, ({ one, many }) => ({
   product: one(products, {
     fields: [variants.product],
@@ -1489,6 +1538,9 @@ export const relations_variants = relations(variants, ({ one, many }) => ({
   }),
   attributeOptions: many(variants_attribute_options, {
     relationName: 'attributeOptions',
+  }),
+  _rels: many(variants_rels, {
+    relationName: '_rels',
   }),
 }))
 export const relations_media = relations(media, () => ({}))
@@ -1714,6 +1766,7 @@ type DatabaseSchema = {
   enum_attributes_swatch_type: typeof enum_attributes_swatch_type
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
+  enum_products_type: typeof enum_products_type
   enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
   enum_exports_format: typeof enum_exports_format
@@ -1742,6 +1795,7 @@ type DatabaseSchema = {
   products_rels: typeof products_rels
   variants_attribute_options: typeof variants_attribute_options
   variants: typeof variants
+  variants_rels: typeof variants_rels
   media: typeof media
   policies: typeof policies
   gift_cards: typeof gift_cards
@@ -1783,6 +1837,7 @@ type DatabaseSchema = {
   relations_products_rels: typeof relations_products_rels
   relations_products: typeof relations_products
   relations_variants_attribute_options: typeof relations_variants_attribute_options
+  relations_variants_rels: typeof relations_variants_rels
   relations_variants: typeof relations_variants
   relations_media: typeof relations_media
   relations_policies: typeof relations_policies

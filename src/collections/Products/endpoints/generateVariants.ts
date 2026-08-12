@@ -1,4 +1,5 @@
 import { type Endpoint } from "payload"
+import { type Product } from "@/payload-types"
 
 export const generateVariantsEndPoint: Endpoint = {
   path: '/:id/generate-variants',
@@ -12,7 +13,7 @@ export const generateVariantsEndPoint: Endpoint = {
       }
 
       // 1. Lấy thông tin sản phẩm cùng các đặc tính chi tiết
-      const product: any = await req.payload.findByID({
+      const product: Product = await req.payload.findByID({
         collection: 'products',
         id: productId,
         depth: 2, // Lấy chi tiết thông tin object bên trong array
@@ -22,8 +23,12 @@ export const generateVariantsEndPoint: Endpoint = {
         return Response.json({ error: 'Sản phẩm không tồn tại' }, { status: 404 })
       }
 
+      if (product.type != 'variable') {
+        return Response.json({ error: 'Sản phẩm phải có type \"Nhiều biến thể\"' }, { status: 400 })
+      }
+
       // 2. Lọc ra các nhóm thuộc tính có chọn trường variation === true
-      const variationAttrs = product.productAttributes?.filter((attr: any) => attr.variation === true) || []
+      const variationAttrs = product.attributes?.filter((attr: any) => attr.variation === true) || []
 
       if (variationAttrs.length === 0) {
         return Response.json({ error: 'Vui lòng tích chọn ít nhất một đặc tính có tính năng "Variation" trước khi tạo nhanh.' }, { status: 400 })
@@ -35,7 +40,7 @@ export const generateVariantsEndPoint: Endpoint = {
         return attrConfig.allowedValues.map((val: any) => ({
           attributeId: typeof attrConfig.attribute === 'object' ? attrConfig.attribute.id : attrConfig.attribute,
           valueId: val.id,
-          valueCode: val.value, // Dùng tạo mã SKU, ví dụ: 'red'
+          valueCode: val.handle, // Dùng tạo mã SKU, ví dụ: 'red'
         }))
       })
 
@@ -47,7 +52,7 @@ export const generateVariantsEndPoint: Endpoint = {
       }
 
       const allCombinations = cartesianProduct(attributeGroups)
-      const createdVariantIds: number[] = [...(product.variants?.map((v: any) => typeof v === 'object' ? v.id : v) || [])]
+      const createdVariantIds: number[] = [...(product['variants-test']?.map((v: any) => typeof v === 'object' ? v.id : v) || [])]
 
       // 4. Duyệt qua từng tổ hợp để tiến hành tạo bản ghi Variant mới
       for (const combination of allCombinations) {
@@ -60,7 +65,7 @@ export const generateVariantsEndPoint: Endpoint = {
         // Kiểm tra xem tổ hợp biến thể này đã tồn tại trong database chưa nhằm tránh trùng lặp trùng lặp dữ liệu
         const checkQuery: any = {
           and: [
-            { product: { equals: productId } },
+            { product: { equals: product.id } },
             ...attributeOptions.map((opt) => ({
               and: [
                 { 'attributeOptions.attribute': { equals: opt.attribute } },
@@ -78,8 +83,10 @@ export const generateVariantsEndPoint: Endpoint = {
 
         // Nếu biến thể của tổ hợp này chưa có thì tiến hành tạo mới
         if (existingVariants.totalDocs === 0) {
+          console.log({ combination });
+
           const skuSuffix = combination.map((c) => c.valueCode.toUpperCase()).join('-')
-          const generatedSku = `${product.slug.toUpperCase()}-${skuSuffix}`
+          const generatedSku = `SKU-${product.handle}-${skuSuffix}`
 
           const newVariant = await req.payload.create({
             collection: 'variants',
@@ -87,7 +94,7 @@ export const generateVariantsEndPoint: Endpoint = {
               sku: generatedSku,
               price: 0, // Giá mặc định bằng 0, Admin chỉnh sửa sau trên bảng
               stockCount: 0,
-              product: productId,
+              product: product,
               attributeOptions: attributeOptions,
             },
           })
@@ -97,14 +104,14 @@ export const generateVariantsEndPoint: Endpoint = {
       }
 
       // 5. Cập nhật ngược lại danh sách liên kết quan hệ trong Products Collection
-      await req.payload.update({
-        collection: 'products',
-        id: productId,
-        data: {
-          "variants-test": createdVariantIds,
-          // variants: createdVariantIds,
-        },
-      })
+      // await req.payload.update({
+      //   collection: 'products',
+      //   id: product.id,
+      //   data: {
+      //     "variants-test": createdVariantIds
+      //     // variants: createdVariantIds,
+      //   },
+      // })
 
       return Response.json({ success: true, message: `Đã xử lý xong. Đang đồng bộ hóa biến thể sản phẩm.` })
     } catch (error: any) {

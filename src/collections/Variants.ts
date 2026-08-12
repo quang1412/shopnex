@@ -12,9 +12,25 @@ export const Variants: CollectionConfig = {
   fields: [
     {
       type: 'row', fields: [
-        { name: 'price', type: 'number', required: true, label: 'Giá tiền', admin: { width: '33.3%' } },
-        { name: 'priceOriginal', type: 'number', label: 'Giá tiền tham khảo', admin: { width: '33.3%' } },
-        { name: 'stockCount', type: 'number', required: true, defaultValue: 0, label: 'Tồn kho', admin: { width: '33.3%' } },
+        { name: 'price', type: 'number', required: true, label: 'Giá tiền', admin: { width: '50%' } },
+        { name: 'originalPrice', type: 'number', label: 'Giá tham khảo', admin: { width: '50%' } },
+      ]
+    },
+    {
+      type: 'group',
+      fields: [
+        {
+          name: 'stockManage',
+          type: 'checkbox',
+        },
+        {
+          name: 'stockCount',
+          type: 'number',
+          required: true,
+          defaultValue: 0,
+          label: 'Tồn kho',
+          admin: { width: '33.3%' }
+        },
       ]
     },
     {
@@ -29,27 +45,6 @@ export const Variants: CollectionConfig = {
         sortOptions: '-createdAt',
         allowEdit: false,
       },
-      defaultValue: async ({ user, req }) => {
-        try {
-          // Fetch the single newest document from the target collection
-          const result = await req.payload.find({
-            collection: 'products',
-            sort: '-createdAt', // Sort by newest first
-            limit: 1, // Only grab the top item
-            depth: 0, // Performance optimization: only fetch IDs
-          })
-
-          // If a document exists, return its ID to set as the default
-          if (result.docs && result.docs.length > 0) {
-            return result.docs[0].id
-          }
-        } catch (error) {
-          console.error("Failed to fetch default relationship:", error)
-        }
-
-        return undefined
-      },
-
     },
     {
       name: 'sku',
@@ -58,7 +53,7 @@ export const Variants: CollectionConfig = {
       unique: true,
       label: 'Mã SKU',
       defaultValue: () => {
-        return `SN-${crypto.randomUUID().slice(0, 8)}`
+        return `VA-${crypto.randomUUID().slice(0, 8)}`
       },
       admin: { position: 'sidebar', },
     },
@@ -75,7 +70,7 @@ export const Variants: CollectionConfig = {
               type: 'relationship',
               relationTo: 'attributes',
               required: true,
-              label: 'Chọn loại thuộc tính',
+              label: 'Thuộc tính',
               admin: {
                 width: '50%'
               },
@@ -85,7 +80,7 @@ export const Variants: CollectionConfig = {
               type: 'relationship',
               relationTo: 'attribute-values',
               required: true,
-              label: 'Chọn giá trị',
+              label: 'Giá trị',
               // Lọc danh sách: Chỉ lấy các AttributeValues có trường 'attribute' trùng với ID của ô 'attribute' cùng dòng
               filterOptions: ({ siblingData }) => {
                 const { attribute } = (siblingData as { attribute: any })

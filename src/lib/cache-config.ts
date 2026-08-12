@@ -4,6 +4,9 @@
  */
 export const CACHE_TIMES = {
     products: parseInt(process.env.NEXT_REVALIDATE_PRODUCTS || "600"), // 10 minutes
+    variants: parseInt(process.env.NEXT_REVALIDATE_VARIANTS || "600"), // 10 minutes
+    variantValues: parseInt(process.env.NEXT_REVALIDATE_VARIANTVALUES || "600"), // 10 minutes
+    attributes: parseInt(process.env.NEXT_REVALIDATE_ATTRIBUTES || "600"), // 10 minutes
     collections: parseInt(process.env.NEXT_REVALIDATE_COLLECTIONS || "1800"), // 30 minutes
     pages: parseInt(process.env.NEXT_REVALIDATE_PAGES || "3600"), // 1 hour
     shopInfo: parseInt(process.env.NEXT_REVALIDATE_SHOP_INFO || "180"), // 3 minutes

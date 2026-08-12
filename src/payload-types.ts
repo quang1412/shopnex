@@ -93,6 +93,9 @@ export interface Config {
     collections: {
       products: 'products';
     };
+    products: {
+      variantsList: 'variants';
+    };
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
@@ -321,7 +324,12 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
-  'variants-test'?: (number | Variant)[] | null;
+  variantsList?: {
+    docs?: (number | Variant)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  'variants-test': (number | Variant)[];
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -365,6 +373,13 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  gallery?: (number | Media)[] | null;
+  type: 'simple' | 'variable';
+  price?: number | null;
+  originalPrice?: number | null;
+  stockManage?: boolean | null;
+  backOrders?: boolean | null;
+  stockCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -453,7 +468,8 @@ export interface AttributeValue {
 export interface Variant {
   id: number;
   price: number;
-  priceOriginal?: number | null;
+  originalPrice?: number | null;
+  stockManage?: boolean | null;
   stockCount: number;
   product: number | Product;
   sku: string;
@@ -1010,6 +1026,7 @@ export interface ProductsSelect<T extends boolean = true> {
         visible?: T;
         id?: T;
       };
+  variantsList?: T;
   'variants-test'?: T;
   meta?:
     | T
@@ -1049,6 +1066,13 @@ export interface ProductsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  gallery?: T;
+  type?: T;
+  price?: T;
+  originalPrice?: T;
+  stockManage?: T;
+  backOrders?: T;
+  stockCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1058,7 +1082,8 @@ export interface ProductsSelect<T extends boolean = true> {
  */
 export interface VariantsSelect<T extends boolean = true> {
   price?: T;
-  priceOriginal?: T;
+  originalPrice?: T;
+  stockManage?: T;
   stockCount?: T;
   product?: T;
   sku?: T;

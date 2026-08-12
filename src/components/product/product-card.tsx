@@ -77,7 +77,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
               {/* Image */}
               <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-muted/30 to-muted/50 border border-border/30">
                 <Image
-                  src={product.image || '/placeholder.svg'}
+                  src={product.image || '/images/placeholder.svg'}
                   alt={product.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -149,7 +149,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
 
             <div className='w-24 h-24'>
               <Image
-                src={product.image}
+                src={product.image || '/images/placeholder.svg'}
                 alt={product.name}
                 width={100}
                 height={100}
@@ -185,7 +185,7 @@ export function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
           width={200}
           height={200}
           // quality={100}
-          src={product.image}
+          src={product.image || '/images/placeholder.svg'}
           alt="Event cover"
           className="z-20 w-full h-auto aspect-square object-cover"
         />

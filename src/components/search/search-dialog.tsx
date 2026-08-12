@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Search, X, TrendingUp, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { getProducts, type Product } from '@/lib/products'
+import { getProducts, getProducts_v2, type Product } from '@/lib/products'
 import { useRouter } from 'next/navigation'
 
 interface SearchDialogProps {
@@ -35,7 +35,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
     const loadProducts = async () => {
       setLoading(true)
       try {
-        const allProducts = await getProducts()
+        const allProducts = await getProducts_v2()
         setProducts(allProducts)
       } catch (error) {
         console.error('Failed to load products:', error)

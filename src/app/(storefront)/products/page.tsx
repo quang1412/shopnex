@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ProductListing } from '@/components/product/product-listing'
-import { getProducts, getCategories } from '@/lib/products'
+import { getProducts, getProducts_v2, getCategories } from '@/lib/products'
 import { generatePageMetadata } from '@/lib/seo'
 import { seoConfig } from '@/lib/seo-config'
 
@@ -33,7 +33,7 @@ interface ProductsPageProps {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const products = await getProducts()
+  const products = await getProducts_v2()
   const categories = await getCategories()
   const searchQuery = (await searchParams).search
 
