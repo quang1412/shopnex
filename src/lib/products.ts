@@ -109,53 +109,43 @@ const transformVariant = (v: PayloadVariant): Variant => {
 }
 
 // Transform Payload product to shop product format
+// transformProduct_v2
 async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Product> {
+
+  console.log({ payloadProduct });
+
   const isVariable = payloadProduct.type == 'variable'
-  const variantDocs = payloadProduct.variantsList?.docs;
+  const variantDocs = payloadProduct['variants-test'];
 
-
-  let mainPrice = payloadProduct.price
-  let mainOriginalPrice = payloadProduct.originalPrice
-  let mainStockCount = payloadProduct.stockCount
-  let images = payloadProduct.gallery?.map(media => {
+  let gallery: string[] = payloadProduct.gallery?.map(media => {
     if (typeof media == 'object' && media.url) return media.url;
-    return ''
-  }).filter(Boolean) || [];
-
-  let variants: Variant[] = [];
+    return false;
+  }).filter(m => (typeof m == 'string')) || ['/images/placeholder.svg'];
 
   let options: any[] = []
-
-  if (isVariable && variantDocs && variantDocs?.length > 0) {
-
-    console.log({ variantDocs });
-
-    for (const v of variantDocs) {
-      if (typeof v == 'object') {
-        variants.push(transformVariant(v))
-      } else {
-        // const doc = await getVariant(v);
-        // doc && variants.push(transformVariant(doc))
-      }
-    };
-
-    const firstVariant = variants[0]
-
-    mainPrice = firstVariant?.price || 0
-    mainOriginalPrice = firstVariant?.originalPrice || 0
-    mainStockCount = variants.reduce((total, v) => {
-      return (total + v.stockCount)
-    }, 0)
-  };
+  let variants: Variant[] = [];
 
   if (isVariable) {
+
+    variants = variantDocs?.map(v => {
+      if (typeof v == 'object') return transformVariant(v);
+      return false;
+    }).filter(v => !!v) || [];
+
     options = payloadProduct.attributes?.map(op => ({
       option: (typeof op.attribute == 'object' ? op.attribute.name : ""),
       value: op.allowedValues.map(val => (typeof val == 'object' ? val.label : "")),
-    })) || []
-  }
+    })) || [];
 
-  // const variants = isVariable ? await getProductVariants(payloadProduct.id) || [] : []
+    // const cheapestVariant = variants.filter(v => v.price > 0).sort((a, b) => a.price - b.price)[0]
+
+    // mainPrice = cheapestVariant.price
+    // mainOriginalPrice = cheapestVariant.originalPrice
+    // mainStockCount = variants.reduce((total, v) => {
+    //   return (total + v.stockCount)
+    // }, 0);
+
+  };
 
   return {
     id: payloadProduct.id.toString(),
@@ -163,18 +153,18 @@ async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Prod
     name: payloadProduct.title,
     type: payloadProduct.type,
     description: payloadProduct.description || '',
-    price: mainPrice || 0,
-    originalPrice: mainOriginalPrice || 0,
-    image: images[0] || '/images/placeholder.svg',
-    images: images.length > 0 ? images : ['/images/placeholder.svg'],
+    price: payloadProduct.price || 0,
+    originalPrice: payloadProduct.originalPrice || 0,
+    image: gallery[0] || '/images/placeholder.svg',
+    images: gallery.length > 0 ? gallery : ['/images/placeholder.svg'],
     category: payloadProduct.collections?.[0]
       ? typeof payloadProduct.collections[0] === 'object'
         ? payloadProduct.collections[0].title
         : 'Uncategorized'
       : 'Uncategorized',
-    inStock: (mainStockCount || 0) > 0,
-    stockCount: mainStockCount || 0,
-    stockManage: Boolean(payloadProduct.stockManage),
+    inStock: payloadProduct.inStock || false,
+    stockCount: payloadProduct.stockCount || 0,
+    stockManage: payloadProduct.stockManage || false,
     featured: payloadProduct.featured || false,
 
     variants,
@@ -328,17 +318,12 @@ export async function getProduct_v2(id: string): Promise<Product | undefined> {
 }
 
 
-const getVariant = async (id: string | number): Promise<PayloadVariant | undefined> => {
+const getVariant = async (id: string): Promise<PayloadVariant | undefined> => {
   try {
-    console.log({ variantId: id });
-
     const variant = await sdk.findByID(
       {
         collection: 'variants',
         id: id,
-        populate: {
-
-        },
       },
       {
         next: {
@@ -370,6 +355,7 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
             title: true,
           },
         },
+        // depth: 3,
         limit: 1,
       },
       {
@@ -385,7 +371,6 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
     return undefined
   }
 }
-
 
 
 export async function getProductBySlug_v2(slug: string): Promise<Product | undefined> {

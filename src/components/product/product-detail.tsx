@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -44,6 +44,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
     const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
     return !isDeff;
   });
+
+  useEffect(() => {
+    console.log({ selectedOptions })
+  }, [selectedOptions])
+
+  useEffect(() => {
+    console.log({ product })
+  }, [product])
 
   const handleAddToCart_ = async (qty: number) => {
     // Fn thêm vào giỏ hàng

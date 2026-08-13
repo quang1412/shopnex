@@ -40,6 +40,13 @@ export const Attributes: CollectionConfig = {
         { label: 'Hình ảnh nhỏ (Image Thumbnail)', value: 'image' },
       ],
     },
+    {
+      name: 'values',
+      label: 'Các giá trị',
+      type: 'join',
+      collection: 'attribute-values',
+      on: 'attribute',
+    },
   ],
 };
 

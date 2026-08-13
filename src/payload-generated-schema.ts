@@ -63,6 +63,11 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
+export const enum_products_stock_status = pgEnum('enum_products_stock_status', [
+  'instock',
+  'outofstock',
+  'onbackorder',
+])
 export const enum_products_type = pgEnum('enum_products_type', ['simple', 'variable'])
 export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
@@ -498,18 +503,22 @@ export const products = pgTable(
     currency: varchar('currency'),
     visible: boolean('visible').default(true),
     featured: boolean('featured').default(false),
-    inStock: boolean('in_stock').default(true),
     source: enum_products_source('source').default('manual'),
     handle: varchar('handle'),
     description: varchar('description'),
+    sku: varchar('sku'),
+    stockManage: boolean('stock_manage'),
+    inStock: boolean('in_stock').default(true),
+    stockStatus: enum_products_stock_status('stock_status').default('instock'),
+    stockCount: numeric('stock_count', { mode: 'number' }),
+    lowStockThreshold: numeric('low_stock_threshold', { mode: 'number' }),
+    allowBackOrders: boolean('allow_back_orders'),
+    soldIndividually: boolean('sold_individually'),
     meta_title: varchar('meta_title'),
     meta_description: varchar('meta_description'),
     type: enum_products_type('type').notNull().default('simple'),
     price: numeric('price', { mode: 'number' }).default(0),
     originalPrice: numeric('original_price', { mode: 'number' }),
-    stockManage: boolean('stock_manage'),
-    backOrders: boolean('back_orders'),
-    stockCount: numeric('stock_count', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -1766,6 +1775,7 @@ type DatabaseSchema = {
   enum_attributes_swatch_type: typeof enum_attributes_swatch_type
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
+  enum_products_stock_status: typeof enum_products_stock_status
   enum_products_type: typeof enum_products_type
   enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type

@@ -1,8 +1,15 @@
 // src/collections/Variants.ts
 import { CollectionConfig } from 'payload';
+import { admins, anyone } from "@/access/roles";
 
 export const Variants: CollectionConfig = {
   slug: 'variants',
+  access: {
+    create: admins,
+    delete: admins,
+    read: anyone,
+    update: admins,
+  },
   admin: {
     useAsTitle: 'sku',
   },

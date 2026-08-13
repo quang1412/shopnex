@@ -1,11 +1,11 @@
 // hooks/useProductStock.ts
 import { useCart } from "./use-cart"
 
-export function useProductStock(variantId: string, totalStock: number) {
+export function useProductStock(productId: string | number, variantId: string | number | undefined, totalStock: number) {
   const { items } = useCart()
 
   // Tìm xem sản phẩm này đã có trong giỏ hàng chưa, nếu có thì số lượng là bao nhiêu
-  const itemInCart = items.find((item) => (item.variantId === variantId));
+  const itemInCart = items.find((item) => (item.id === productId) && (item.variantId === variantId));
 
   const quantityInCart = itemInCart ? itemInCart.quantity : 0
 

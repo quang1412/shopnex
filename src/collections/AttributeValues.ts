@@ -32,7 +32,7 @@ export const AttributeValues: CollectionConfig = {
           name: 'label',
           type: 'text',
           required: true,
-          label: 'Tên hiển thị (Ví dụ: Đỏ, Bản Quốc Tế)',
+          label: 'Nhãn (vd: Đỏ, S, M)',
           admin: { width: '50%' },
         },
       ]

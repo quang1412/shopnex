@@ -1,9 +1,8 @@
 'use client';
 
-// import { useEffect, useState, useCallback } from "react";
+// import { useEffect, } from "react";
 import { Product } from "@/lib/products";
 import { useCart } from "@/hooks/use-cart";
-
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
@@ -20,8 +19,10 @@ export function ProductVariantSelector({
   onOptionsChange,
 }: ProductVariantSelectorProps) {
   const { items: cartItems } = useCart();
+  // const {} = useProductStock()
   const variants = product.variants
   const productOptions = product.options
+
 
   const toggleOption = (option: string, value: string) => {
     const newOptions = { ...optionsProp, [option]: value }
@@ -38,9 +39,13 @@ export function ProductVariantSelector({
   const optionValidate = (option: string, value: string) => {
     const testOptions = { ...optionsProp, [option]: value }
 
+    // const testVariants = variants.filter(variant => {
+    //   const isDeff = variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
+    //   return !isDeff
+    // });
+
     const testVariants = variants.filter(variant => {
-      const isDeff = variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
-      return !isDeff
+      return variant.options?.find(({ option, value }) => (!!testOptions[option] && testOptions[option] == value));
     });
 
     const totalRemainingStock = testVariants.reduce((total, variant) => {

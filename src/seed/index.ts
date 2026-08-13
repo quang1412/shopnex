@@ -202,6 +202,11 @@ const seed = async () => {
       title: 'iPhone 15 Pro',
       handle: 'iphone-15-pro',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p>The most advanced iPhone ever with <strong>titanium design</strong>, <strong>A17 Pro chip</strong>, and <strong>pro camera system</strong>.</p><ul><li>6.1-inch Super Retina XDR display</li><li>ProRAW and ProRes video recording</li><li>Up to 29 hours video playback</li></ul>',
@@ -266,6 +271,11 @@ const seed = async () => {
       title: 'MacBook Pro 14-inch',
       handle: 'macbook-pro-14',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p>Supercharged by <strong>M3, M3 Pro, or M3 Max chips</strong> for incredible performance in a compact design.</p><ul><li>14.2-inch Liquid Retina XDR display</li><li>Up to 22 hours battery life</li><li>Three Thunderbolt 4 ports, HDMI port, SDXC card slot</li></ul>',
@@ -325,6 +335,11 @@ const seed = async () => {
       title: 'Samsung Galaxy S24 Ultra',
       handle: 'galaxy-s24-ultra',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p>The ultimate Galaxy experience with <strong>S Pen</strong>, <strong>pro cameras</strong>, and <strong>Galaxy AI</strong> built in.</p><ul><li>6.8-inch Dynamic AMOLED 2X display</li><li>200MP main camera with 100x Space Zoom</li><li>5000mAh battery with 45W fast charging</li></ul>',
@@ -378,6 +393,11 @@ const seed = async () => {
       title: 'AirPods Pro (2nd generation)',
       handle: 'airpods-pro-2nd-gen',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p><strong>Adaptive Audio</strong>, <strong>Active Noise Cancellation</strong>, and <strong>Personalized Spatial Audio</strong> with H2 chip.</p><ul><li>Up to 2x more Active Noise Cancellation</li><li>Transparency mode</li><li>Up to 6 hours of listening time</li></ul>',
@@ -407,6 +427,11 @@ const seed = async () => {
       title: 'Sony WH-1000XM5 Wireless Headphones',
       handle: 'sony-wh-1000xm5',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p><strong>Industry-leading noise canceling</strong> with Auto NC Optimizer and crystal clear hands-free calling.</p><ul><li>30-hour battery life</li><li>Quick Attention mode</li><li>Multipoint connection</li></ul>',
@@ -450,6 +475,11 @@ const seed = async () => {
       title: 'iPad Pro 12.9-inch',
       handle: 'ipad-pro-12-9',
       currency: 'USD',
+      type: 'simple',
+      price: 100,
+      originalPrice: 120,
+      stockManage: false,
+      stockStatus: 'instock',
       visible: true,
       description:
         '<p>The ultimate iPad experience with <strong>M2 chip</strong>, <strong>Liquid Retina XDR display</strong>, and all-day battery life.</p><ul><li>12.9-inch Liquid Retina XDR display</li><li>12MP Ultra Wide front camera with Center Stage</li><li>Compatible with Apple Pencil (2nd generation)</li></ul>',
@@ -625,20 +655,30 @@ const seed = async () => {
 
   // Create attributes
   console.log('Creating attributes...')
-  const colorAttribute = await payload.create({
-    collection: 'attributes',
-    data: {
-      name: 'Màu sắc',
-      swatchType: 'label',
-    },
-  });
+  const attributeItems = [
+    { name: 'Màu sắc', swatchType: 'label', },
+    { name: 'Size', swatchType: 'label', }
+  ]
+
+  const [colorAttr, sizeAttr] = await Promise.all(attributeItems.map(item => (
+    payload.create({
+      collection: 'attributes',
+      data: {
+        name: item.name,
+        swatchType: item.swatchType as any,
+      },
+    })
+  )))
 
   // Create attributeValues
-  console.log('Creating attributeValues...')
+  console.log('Creating attribute values...')
   const attributeValueItems = [
-    { label: 'Trắng', handle: 'white', attribute: colorAttribute.id, colorHex: '#ffffff' },
-    { label: 'Đen', handle: 'black', attribute: colorAttribute.id, colorHex: '#000000' },
-    { label: 'Vàng', handle: 'yellow', attribute: colorAttribute.id, colorHex: '#ffffff' },
+    { label: 'Trắng', handle: 'white', attribute: colorAttr.id, colorHex: '#ffffff' },
+    { label: 'Đen', handle: 'black', attribute: colorAttr.id, colorHex: '#000000' },
+    { label: 'Vàng', handle: 'yellow', attribute: colorAttr.id, colorHex: '#ffffff' },
+
+    { label: 'S', handle: 's', attribute: sizeAttr.id, },
+    { label: 'M', handle: 'm', attribute: sizeAttr.id, },
   ] as AttributeValue[];
 
   await Promise.all(attributeValueItems.map(item => {

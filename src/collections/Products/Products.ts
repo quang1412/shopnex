@@ -10,6 +10,7 @@ import { SeoField } from '@/fields/seo'
 import { admins, anyone } from '@/access/roles'
 import { generateVariantsEndPoint } from './endpoints/generateVariants'
 
+const nonValidate: Validate = () => { throw new Error() }
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -70,15 +71,6 @@ export const Products: CollectionConfig = {
       },
       defaultValue: false,
       label: 'Featured Product',
-    },
-    {
-      name: 'inStock',
-      type: 'checkbox',
-      admin: {
-        position: 'sidebar',
-      },
-      defaultValue: true,
-      label: 'In Stock',
     },
     {
       name: 'salesChannels',
@@ -155,46 +147,54 @@ export const Products: CollectionConfig = {
               label: 'Thuộc tính sản phẩm',
               fields: [
                 {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'attribute',
-                      type: 'relationship',
-                      relationTo: 'attributes',
-                      required: true,
-                      label: 'Thuộc tính',
-                      admin: { width: '50%' },
-                    },
-                    {
-                      name: 'allowedValues',
-                      type: 'relationship',
-                      relationTo: 'attribute-values',
-                      hasMany: true,
-                      required: true,
-                      label: 'Các giá trị',
-                      // Tính năng thông minh: Chỉ cho chọn các giá trị thuộc về Loại thuộc tính đã chọn ở ô bên cạnh
-                      filterOptions: ({ siblingData }) => {
-                        const { attribute } = (siblingData as { attribute: any })
-                        if (siblingData && attribute) {
-                          return {
-                            attribute: { equals: attribute },
-                          };
-                        }
-                        return false;
+                  name: 'attribute',
+                  type: 'relationship',
+                  relationTo: 'attributes',
+                  required: true,
+                  label: 'Thuộc tính',
+                  filterOptions: ({ data, req }) => {
+
+                    // Lấy danh sách các ID đã được chọn trong array 'items' hiện tại của document
+                    const selectedIds = data?.attributes
+                      ?.map((item: any) => item.attribute)
+                      .filter(Boolean) || [];
+
+                    // Trả về điều kiện loại bỏ các ID đã chọn
+                    return {
+                      id: {
+                        not_in: selectedIds,
                       },
-                      admin: {
-                        width: '50%',
-                        components: {
-                          // Đưa component bổ trợ vào sau ô nhập liệu để bắt sự kiện thay đổi giá trị
-                          afterInput: [
-                            {
-                              path: '@/collections/Products/fields/ClearAttributeValueField', // Đường dẫn vật lý đến file component của bạn
-                            }
-                          ]
+                    };
+                  },
+
+                },
+                {
+                  name: 'allowedValues',
+                  type: 'relationship',
+                  relationTo: 'attribute-values',
+                  hasMany: true,
+                  required: true,
+                  label: 'Các giá trị',
+                  // Tính năng thông minh: Chỉ cho chọn các giá trị thuộc về Loại thuộc tính đã chọn ở ô bên cạnh
+                  filterOptions: ({ siblingData }) => {
+                    const { attribute } = (siblingData as { attribute: any })
+                    if (siblingData && attribute) {
+                      return {
+                        attribute: { equals: attribute },
+                      };
+                    }
+                    return false;
+                  },
+                  admin: {
+                    components: {
+                      // Đưa component bổ trợ vào sau ô nhập liệu để bắt sự kiện thay đổi giá trị
+                      afterInput: [
+                        {
+                          path: '@/collections/Products/fields/ClearAttributeValueField', // Đường dẫn vật lý đến file component của bạn
                         }
-                      }
-                    },
-                  ]
+                      ]
+                    }
+                  }
                 },
                 {
                   type: 'row',
@@ -243,7 +243,7 @@ export const Products: CollectionConfig = {
               type: 'relationship',
               relationTo: 'variants',
               hasMany: true,
-              required: true,
+              // required: true,
               label: 'Danh sách biến thể (test)',
               filterOptions: (data) => {
                 return {
@@ -257,6 +257,81 @@ export const Products: CollectionConfig = {
           admin: {
             condition: (data) => Boolean(data.type === 'variable')
           }
+        },
+        {
+          label: 'Kho',
+          fields: [
+            {
+              name: 'sku',
+              label: 'SKU',
+              type: 'text',
+            },
+            {
+              name: 'stockManage',
+              label: 'Quản lý tồn kho',
+              type: 'checkbox',
+            },
+            {
+              name: 'inStock',
+              type: 'checkbox',
+              // admin: {position: 'sidebar',},
+              defaultValue: true,
+              label: 'In Stock',
+              admin: {
+                condition: (data) => (Boolean(data.stockManage))
+              }
+            },
+            {
+              name: 'stockStatus',
+              type: 'select',
+              options: [
+                { label: 'Còn hàng', value: 'instock' },
+                { label: 'Hết hàng', value: 'outofstock' },
+                { label: 'Đặt trước', value: 'onbackorder' },
+              ],
+              defaultValue: 'instock',
+              admin: {
+                condition: (data) => (!Boolean(data.stockManage))
+              }
+            },
+            {
+              type: 'group',
+              admin: {
+                condition: (data) => (Boolean(data.stockManage))
+              },
+              fields: [
+                {
+                  name: 'stockCount',
+                  label: 'Tồn kho',
+                  type: 'number',
+                  min: 0,
+                },
+                {
+                  name: 'lowStockThreshold',
+                  label: 'Giới hạn tồn kho',
+                  type: 'number',
+                  min: 0,
+                },
+                {
+                  name: 'allowBackOrders',
+                  label: 'Đặt trước',
+                  type: 'checkbox',
+                  admin: {
+                    description: 'Cho phép đặt trước khi hết hàng',
+                    condition: (data) => (Boolean(data.stockManage))
+                  }
+                },
+              ]
+            },
+            {
+              name: 'soldIndividually',
+              label: 'Bán riêng lẻ',
+              type: 'checkbox',
+              admin: {
+                description: 'Giới hạn sản phẩm chỉ bán 1 đơn vị mỗi đơn'
+              }
+            },
+          ]
         },
         {
           label: 'SEO',
@@ -465,7 +540,6 @@ export const Products: CollectionConfig = {
             isClearable: false,
           }
         },
-
         {
           name: 'price',
           label: 'Giá',
@@ -478,26 +552,6 @@ export const Products: CollectionConfig = {
           label: 'Giá tham khảo',
           type: 'number',
           min: 0,
-        },
-        {
-          name: 'stockManage',
-          type: 'checkbox',
-        },
-        {
-          name: 'backOrders',
-          type: 'checkbox',
-          admin: {
-            condition: (data) => (Boolean(data.stockManage))
-          }
-        },
-        {
-          name: 'stockCount',
-          label: 'Tồn kho',
-          type: 'number',
-          min: 0,
-          admin: {
-            condition: (data) => (Boolean(data.stockManage))
-          }
         },
       ]
     },

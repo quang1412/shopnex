@@ -30,9 +30,8 @@ export function AddToCartButton({
   const [inputQty, setInputQty] = useState(1);
 
   useEffect(() => {
-    console.log({ product });
-
-  }, [product])
+    console.log({ variantId });
+  }, [variantId])
 
   const isVariable = product.type == 'variable';
   const variant = product.variants.find(v => v.id == variantId);
@@ -46,19 +45,15 @@ export function AddToCartButton({
 
   useEffect(() => { setInputQty(1) }, [variantId]);
 
-  const isDisabled = () => {
-    if (isVariable && !variant) return true;
-    if (isStockManage && (remainingStockAllowed === 0 || inputQty > remainingStockAllowed)) return
-    return false
-  }
+  const isDisabled = (isVariable && !variantId) || (isStockManage && (remainingStockAllowed === 0 || inputQty > remainingStockAllowed))
 
   const handleChangeQuantity = (qty: number) => {
-    if (isDisabled() || isLoading) return
+    if (isDisabled || isLoading) return
     setInputQty(qty);
   }
 
   const hangleClickATC = () => {
-    if (isDisabled()) return
+    if (isDisabled) return
     handleAddToCart?.(inputQty);
   }
 
@@ -84,7 +79,7 @@ export function AddToCartButton({
             onClick={handleClickBuyNow}
             variant="default"
             className="w-full"
-            disabled={isDisabled()}
+            disabled={isDisabled}
           >Mua ngay</Button>
         </div>
 
@@ -94,7 +89,7 @@ export function AddToCartButton({
             variant="outline"
             // variant="secondary"
             onClick={hangleClickATC}
-            disabled={isDisabled()}
+            disabled={isDisabled}
             className="w-full"
           >
             {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}
