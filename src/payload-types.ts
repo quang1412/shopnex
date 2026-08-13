@@ -309,6 +309,7 @@ export interface Product {
   currency?: string | null;
   visible?: boolean | null;
   featured?: boolean | null;
+  inStock?: boolean | null;
   /**
    * Choose where this product should be available to customers.
    */
@@ -317,6 +318,11 @@ export interface Product {
   collections?: (number | Collection)[] | null;
   handle?: string | null;
   description?: string | null;
+  type: 'simple' | 'variable';
+  regualarPrice?: number | null;
+  salePrice?: number | null;
+  dateOnSaleFrom?: string | null;
+  dateOnSaleTo?: string | null;
   attributes?:
     | {
         attribute: number | Attribute;
@@ -334,7 +340,6 @@ export interface Product {
   'variants-test'?: (number | Variant)[] | null;
   sku?: string | null;
   stockManage?: boolean | null;
-  inStock?: boolean | null;
   stockStatus?: ('instock' | 'outofstock' | 'onbackorder') | null;
   stockCount?: number | null;
   lowStockThreshold?: number | null;
@@ -390,9 +395,6 @@ export interface Product {
       }[]
     | null;
   gallery?: (number | Media)[] | null;
-  type: 'simple' | 'variable';
-  price?: number | null;
-  originalPrice?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -485,8 +487,10 @@ export interface AttributeValue {
  */
 export interface Variant {
   id: number;
-  price: number;
-  originalPrice?: number | null;
+  regualarPrice?: number | null;
+  salePrice?: number | null;
+  dateOnSaleFrom?: string | null;
+  dateOnSaleTo?: string | null;
   stockManage?: boolean | null;
   stockCount: number;
   product: number | Product;
@@ -1030,11 +1034,17 @@ export interface ProductsSelect<T extends boolean = true> {
   currency?: T;
   visible?: T;
   featured?: T;
+  inStock?: T;
   salesChannels?: T;
   source?: T;
   collections?: T;
   handle?: T;
   description?: T;
+  type?: T;
+  regualarPrice?: T;
+  salePrice?: T;
+  dateOnSaleFrom?: T;
+  dateOnSaleTo?: T;
   attributes?:
     | T
     | {
@@ -1048,7 +1058,6 @@ export interface ProductsSelect<T extends boolean = true> {
   'variants-test'?: T;
   sku?: T;
   stockManage?: T;
-  inStock?: T;
   stockStatus?: T;
   stockCount?: T;
   lowStockThreshold?: T;
@@ -1093,9 +1102,6 @@ export interface ProductsSelect<T extends boolean = true> {
         id?: T;
       };
   gallery?: T;
-  type?: T;
-  price?: T;
-  originalPrice?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1104,8 +1110,10 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "variants_select".
  */
 export interface VariantsSelect<T extends boolean = true> {
-  price?: T;
-  originalPrice?: T;
+  regualarPrice?: T;
+  salePrice?: T;
+  dateOnSaleFrom?: T;
+  dateOnSaleTo?: T;
   stockManage?: T;
   stockCount?: T;
   product?: T;

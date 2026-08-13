@@ -63,12 +63,12 @@ export const enum_products_sales_channels = pgEnum('enum_products_sales_channels
   'mobileApp',
 ])
 export const enum_products_source = pgEnum('enum_products_source', ['manual'])
+export const enum_products_type = pgEnum('enum_products_type', ['simple', 'variable'])
 export const enum_products_stock_status = pgEnum('enum_products_stock_status', [
   'instock',
   'outofstock',
   'onbackorder',
 ])
-export const enum_products_type = pgEnum('enum_products_type', ['simple', 'variable'])
 export const enum_gift_cards_type = pgEnum('enum_gift_cards_type', ['percent', 'amount'])
 export const enum_payments_blocks_manual_method_type = pgEnum(
   'enum_payments_blocks_manual_method_type',
@@ -503,12 +503,25 @@ export const products = pgTable(
     currency: varchar('currency'),
     visible: boolean('visible').default(true),
     featured: boolean('featured').default(false),
+    inStock: boolean('in_stock').default(true),
     source: enum_products_source('source').default('manual'),
     handle: varchar('handle'),
     description: varchar('description'),
+    type: enum_products_type('type').notNull().default('simple'),
+    regualarPrice: numeric('regualar_price', { mode: 'number' }).default(0),
+    salePrice: numeric('sale_price', { mode: 'number' }).default(0),
+    dateOnSaleFrom: timestamp('date_on_sale_from', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    dateOnSaleTo: timestamp('date_on_sale_to', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
     sku: varchar('sku'),
     stockManage: boolean('stock_manage'),
-    inStock: boolean('in_stock').default(true),
     stockStatus: enum_products_stock_status('stock_status').default('instock'),
     stockCount: numeric('stock_count', { mode: 'number' }),
     lowStockThreshold: numeric('low_stock_threshold', { mode: 'number' }),
@@ -516,9 +529,6 @@ export const products = pgTable(
     soldIndividually: boolean('sold_individually'),
     meta_title: varchar('meta_title'),
     meta_description: varchar('meta_description'),
-    type: enum_products_type('type').notNull().default('simple'),
-    price: numeric('price', { mode: 'number' }).default(0),
-    originalPrice: numeric('original_price', { mode: 'number' }),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -634,8 +644,18 @@ export const variants = pgTable(
   'variants',
   {
     id: serial('id').primaryKey(),
-    price: numeric('price', { mode: 'number' }).notNull(),
-    originalPrice: numeric('original_price', { mode: 'number' }),
+    regualarPrice: numeric('regualar_price', { mode: 'number' }).default(0),
+    salePrice: numeric('sale_price', { mode: 'number' }).default(0),
+    dateOnSaleFrom: timestamp('date_on_sale_from', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    dateOnSaleTo: timestamp('date_on_sale_to', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
     stockManage: boolean('stock_manage'),
     stockCount: numeric('stock_count', { mode: 'number' }).notNull().default(0),
     product: integer('product_id')
@@ -1775,8 +1795,8 @@ type DatabaseSchema = {
   enum_attributes_swatch_type: typeof enum_attributes_swatch_type
   enum_products_sales_channels: typeof enum_products_sales_channels
   enum_products_source: typeof enum_products_source
-  enum_products_stock_status: typeof enum_products_stock_status
   enum_products_type: typeof enum_products_type
+  enum_products_stock_status: typeof enum_products_stock_status
   enum_gift_cards_type: typeof enum_gift_cards_type
   enum_payments_blocks_manual_method_type: typeof enum_payments_blocks_manual_method_type
   enum_exports_format: typeof enum_exports_format

@@ -28,10 +28,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
   // const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isPreOrder = true;
-  const regularPrice = product.originalPrice || Math.floor(product.price + (product.price / 10)) || 0;
-  const savedPercent = !!regularPrice ? (100 - (product.price / (regularPrice / 100))).toFixed(1) : 0;
-
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
     return {}
     // if (!defaultVariant_?.options) return {};
@@ -40,10 +36,28 @@ export function ProductDetail({ product }: ProductDetailProps) {
     // );
   });
 
-  const variantSelected = product.variants?.find((variant) => {
-    const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
-    return !isDeff;
+  // const mainVariant = product.variants?.find((variant) => {
+  //   const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
+  //   return !isDeff;
+  // });
+
+  const mainVariant = product.variants?.find((variant) => {
+    return variant.options?.find(({ option, value }) => (!!selectedOptions[option] && selectedOptions[option] == value));
   });
+
+  const isPreOrder = true;
+  // const hasSalePrice = product.salePrice != undefined
+  const isOnSale = product.salePrice != undefined
+    && (!product.dateOnSaleFrom || new Date(product.dateOnSaleFrom) >= new Date())
+    && (!product.dateOnSaleTo || new Date(product.dateOnSaleTo) <= new Date());
+
+  const mainPrice: number = (mainVariant?.salePrice ?? mainVariant?.regualarPrice) || (product.salePrice ?? product.regualarPrice)
+  const oldPrice = (mainVariant?.salePrice !== undefined ? mainVariant?.regualarPrice : product.salePrice !== undefined ? product.regualarPrice : undefined)
+
+  const mainStock: number = isVariable ? (mainVariant ? mainVariant.stockCount : 0) : product.stockCount
+
+  // const regularPrice = product.regualarPrice || Math.floor(product.price + (product.price / 10)) || 0;
+  // const savedPercent = oldPrice != undefined ? (100 - (mainPrice / (oldPrice / 100))).toFixed(1) : "";
 
   useEffect(() => {
     console.log({ selectedOptions })
@@ -56,7 +70,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const handleAddToCart_ = async (qty: number) => {
     // Fn thêm vào giỏ hàng
 
-    if (isVariable && !variantSelected) return alert('Vui lòng chọn biến thể sp');
+    if (isVariable && !mainVariant) return alert('Vui lòng chọn biến thể sp');
 
     setIsLoading(true);
 
@@ -67,10 +81,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
       id: product.id,
       name: product.name,
       image: product.image,
-      price: isVariable ? (variantSelected?.price || 0) : product.price,
-      variantId: variantSelected?.id,
-      variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') || undefined,
-      stock: isVariable ? (variantSelected?.stockCount || 0) : product.stockCount,
+      price: mainPrice,
+      variantId: mainVariant?.id,
+      variantLabel: isVariable && mainVariant?.options?.map((o: any) => o.value).join(' • ') || undefined,
+      stock: isVariable ? (mainVariant?.stockCount || 0) : product.stockCount,
     }
 
     for (let i = 0; i < qty; i++) {
@@ -206,9 +220,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             {/* Prices */}
             <div className='text-2xl flex gap-2 items-end'>
-              <span className=" font-bold">${product.price}</span>
-              <del className='text-sm  text-muted-foreground'>${regularPrice}</del>
-              {savedPercent && <span className='text-sm  text-green-500'>sale {savedPercent}%</span>}
+              <span className=" font-bold">${mainPrice}</span>
+              {oldPrice != undefined && <del className='text-sm  text-muted-foreground'>${oldPrice}</del>}
+              {/* {savedPercent && <span className='text-sm  text-green-500'>sale {savedPercent}%</span>} */}
             </div>
 
           </div>
@@ -252,11 +266,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Add to Cart */}
           <AddToCartButton
             product={product}
-            // variant={variantSelected}
-            variantId={variantSelected?.id}
+            // variant={mainVariant}
+            variantId={mainVariant?.id}
             handleAddToCart={handleAddToCart_}
             handleBuyNow={() => {
-              toast.info(`Buy now ${[product.id, variantSelected?.id].filter(Boolean).join(' / ')}`)
+              toast.info(`Buy now ${[product.id, mainVariant?.id].filter(Boolean).join(' / ')}`)
             }}
             isLoading={isLoading}
           />

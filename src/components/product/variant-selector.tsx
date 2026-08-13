@@ -39,13 +39,8 @@ export function ProductVariantSelector({
   const optionValidate = (option: string, value: string) => {
     const testOptions = { ...optionsProp, [option]: value }
 
-    // const testVariants = variants.filter(variant => {
-    //   const isDeff = variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
-    //   return !isDeff
-    // });
-
     const testVariants = variants.filter(variant => {
-      return variant.options?.find(({ option, value }) => (!!testOptions[option] && testOptions[option] == value));
+      return !variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
     });
 
     const totalRemainingStock = testVariants.reduce((total, variant) => {

@@ -18,9 +18,48 @@ export const Variants: CollectionConfig = {
   },
   fields: [
     {
-      type: 'row', fields: [
-        { name: 'price', type: 'number', required: true, label: 'Giá tiền', admin: { width: '50%' } },
-        { name: 'originalPrice', type: 'number', label: 'Giá tham khảo', admin: { width: '50%' } },
+      type: 'row',
+      fields: [
+        {
+          name: 'regualarPrice',
+          label: 'Giá thông thường',
+          type: 'number',
+          defaultValue: 0,
+          min: 0,
+          admin: { width: '50%' }
+        },
+        {
+          name: 'salePrice',
+          label: 'Giá sale',
+          type: 'number',
+          defaultValue: 0,
+          min: 0,
+          admin: { width: '50%' }
+        },
+      ]
+    },
+    {
+      type: 'collapsible',
+      label: 'Đặt lịch',
+      fields: [
+        {
+          name: 'dateOnSaleFrom',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime'
+            }
+          },
+        },
+        {
+          name: 'dateOnSaleTo',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime'
+            }
+          },
+        }
       ]
     },
     {

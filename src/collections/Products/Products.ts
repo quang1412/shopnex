@@ -10,7 +10,7 @@ import { SeoField } from '@/fields/seo'
 import { admins, anyone } from '@/access/roles'
 import { generateVariantsEndPoint } from './endpoints/generateVariants'
 
-const nonValidate: Validate = () => { throw new Error() }
+const nonValidate: Validate = () => true
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -73,6 +73,13 @@ export const Products: CollectionConfig = {
       label: 'Featured Product',
     },
     {
+      name: 'inStock',
+      type: 'checkbox',
+      admin: { position: 'sidebar', },
+      defaultValue: true,
+      label: 'In Stock',
+    },
+    {
       name: 'salesChannels',
       type: 'select',
       admin: {
@@ -133,10 +140,75 @@ export const Products: CollectionConfig = {
     // TEST
 
     {
+      name: 'type',
+      label: 'Loại sản phẩm',
+      type: 'select',
+      options: [
+        { label: 'Đơn giản', value: 'simple' },
+        { label: 'Nhiều biến thể', value: 'variable' }
+      ],
+      defaultValue: 'simple',
+      required: true,
+      admin: {
+        isClearable: false,
+      }
+    },
+
+    {
       type: 'tabs',
       admin: {
       },
       tabs: [
+        {
+          label: 'Chung',
+          fields: [
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'regualarPrice',
+                  label: 'Giá thông thường',
+                  type: 'number',
+                  defaultValue: 0,
+                  min: 0,
+                  admin: { width: '50%' }
+                },
+                {
+                  name: 'salePrice',
+                  label: 'Giá sale',
+                  type: 'number',
+                  defaultValue: 0,
+                  min: 0,
+                  admin: { width: '50%' }
+                },
+              ]
+            },
+            {
+              type: 'collapsible',
+              label: 'Đặt lịch',
+              fields: [
+                {
+                  name: 'dateOnSaleFrom',
+                  type: 'date',
+                  admin: {
+                    date: {
+                      pickerAppearance: 'dayAndTime'
+                    }
+                  },
+                },
+                {
+                  name: 'dateOnSaleTo',
+                  type: 'date',
+                  admin: {
+                    date: {
+                      pickerAppearance: 'dayAndTime'
+                    }
+                  },
+                }
+              ]
+            },
+          ]
+        },
         {
           label: 'Thuộc tính',
           fields: [
@@ -166,7 +238,8 @@ export const Products: CollectionConfig = {
                       },
                     };
                   },
-
+                  // Bỏ qua validate phía server cho filterOptions
+                  validate: nonValidate,
                 },
                 {
                   name: 'allowedValues',
@@ -259,7 +332,7 @@ export const Products: CollectionConfig = {
           }
         },
         {
-          label: 'Kho',
+          label: 'Tồn kho',
           fields: [
             {
               name: 'sku',
@@ -270,16 +343,6 @@ export const Products: CollectionConfig = {
               name: 'stockManage',
               label: 'Quản lý tồn kho',
               type: 'checkbox',
-            },
-            {
-              name: 'inStock',
-              type: 'checkbox',
-              // admin: {position: 'sidebar',},
-              defaultValue: true,
-              label: 'In Stock',
-              admin: {
-                condition: (data) => (Boolean(data.stockManage))
-              }
             },
             {
               name: 'stockStatus',
@@ -524,37 +587,7 @@ export const Products: CollectionConfig = {
         position: 'sidebar',
       }
     },
-    {
-      type: 'group',
-      fields: [
-        {
-          name: 'type',
-          type: 'select',
-          options: [
-            { label: 'Đơn giản', value: 'simple' },
-            { label: 'Nhiều biến thể', value: 'variable' }
-          ],
-          defaultValue: 'simple',
-          required: true,
-          admin: {
-            isClearable: false,
-          }
-        },
-        {
-          name: 'price',
-          label: 'Giá',
-          type: 'number',
-          defaultValue: 0,
-          min: 0,
-        },
-        {
-          name: 'originalPrice',
-          label: 'Giá tham khảo',
-          type: 'number',
-          min: 0,
-        },
-      ]
-    },
+
   ],
   hooks: {
     afterDelete: [deleteMedia, deleteVariants],

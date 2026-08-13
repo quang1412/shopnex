@@ -6,7 +6,7 @@ import type {
   Variant as PayloadVariant,
   VariantsSelect
 } from '@/payload-types'
-import { type Media } from '@/payload-types'
+// import { type Media } from '@/payload-types'
 
 interface VariantOption {
   option: string
@@ -17,8 +17,10 @@ interface Variant {
   id: string
   sku: string
   gallery: string[]
-  price: number
-  originalPrice: number
+  regualarPrice: number
+  salePrice?: number
+  dateOnSaleFrom: string
+  dateOnSaleTo: string
   stockCount: number
   stockManage: boolean
   options?: VariantOption[]
@@ -30,8 +32,10 @@ export interface Product {
   type: PayloadProduct['type'],
   name: string
   description: string
-  price: number
-  originalPrice: number
+  regualarPrice: number
+  salePrice?: number
+  dateOnSaleFrom: string
+  dateOnSaleTo: string
   image: string
   images: string[]
   category: string
@@ -42,63 +46,69 @@ export interface Product {
   variants: Variant[]
   options?: PayloadProduct['variantOptions']
   customFields: { name: string, value: string }[]
-  // variant?: string
 }
 
 // Transform Payload product to shop product format
-function transformProduct(payloadProduct: PayloadProduct): Product {
-  const firstVariant = payloadProduct.variants[0]
-  const images =
-    firstVariant?.gallery
-      ?.map((media) => {
-        if (typeof media === 'object' && media.url) {
-          return media.url
-        }
-        return ''
-      })
-      .filter(Boolean) || []
+// function transformProduct(payloadProduct: PayloadProduct): Product {
+//   const firstVariant = payloadProduct.variants[0]
+//   const images =
+//     firstVariant?.gallery
+//       ?.map((media) => {
+//         if (typeof media === 'object' && media.url) {
+//           return media.url
+//         }
+//         return ''
+//       })
+//       .filter(Boolean) || []
 
-  return {
-    id: payloadProduct.id.toString(),
-    slug: payloadProduct.handle || payloadProduct.id.toString(),
-    name: payloadProduct.title,
-    type: payloadProduct.type,
-    description: payloadProduct.description || '',
-    price: firstVariant?.price || 0,
-    originalPrice: firstVariant?.originalPrice || 0,
-    image: images[0] || '',
-    images: images,
-    category: payloadProduct.collections?.[0]
-      ? typeof payloadProduct.collections[0] === 'object'
-        ? payloadProduct.collections[0].title
-        : 'Uncategorized'
-      : 'Uncategorized',
-    inStock: (firstVariant?.stockCount || 0) > 0,
-    stockCount: 1,
-    stockManage: Boolean(payloadProduct.stockManage),
-    featured: payloadProduct.featured || false,
-    variants: payloadProduct.variants.map(v => ({
-      id: v.id!,
-      sku: v.sku || '',
-      gallery: v.gallery?.map((g) => (typeof g === 'object' ? (g.url || "") : "")) || [],
-      price: v.price || 0,
-      originalPrice: v.originalPrice || 0,
-      options: v.options || [],
-      stockCount: v.stockCount || 0,
-      stockManage: false,
-    })),
-    options: payloadProduct.variantOptions,
-    customFields: payloadProduct.customFields?.map(({ name, value }) => ({ name, value: (value || '') })) || [],
-  }
-}
+//   return {
+//     id: payloadProduct.id.toString(),
+//     slug: payloadProduct.handle || payloadProduct.id.toString(),
+//     name: payloadProduct.title,
+//     type: payloadProduct.type,
+//     description: payloadProduct.description || '',
+//     price: firstVariant?.price || 0,
+//     originalPrice: firstVariant?.originalPrice || 0,
+//     image: images[0] || '',
+//     images: images,
+//     category: payloadProduct.collections?.[0]
+//       ? typeof payloadProduct.collections[0] === 'object'
+//         ? payloadProduct.collections[0].title
+//         : 'Uncategorized'
+//       : 'Uncategorized',
+//     inStock: (firstVariant?.stockCount || 0) > 0,
+//     stockCount: 1,
+//     stockManage: Boolean(payloadProduct.stockManage),
+//     featured: payloadProduct.featured || false,
+//     variants: payloadProduct.variants.map(v => ({
+//       id: v.id!,
+//       sku: v.sku || '',
+//       gallery: v.gallery?.map((g) => (typeof g === 'object' ? (g.url || "") : "")) || [],
+//       price: v.price || 0,
+//       originalPrice: v.originalPrice || 0,
+//       options: v.options || [],
+//       stockCount: v.stockCount || 0,
+//       stockManage: false,
+//     })),
+//     options: payloadProduct.variantOptions,
+//     customFields: payloadProduct.customFields?.map(({ name, value }) => ({ name, value: (value || '') })) || [],
+//   }
+// }
 
 const transformVariant = (v: PayloadVariant): Variant => {
+  const today = new Date();
+  const isOnSale = (typeof v.salePrice == 'number')
+    && (!v.dateOnSaleFrom || new Date(v.dateOnSaleFrom) <= today)
+    && (!v.dateOnSaleTo || new Date(v.dateOnSaleTo) >= today)
+
   return ({
     id: v.id.toString(),
     sku: v.sku || '',
     gallery: v.gallery?.map((g) => (typeof g === 'object' ? (g.url || "") : "")) || [],
-    price: v.price || 0,
-    originalPrice: v.originalPrice || 0,
+    salePrice: isOnSale ? (v.salePrice || 0) : undefined,
+    regualarPrice: v.regualarPrice || 0,
+    dateOnSaleFrom: v.dateOnSaleFrom || "",
+    dateOnSaleTo: v.dateOnSaleTo || "",
     options: v.attributeOptions?.map(op => ({
       option: typeof op.attribute == 'object' ? op.attribute.name : "",
       value: typeof op.value == 'object' ? op.value.label : "",
@@ -110,9 +120,7 @@ const transformVariant = (v: PayloadVariant): Variant => {
 
 // Transform Payload product to shop product format
 // transformProduct_v2
-async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Product> {
-
-  console.log({ payloadProduct });
+function transformProduct_v2(payloadProduct: PayloadProduct): Product {
 
   const isVariable = payloadProduct.type == 'variable'
   const variantDocs = payloadProduct['variants-test'];
@@ -147,14 +155,23 @@ async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Prod
 
   };
 
+  const today = new Date();
+  const isOnSale = (typeof payloadProduct.salePrice == 'number')
+    && (!payloadProduct.dateOnSaleFrom || new Date(payloadProduct.dateOnSaleFrom) <= today)
+    && (!payloadProduct.dateOnSaleTo || new Date(payloadProduct.dateOnSaleTo) >= today)
+
   return {
     id: payloadProduct.id.toString(),
     slug: payloadProduct.handle || payloadProduct.id.toString(),
     name: payloadProduct.title,
     type: payloadProduct.type,
     description: payloadProduct.description || '',
-    price: payloadProduct.price || 0,
-    originalPrice: payloadProduct.originalPrice || 0,
+
+    salePrice: isOnSale ? (payloadProduct.salePrice || 0) : undefined,
+    regualarPrice: payloadProduct.regualarPrice || 0,
+    dateOnSaleFrom: payloadProduct.dateOnSaleFrom || "",
+    dateOnSaleTo: payloadProduct.dateOnSaleTo || "",
+
     image: gallery[0] || '/images/placeholder.svg',
     images: gallery.length > 0 ? gallery : ['/images/placeholder.svg'],
     category: payloadProduct.collections?.[0]
@@ -175,90 +192,61 @@ async function transformProduct_v2(payloadProduct: PayloadProduct): Promise<Prod
 }
 
 
-export async function getProducts(): Promise<Product[]> {
-  try {
-    const response = await sdk.find(
-      {
-        collection: 'products',
-        where: {
-          visible: { equals: true },
-        },
-        populate: {
-          collections: {
-            title: true,
-          },
-        },
-        limit: 100,
-      },
-      {
-        next: {
-          revalidate: CACHE_TIMES.products,
-        },
-      },
-    )
+// export async function getProducts(): Promise<Product[]> {
+//   try {
+//     const response = await sdk.find(
+//       {
+//         collection: 'products',
+//         where: {
+//           visible: { equals: true },
+//         },
+//         populate: {
+//           collections: {
+//             title: true,
+//           },
+//         },
+//         limit: 100,
+//       },
+//       {
+//         next: {
+//           revalidate: CACHE_TIMES.products,
+//         },
+//       },
+//     )
 
-    return response.docs.map(transformProduct)
-  } catch (error) {
-    console.error('Failed to fetch products:', error)
-    return []
-  }
-}
+//     return response.docs.map(transformProduct)
+//   } catch (error) {
+//     console.error('Failed to fetch products:', error)
+//     return []
+//   }
+// }
 
-export async function getProduct(id: string): Promise<Product | undefined> {
-  try {
-    const product = await sdk.findByID(
-      {
-        collection: 'products',
-        id: parseInt(id),
-        populate: {
-          collections: {
-            title: true,
-          },
-        },
-      },
-      {
-        next: {
-          revalidate: CACHE_TIMES.products,
-        },
-      },
-    )
+// export async function getProduct(id: string): Promise<Product | undefined> {
+//   try {
+//     const product = await sdk.findByID(
+//       {
+//         collection: 'products',
+//         id: parseInt(id),
+//         populate: {
+//           collections: {
+//             title: true,
+//           },
+//         },
+//       },
+//       {
+//         next: {
+//           revalidate: CACHE_TIMES.products,
+//         },
+//       },
+//     )
 
-    return transformProduct(product)
-  } catch (error) {
-    console.error('Failed to fetch product:', error)
-    return undefined
-  }
-}
+//     return transformProduct(product)
+//   } catch (error) {
+//     console.error('Failed to fetch product:', error)
+//     return undefined
+//   }
+// }
 
-const getProductVariants = async (productId: string | number): Promise<Variant[] | undefined> => {
-  try {
-    const { docs: variants } = await sdk.find(
-      {
-        collection: 'variants',
-        where: {
-          product: {
-            equals: productId
-          }
-        },
-        populate: {
-          collections: {
-            title: true,
-          },
-        },
-      },
-      {
-        next: {
-          revalidate: CACHE_TIMES.products,
-        },
-      },
-    )
-
-    return variants?.map(transformVariant) || []
-  } catch (error) {
-    console.error('Failed to fetch variants:', error)
-    return undefined
-  }
-}
 
 export async function getProducts_v2(): Promise<Product[]> {
   try {
@@ -282,7 +270,7 @@ export async function getProducts_v2(): Promise<Product[]> {
       },
     )
 
-    const products = await Promise.all(response.docs.map(transformProduct_v2))
+    const products = response.docs.map(transformProduct_v2)
 
     return products
   } catch (error) {
@@ -310,7 +298,7 @@ export async function getProduct_v2(id: string): Promise<Product | undefined> {
       },
     );
 
-    return await transformProduct_v2(product);
+    return transformProduct_v2(product);
   } catch (error) {
     console.error('Failed to fetch product:', error)
     return undefined
@@ -340,37 +328,37 @@ const getVariant = async (id: string): Promise<PayloadVariant | undefined> => {
 }
 
 
-export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  try {
-    const product = await sdk.find(
-      {
-        collection: 'products',
-        where: {
-          handle: {
-            equals: slug
-          }
-        },
-        populate: {
-          collections: {
-            title: true,
-          },
-        },
-        // depth: 3,
-        limit: 1,
-      },
-      {
-        next: {
-          revalidate: CACHE_TIMES.products,
-        },
-      },
-    )
+// export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+//   try {
+//     const product = await sdk.find(
+//       {
+//         collection: 'products',
+//         where: {
+//           handle: {
+//             equals: slug
+//           }
+//         },
+//         populate: {
+//           collections: {
+//             title: true,
+//           },
+//         },
+//         // depth: 3,
+//         limit: 1,
+//       },
+//       {
+//         next: {
+//           revalidate: CACHE_TIMES.products,
+//         },
+//       },
+//     )
 
-    return transformProduct(product.docs[0])
-  } catch (error) {
-    console.error('Failed to fetch product:', error)
-    return undefined
-  }
-}
+//     return transformProduct(product.docs[0])
+//   } catch (error) {
+//     console.error('Failed to fetch product:', error)
+//     return undefined
+//   }
+// }
 
 
 export async function getProductBySlug_v2(slug: string): Promise<Product | undefined> {
@@ -397,7 +385,7 @@ export async function getProductBySlug_v2(slug: string): Promise<Product | undef
       },
     )
 
-    return await transformProduct_v2(product)
+    return transformProduct_v2(product)
   } catch (error) {
     console.error('Failed to fetch product:', error)
     return undefined
@@ -427,7 +415,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       },
     )
 
-    return response.docs.map(transformProduct)
+    return response.docs.map(transformProduct_v2)
   } catch (error) {
     console.error('Failed to fetch featured products:', error)
     return []
