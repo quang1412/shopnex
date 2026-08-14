@@ -76,7 +76,6 @@ export const useCart = create<CartStore>()(
         return get().items.reduce((total, item) => total + item.quantity, 0)
       },
 
-      // get
     }),
     {
       name: 'cart-storage',

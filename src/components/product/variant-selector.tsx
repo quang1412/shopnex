@@ -39,16 +39,16 @@ export function ProductVariantSelector({
   const optionValidate = (option: string, value: string) => {
     const testOptions = { ...optionsProp, [option]: value }
 
-    const testVariants = variants.filter(variant => {
+    const testVariants = variants?.filter(variant => {
       return !variant.options?.find(op => (!!testOptions[op.option] && testOptions[op.option] != op.value));
     });
 
-    const totalRemainingStock = testVariants.reduce((total, variant) => {
+    const totalRemainingStock = testVariants?.reduce((total, variant) => {
       if (variant.stockCount == 0) return total;
 
       const cartQty = cartItems.find(i => i.variantId == variant.id)?.quantity || 0;
       return (total + (variant.stockCount - cartQty))
-    }, 0);
+    }, 0) || 0;
 
     return totalRemainingStock > 0
   };

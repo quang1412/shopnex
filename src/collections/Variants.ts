@@ -24,6 +24,7 @@ export const Variants: CollectionConfig = {
           name: 'regualarPrice',
           label: 'Giá thông thường',
           type: 'number',
+          required: true,
           defaultValue: 0,
           min: 0,
           admin: { width: '50%' }
@@ -32,7 +33,6 @@ export const Variants: CollectionConfig = {
           name: 'salePrice',
           label: 'Giá sale',
           type: 'number',
-          defaultValue: 0,
           min: 0,
           admin: { width: '50%' }
         },
@@ -161,4 +161,15 @@ export const Variants: CollectionConfig = {
       relationTo: 'media',
     },
   ],
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if ((data.salePrice || 0) > data.regualarPrice) {
+          data.salePrice = null
+          data.dateOnSaleFrom = null
+          data.dateOnSaleTo = null
+        }
+      }
+    ]
+  }
 };

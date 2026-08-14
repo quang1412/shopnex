@@ -19,11 +19,10 @@ interface Variant {
   gallery: string[]
   regualarPrice: number
   salePrice?: number
-  dateOnSaleFrom: string
-  dateOnSaleTo: string
+  dateOnSaleTo?: string
   stockCount: number
   stockManage: boolean
-  options?: VariantOption[]
+  options: VariantOption[]
 }
 
 export interface Product {
@@ -34,8 +33,7 @@ export interface Product {
   description: string
   regualarPrice: number
   salePrice?: number
-  dateOnSaleFrom: string
-  dateOnSaleTo: string
+  dateOnSaleTo?: string
   image: string
   images: string[]
   category: string
@@ -43,7 +41,7 @@ export interface Product {
   stockCount: number
   stockManage: boolean
   featured?: boolean
-  variants: Variant[]
+  variants?: Variant[]
   options?: PayloadProduct['variantOptions']
   customFields: { name: string, value: string }[]
 }
@@ -97,7 +95,8 @@ export interface Product {
 
 const transformVariant = (v: PayloadVariant): Variant => {
   const today = new Date();
-  const isOnSale = (typeof v.salePrice == 'number')
+  const isOnSale = (v.salePrice != undefined)
+    && (v.salePrice < v.regualarPrice)
     && (!v.dateOnSaleFrom || new Date(v.dateOnSaleFrom) <= today)
     && (!v.dateOnSaleTo || new Date(v.dateOnSaleTo) >= today)
 
@@ -105,10 +104,9 @@ const transformVariant = (v: PayloadVariant): Variant => {
     id: v.id.toString(),
     sku: v.sku || '',
     gallery: v.gallery?.map((g) => (typeof g === 'object' ? (g.url || "") : "")) || [],
-    salePrice: isOnSale ? (v.salePrice || 0) : undefined,
     regualarPrice: v.regualarPrice || 0,
-    dateOnSaleFrom: v.dateOnSaleFrom || "",
-    dateOnSaleTo: v.dateOnSaleTo || "",
+    salePrice: isOnSale ? (v.salePrice || 0) : undefined,
+    dateOnSaleTo: isOnSale && v.dateOnSaleTo || "",
     options: v.attributeOptions?.map(op => ({
       option: typeof op.attribute == 'object' ? op.attribute.name : "",
       value: typeof op.value == 'object' ? op.value.label : "",
@@ -119,8 +117,12 @@ const transformVariant = (v: PayloadVariant): Variant => {
 }
 
 // Transform Payload product to shop product format
-// transformProduct_v2
 function transformProduct_v2(payloadProduct: PayloadProduct): Product {
+
+  // console.log(JSON.stringify(payloadProduct.variantsList?.docs?.[0]));
+
+  // console.log(JSON.stringify(payloadProduct.attributes))
+
 
   const isVariable = payloadProduct.type == 'variable'
   const variantDocs = payloadProduct['variants-test'];
@@ -156,7 +158,8 @@ function transformProduct_v2(payloadProduct: PayloadProduct): Product {
   };
 
   const today = new Date();
-  const isOnSale = (typeof payloadProduct.salePrice == 'number')
+  const isOnSale = (payloadProduct.salePrice != undefined)
+    && (payloadProduct.salePrice < payloadProduct.regualarPrice)
     && (!payloadProduct.dateOnSaleFrom || new Date(payloadProduct.dateOnSaleFrom) <= today)
     && (!payloadProduct.dateOnSaleTo || new Date(payloadProduct.dateOnSaleTo) >= today)
 
@@ -169,8 +172,7 @@ function transformProduct_v2(payloadProduct: PayloadProduct): Product {
 
     salePrice: isOnSale ? (payloadProduct.salePrice || 0) : undefined,
     regualarPrice: payloadProduct.regualarPrice || 0,
-    dateOnSaleFrom: payloadProduct.dateOnSaleFrom || "",
-    dateOnSaleTo: payloadProduct.dateOnSaleTo || "",
+    dateOnSaleTo: isOnSale && payloadProduct.dateOnSaleTo || undefined,
 
     image: gallery[0] || '/images/placeholder.svg',
     images: gallery.length > 0 ? gallery : ['/images/placeholder.svg'],
@@ -190,7 +192,6 @@ function transformProduct_v2(payloadProduct: PayloadProduct): Product {
     customFields: payloadProduct.customFields?.map(({ name, value }) => ({ name, value: (value || '') })) || [],
   }
 }
-
 
 // export async function getProducts(): Promise<Product[]> {
 //   try {
@@ -305,29 +306,6 @@ export async function getProduct_v2(id: string): Promise<Product | undefined> {
   }
 }
 
-
-const getVariant = async (id: string): Promise<PayloadVariant | undefined> => {
-  try {
-    const variant = await sdk.findByID(
-      {
-        collection: 'variants',
-        id: id,
-      },
-      {
-        next: {
-          revalidate: CACHE_TIMES.variants,
-        },
-      },
-    )
-
-    return variant
-  } catch (error) {
-    console.error('Failed to fetch variants:', error)
-    return undefined
-  }
-}
-
-
 // export async function getProductBySlug(slug: string): Promise<Product | undefined> {
 //   try {
 //     const product = await sdk.find(
@@ -392,6 +370,24 @@ export async function getProductBySlug_v2(slug: string): Promise<Product | undef
   }
 }
 
+export function calculateItemPrice(product: Product, variantId?: string) {
+  const variant = product.variants?.find(v => (v.id === variantId))
+
+  const mainItem = (product.type == 'variable' ? variant : product);
+  const mainPrice = mainItem?.salePrice ?? mainItem?.regualarPrice;
+  const regualarPrice = mainItem?.regualarPrice;
+  const oldPrice = (mainPrice && regualarPrice && (mainPrice < regualarPrice)) ? regualarPrice : null
+
+
+  const variantPrices = product.variants?.map(v => (v.salePrice ?? v.regualarPrice)) || []
+  const maxPrice = Math.max(...variantPrices, 0);
+  const minPrice = Math.min(...variantPrices, 0);
+
+  return {
+    mainPrice, oldPrice, maxPrice, minPrice
+  }
+}
+
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const response = await sdk.find(
@@ -446,6 +442,7 @@ export async function getMappedCategories(): Promise<{ title: string; productCou
     return []
   }
 }
+
 export async function getCategories(): Promise<string[]> {
   try {
     const response = await sdk.find(

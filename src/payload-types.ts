@@ -319,7 +319,7 @@ export interface Product {
   handle?: string | null;
   description?: string | null;
   type: 'simple' | 'variable';
-  regualarPrice?: number | null;
+  regualarPrice: number;
   salePrice?: number | null;
   dateOnSaleFrom?: string | null;
   dateOnSaleTo?: string | null;
@@ -327,8 +327,8 @@ export interface Product {
     | {
         attribute: number | Attribute;
         allowedValues: (number | AttributeValue)[];
-        variation?: boolean | null;
         visible?: boolean | null;
+        variation?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -487,7 +487,7 @@ export interface AttributeValue {
  */
 export interface Variant {
   id: number;
-  regualarPrice?: number | null;
+  regualarPrice: number;
   salePrice?: number | null;
   dateOnSaleFrom?: string | null;
   dateOnSaleTo?: string | null;
@@ -1050,8 +1050,8 @@ export interface ProductsSelect<T extends boolean = true> {
     | {
         attribute?: T;
         allowedValues?: T;
-        variation?: T;
         visible?: T;
+        variation?: T;
         id?: T;
       };
   variantsList?: T;

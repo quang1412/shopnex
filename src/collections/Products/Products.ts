@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import type { CollectionConfig, Validate } from 'payload'
 
 import { RichTextEditor } from '@/fields/RichTextEditor/RichTextEditor'
@@ -10,6 +11,7 @@ import { SeoField } from '@/fields/seo'
 import { admins, anyone } from '@/access/roles'
 import { generateVariantsEndPoint } from './endpoints/generateVariants'
 
+// Bỏ qua validate phía server cho filterOptions
 const nonValidate: Validate = () => true
 
 export const Products: CollectionConfig = {
@@ -170,6 +172,7 @@ export const Products: CollectionConfig = {
                   label: 'Giá thông thường',
                   type: 'number',
                   defaultValue: 0,
+                  required: true,
                   min: 0,
                   admin: { width: '50%' }
                 },
@@ -177,7 +180,6 @@ export const Products: CollectionConfig = {
                   name: 'salePrice',
                   label: 'Giá sale',
                   type: 'number',
-                  defaultValue: 0,
                   min: 0,
                   admin: { width: '50%' }
                 },
@@ -185,26 +187,22 @@ export const Products: CollectionConfig = {
             },
             {
               type: 'collapsible',
-              label: 'Đặt lịch',
+              label: 'Đặt lịch sale',
               fields: [
                 {
-                  name: 'dateOnSaleFrom',
-                  type: 'date',
-                  admin: {
-                    date: {
-                      pickerAppearance: 'dayAndTime'
-                    }
-                  },
+                  type: 'row',
+                  fields: ['dateOnSaleFrom', 'dateOnSaleTo'].map(name => ({
+                    name: name,
+                    label: "Thời gian " + (name == 'dateOnSaleFrom' ? "bắt đầu" : "kết thúc"),
+                    type: 'date',
+                    admin: {
+                      date: {
+                        pickerAppearance: 'dayAndTime'
+                      },
+                      width: '50%'
+                    },
+                  }))
                 },
-                {
-                  name: 'dateOnSaleTo',
-                  type: 'date',
-                  admin: {
-                    date: {
-                      pickerAppearance: 'dayAndTime'
-                    }
-                  },
-                }
               ]
             },
           ]
@@ -273,14 +271,19 @@ export const Products: CollectionConfig = {
                   type: 'row',
                   fields: [
                     {
-                      name: 'variation',
-                      label: 'Dùng cho biến thể',
-                      type: 'checkbox',
-                    },
-                    {
                       name: 'visible',
                       label: 'Hiển thị',
                       type: 'checkbox',
+                    },
+                    {
+                      name: 'variation',
+                      label: 'Dùng cho biến thể',
+                      type: 'checkbox',
+                      admin: {
+                        condition: (data) => {
+                          return data.type == 'variable'
+                        }
+                      }
                     },
                   ]
                 },
@@ -309,7 +312,7 @@ export const Products: CollectionConfig = {
               admin: {
                 disableListFilter: true,
                 disableListColumn: true,
-              }
+              },
             },
             {
               name: 'variants-test',
@@ -591,13 +594,27 @@ export const Products: CollectionConfig = {
   ],
   hooks: {
     afterDelete: [deleteMedia, deleteVariants],
-    // beforeChange: [
-    //   ({ originalDoc }) => {
-    //     const price = originalDoc.price ?? 0
-    //     const originalPrice = originalDoc.doc.originalPrice ?? 0
-    //     return { ...originalDoc, price, originalPrice }
-    //   }
-    // ]
+    beforeChange: [
+      ({ data, }) => {
+        if ((data.salePrice || 0) >= data.regualarPrice) {
+          data.salePrice = null
+          data.dateOnSaleFrom = null
+          data.dateOnSaleTo = null
+        };
+        return data;
+      }
+    ],
+    afterChange: [
+      ({ doc, operation }) => {
+        if (doc._status === 'published') {
+          // Revalidate trang chi tiết bài viết cho mọi client
+          revalidatePath(`/products/${doc.handle}`)
+          // Revalidate trang danh sách
+          revalidatePath(`/products`)
+        }
+        return doc
+      }
+    ]
   },
   endpoints: [generateVariantsEndPoint]
 }

@@ -508,8 +508,8 @@ export const products = pgTable(
     handle: varchar('handle'),
     description: varchar('description'),
     type: enum_products_type('type').notNull().default('simple'),
-    regualarPrice: numeric('regualar_price', { mode: 'number' }).default(0),
-    salePrice: numeric('sale_price', { mode: 'number' }).default(0),
+    regualarPrice: numeric('regualar_price', { mode: 'number' }).notNull().default(0),
+    salePrice: numeric('sale_price', { mode: 'number' }),
     dateOnSaleFrom: timestamp('date_on_sale_from', {
       mode: 'string',
       withTimezone: true,
@@ -644,8 +644,8 @@ export const variants = pgTable(
   'variants',
   {
     id: serial('id').primaryKey(),
-    regualarPrice: numeric('regualar_price', { mode: 'number' }).default(0),
-    salePrice: numeric('sale_price', { mode: 'number' }).default(0),
+    regualarPrice: numeric('regualar_price', { mode: 'number' }).notNull().default(0),
+    salePrice: numeric('sale_price', { mode: 'number' }),
     dateOnSaleFrom: timestamp('date_on_sale_from', {
       mode: 'string',
       withTimezone: true,

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
-import type { Product } from '@/lib/products'
+import { type Product, calculateItemPrice } from '@/lib/products'
 import { Heart, Share2, Star, ChevronRight, Ruler, } from 'lucide-react'
 // import { useIsMobile } from '@/hooks/use-mobile'
 import { SizeGuideDrawer } from './size-guide-drawer'
@@ -14,6 +14,8 @@ import { SizeGuideDrawer } from './size-guide-drawer'
 import { toast } from 'sonner'
 import { AddToCartButton } from './add-to-cart-btn'
 import { ProductVariantSelector } from './variant-selector'
+import { ProductPrice } from './product-price'
+
 
 interface ProductDetailProps {
   product: Product
@@ -22,11 +24,13 @@ interface ProductDetailProps {
 const dummyGallery = Array.from({ length: 3 }).map(() => '/images/placeholder.svg')
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const isVariable = product.type == 'variable';
+  const [isLoading, setIsLoading] = useState(false);
   const { items: cartItems, addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   // const [quantity, setQuantity] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const isPreOrder = true;
+  const isVariable = product.type == 'variable';
 
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
     return {}
@@ -36,44 +40,33 @@ export function ProductDetail({ product }: ProductDetailProps) {
     // );
   });
 
-  // const mainVariant = product.variants?.find((variant) => {
-  //   const isDeff = variant.options?.find((op) => op.value !== selectedOptions[op.option]);
-  //   return !isDeff;
-  // });
+  const variantSelected = isVariable ? product.variants?.find((variant) => {
+    return !variant.options?.find(({ option, value }) => selectedOptions[option] != value);
+  }) : undefined;
 
-  const mainVariant = product.variants?.find((variant) => {
-    return variant.options?.find(({ option, value }) => (!!selectedOptions[option] && selectedOptions[option] == value));
-  });
+  const { mainPrice, oldPrice, maxPrice, minPrice, } = calculateItemPrice(product, variantSelected?.id);
 
-  const isPreOrder = true;
-  // const hasSalePrice = product.salePrice != undefined
-  const isOnSale = product.salePrice != undefined
-    && (!product.dateOnSaleFrom || new Date(product.dateOnSaleFrom) >= new Date())
-    && (!product.dateOnSaleTo || new Date(product.dateOnSaleTo) <= new Date());
+  // useEffect(() => {
+  //   console.log({ selectedOptions })
+  // }, [selectedOptions])
 
-  const mainPrice: number = (mainVariant?.salePrice ?? mainVariant?.regualarPrice) || (product.salePrice ?? product.regualarPrice)
-  const oldPrice = (mainVariant?.salePrice !== undefined ? mainVariant?.regualarPrice : product.salePrice !== undefined ? product.regualarPrice : undefined)
-
-  const mainStock: number = isVariable ? (mainVariant ? mainVariant.stockCount : 0) : product.stockCount
-
-  // const regularPrice = product.regualarPrice || Math.floor(product.price + (product.price / 10)) || 0;
-  // const savedPercent = oldPrice != undefined ? (100 - (mainPrice / (oldPrice / 100))).toFixed(1) : "";
-
-  useEffect(() => {
-    console.log({ selectedOptions })
-  }, [selectedOptions])
-
-  useEffect(() => {
-    console.log({ product })
-  }, [product])
+  // useEffect(() => {
+  //   console.log({ variantSelected })
+  // }, [variantSelected])
 
   const handleAddToCart_ = async (qty: number) => {
     // Fn thêm vào giỏ hàng
+    if (isVariable && !variantSelected) return alert('Vui lòng chọn biến thể sp');
 
-    if (isVariable && !mainVariant) return alert('Vui lòng chọn biến thể sp');
+    // const mainPrice = isVariable
+    //   ? (variantSelected?.salePrice ?? variantSelected?.regualarPrice)
+    //   : (product.salePrice ?? product.regualarPrice)
+
+    if ((mainPrice) == undefined) return alert('Giá không hợp lệ');
+
+    const mainStock = isVariable ? (variantSelected?.stockCount || 0) : product.stockCount;
 
     setIsLoading(true);
-
     // Simulate loading
     await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -82,9 +75,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
       name: product.name,
       image: product.image,
       price: mainPrice,
-      variantId: mainVariant?.id,
-      variantLabel: isVariable && mainVariant?.options?.map((o: any) => o.value).join(' • ') || undefined,
-      stock: isVariable ? (mainVariant?.stockCount || 0) : product.stockCount,
+      variantId: variantSelected?.id,
+      variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') || undefined,
+      stock: mainStock,
     }
 
     for (let i = 0; i < qty; i++) {
@@ -220,9 +213,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             {/* Prices */}
             <div className='text-2xl flex gap-2 items-end'>
-              <span className=" font-bold">${mainPrice}</span>
-              {oldPrice != undefined && <del className='text-sm  text-muted-foreground'>${oldPrice}</del>}
-              {/* {savedPercent && <span className='text-sm  text-green-500'>sale {savedPercent}%</span>} */}
+              <ProductPrice
+                product={product}
+                isVariable={isVariable}
+                variantId={variantSelected?.id}
+              />
             </div>
 
           </div>
@@ -266,11 +261,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Add to Cart */}
           <AddToCartButton
             product={product}
-            // variant={mainVariant}
-            variantId={mainVariant?.id}
+            isVariable={isVariable}
+            variantId={variantSelected?.id}
             handleAddToCart={handleAddToCart_}
             handleBuyNow={() => {
-              toast.info(`Buy now ${[product.id, mainVariant?.id].filter(Boolean).join(' / ')}`)
+              toast.info(`Buy now ${[product.id, variantSelected?.id].filter(Boolean).join(' / ')}`)
             }}
             isLoading={isLoading}
           />

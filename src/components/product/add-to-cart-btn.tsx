@@ -13,6 +13,7 @@ import { useCart } from '@/hooks/use-cart'
 interface AddToCartBtnProps {
   product: Product
   variantId?: string
+  isVariable?: boolean
   handleAddToCart?: (qty: number) => void
   handleBuyNow?: () => void
   isLoading?: boolean
@@ -20,6 +21,7 @@ interface AddToCartBtnProps {
 
 export function AddToCartButton({
   product,
+  isVariable,
   variantId,
   handleAddToCart,
   handleBuyNow,
@@ -33,8 +35,8 @@ export function AddToCartButton({
     console.log({ variantId });
   }, [variantId])
 
-  const isVariable = product.type == 'variable';
-  const variant = product.variants.find(v => v.id == variantId);
+  // const isVariable = product.type == 'variable';
+  const variant = product.variants?.find(v => v.id == variantId);
   const isStockManage = Boolean(isVariable ? variant?.stockManage : product.stockManage);
   const stock = isVariable ? (variant?.stockCount || 0) : product.stockCount
 
