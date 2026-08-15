@@ -16,6 +16,7 @@ export const AttributeValues: CollectionConfig = {
     // Hiển thị tên giá trị trong trang quản trị
     useAsTitle: 'label',
   },
+  defaultPopulate: { attribute: false },
   fields: [
     {
       type: 'row',

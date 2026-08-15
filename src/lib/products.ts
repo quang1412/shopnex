@@ -4,8 +4,8 @@ import type {
   Product as PayloadProduct,
   Collection as PayloadCollection,
   Variant as PayloadVariant,
-  VariantsSelect
 } from '@/payload-types'
+import { getId } from './utils'
 // import { type Media } from '@/payload-types'
 
 interface VariantOption {
@@ -13,7 +13,7 @@ interface VariantOption {
   value: string
 }
 
-interface Variant {
+export interface Variant {
   id: string
   sku: string
   gallery: string[]
@@ -119,41 +119,32 @@ const transformVariant = (v: PayloadVariant): Variant => {
 // Transform Payload product to shop product format
 function transformProduct_v2(payloadProduct: PayloadProduct): Product {
 
-  // console.log(JSON.stringify(payloadProduct.variantsList?.docs?.[0]));
-
-  // console.log(JSON.stringify(payloadProduct.attributes))
-
-
   const isVariable = payloadProduct.type == 'variable'
-  const variantDocs = payloadProduct['variants-test'];
+  const variantDocs = payloadProduct.variantsList?.docs;
+
+  // console.log(JSON.stringify(variantDocs?.[0]), '\n');
+
+  // console.log(JSON.stringify(payloadProduct.attributes?.[0]), '\n')
 
   let gallery: string[] = payloadProduct.gallery?.map(media => {
     if (typeof media == 'object' && media.url) return media.url;
     return false;
   }).filter(m => (typeof m == 'string')) || ['/images/placeholder.svg'];
 
-  let options: any[] = []
-  let variants: Variant[] = [];
+  let options: any[] | undefined;
+  let variants: Variant[] | undefined;
 
   if (isVariable) {
 
     variants = variantDocs?.map(v => {
       if (typeof v == 'object') return transformVariant(v);
       return false;
-    }).filter(v => !!v) || [];
+    }).filter(v => !!v);
 
     options = payloadProduct.attributes?.map(op => ({
       option: (typeof op.attribute == 'object' ? op.attribute.name : ""),
       value: op.allowedValues.map(val => (typeof val == 'object' ? val.label : "")),
     })) || [];
-
-    // const cheapestVariant = variants.filter(v => v.price > 0).sort((a, b) => a.price - b.price)[0]
-
-    // mainPrice = cheapestVariant.price
-    // mainOriginalPrice = cheapestVariant.originalPrice
-    // mainStockCount = variants.reduce((total, v) => {
-    //   return (total + v.stockCount)
-    // }, 0);
 
   };
 
@@ -353,7 +344,17 @@ export async function getProductBySlug_v2(slug: string): Promise<Product | undef
           collections: {
             title: true,
           },
+          variants: {
+            product: false,
+          },
+          attributes: {
+            values: false,
+          },
+          "attribute-values": {
+            attribute: false,
+          }
         },
+        // depth: 3,
         limit: 1,
       },
       {
@@ -370,7 +371,7 @@ export async function getProductBySlug_v2(slug: string): Promise<Product | undef
   }
 }
 
-export function calculateItemPrice(product: Product, variantId?: string) {
+export function calculateItemPrice(product: Product, variantId?: string | null) {
   const variant = product.variants?.find(v => (v.id === variantId))
 
   const mainItem = (product.type == 'variable' ? variant : product);

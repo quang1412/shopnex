@@ -16,6 +16,7 @@ export const Variants: CollectionConfig = {
   lockDocuments: {
     duration: 60
   },
+  // defaultPopulate: { product: false },
   fields: [
     {
       type: 'row',

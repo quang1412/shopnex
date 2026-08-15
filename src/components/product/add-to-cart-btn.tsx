@@ -11,56 +11,68 @@ import { QuantityControler } from './quantity-controler'
 import { useCart } from '@/hooks/use-cart'
 
 interface AddToCartBtnProps {
-  product: Product
-  variantId?: string
-  isVariable?: boolean
-  handleAddToCart?: (qty: number) => void
-  handleBuyNow?: () => void
-  isLoading?: boolean
+  // product: Product
+  // variantId?: string
+  // isVariable?: boolean
+  // isLoading?: boolean
+  quantity: number,
+  onQuantityChange: (qty: number) => void;
+  onAddToCart?: () => Promise<void>
+  handleBuyNow?: () => Promise<void>
+  disabled?: boolean
+  maxQty?: number
 }
 
 export function AddToCartButton({
-  product,
-  isVariable,
-  variantId,
-  handleAddToCart,
+  // product,
+  // isLoading,
+  // isVariable,
+  // variantId,
+  quantity,
+  onQuantityChange,
+  onAddToCart,
   handleBuyNow,
-  isLoading,
+  disabled,
+  maxQty = 1
 }: AddToCartBtnProps) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const { items: cartItems } = useCart();
+  // const [qty, setQty] = useState<number>(quantity);
 
-  const { items } = useCart();
-  const [inputQty, setInputQty] = useState(1);
+  // const [inputQty, setInputQty] = useState(quantity);
 
-  useEffect(() => {
-    console.log({ variantId });
-  }, [variantId])
+  // useEffect(() => { qty && onQuantityChange?.(qty) }, [qty])
+  // useEffect(() => { setQty(1) }, [variantId]);
 
   // const isVariable = product.type == 'variable';
-  const variant = product.variants?.find(v => v.id == variantId);
-  const isStockManage = Boolean(isVariable ? variant?.stockManage : product.stockManage);
-  const stock = isVariable ? (variant?.stockCount || 0) : product.stockCount
+  // const variant = product.variants?.find(v => v.id == variantId);
+  // const isStockManage = Boolean(isVariable ? variant?.stockManage : product.stockManage);
+  // const stock = isVariable ? (variant?.stockCount || 0) : product.stockCount
 
-  const itemInCart = items.find((i) => ((i.id == product.id) && (!isVariable || (i.variantId == variantId))));
+  // const itemInCart = cartItems.find((i) => ((i.id == product.id) && (!isVariable || (i.variantId == variantId))));
 
-  const quantityInCart = itemInCart?.quantity || 0;
-  const remainingStockAllowed = Math.max(0, (stock - quantityInCart));
+  // const quantityInCart = itemInCart?.quantity || 0;
+  // const remainingStockAllowed = Math.max(0, (stock - quantityInCart));
 
-  useEffect(() => { setInputQty(1) }, [variantId]);
-
-  const isDisabled = (isVariable && !variantId) || (isStockManage && (remainingStockAllowed === 0 || inputQty > remainingStockAllowed))
+  // const isDisabled = (isVariable && !variantId) || (isStockManage && (remainingStockAllowed === 0 || qty > remainingStockAllowed))
 
   const handleChangeQuantity = (qty: number) => {
-    if (isDisabled || isLoading) return
-    setInputQty(qty);
+    if (disabled) return
+    onQuantityChange(qty);
   }
 
-  const hangleClickATC = () => {
-    if (isDisabled) return
-    handleAddToCart?.(inputQty);
+  const hangleClickATC = async () => {
+    if (disabled) return;
+    setIsLoading(true);
+    await onAddToCart?.();
+    setIsLoading(false);
   }
 
   const handleClickBuyNow = () => {
-    variantId && handleBuyNow?.();
+    if (disabled) return;
+    setIsLoading(true);
+    handleBuyNow?.();
+    setIsLoading(false);
   }
 
   return (
@@ -68,9 +80,10 @@ export function AddToCartButton({
 
       <div className="flex items-center gap-4">
         <QuantityControler
-          value={inputQty}
+          value={quantity}
           onValueChange={handleChangeQuantity}
-          max={remainingStockAllowed || 1}
+          max={maxQty}
+          disabled={isLoading || disabled}
         />
       </div>
 
@@ -81,7 +94,7 @@ export function AddToCartButton({
             onClick={handleClickBuyNow}
             variant="default"
             className="w-full"
-            disabled={isDisabled}
+            disabled={isLoading || disabled}
           >Mua ngay</Button>
         </div>
 
@@ -91,7 +104,7 @@ export function AddToCartButton({
             variant="outline"
             // variant="secondary"
             onClick={hangleClickATC}
-            disabled={isDisabled}
+            disabled={isLoading || disabled}
             className="w-full"
           >
             {!isLoading ? "Thêm vào giỏ" : <><Spinner />&nbsp;Đang thêm...</>}

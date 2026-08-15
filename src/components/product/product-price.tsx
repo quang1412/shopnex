@@ -2,8 +2,13 @@ import { type Product, calculateItemPrice } from "@/lib/products";
 
 interface ProductPriceProps {
   product: Product,
-  variantId?: string
-  isVariable?: boolean
+  variantId?: string | null
+  // isVariable?: boolean
+
+  mainPrice?: number | null,
+  salePrice?: number | null
+  dateOnSaleTo?: string | null
+  placceholder?: string | null
 }
 
 export function ProductPrice({

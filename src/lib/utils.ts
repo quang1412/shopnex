@@ -52,3 +52,11 @@ export function fixLocalName(input: string) {
     .replace(/^Phường\s/g, 'P.')
     .replace(/^Thị\strấn\s/g, 'TT.')
 }
+
+export const getId = (val: any): number | string | null | undefined => {
+  if (!val) return val;
+  if (typeof val === 'object' && 'id' in val) {
+    return val.id;
+  }
+  return val;
+};

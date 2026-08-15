@@ -308,11 +308,7 @@ export const Products: CollectionConfig = {
               type: 'join',
               collection: 'variants',
               on: 'product',
-              maxDepth: 1,
-              admin: {
-                disableListFilter: true,
-                disableListColumn: true,
-              },
+              maxDepth: 3,
             },
             {
               name: 'variants-test',

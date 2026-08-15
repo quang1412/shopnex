@@ -27,44 +27,32 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { items: cartItems, addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
-  // const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1);
 
   const isPreOrder = true;
   const isVariable = product.type == 'variable';
 
-  const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>(() => {
-    return {}
-    // if (!defaultVariant_?.options) return {};
-    // return Object.fromEntries(
-    //   defaultVariant_.options.map((opt) => [opt.option, opt.value])
-    // );
-  });
+  const [variantId, setVariantId] = useState<string | null>(null)
 
-  const variantSelected = isVariable ? product.variants?.find((variant) => {
-    return !variant.options?.find(({ option, value }) => selectedOptions[option] != value);
-  }) : undefined;
+  // XÁC ĐỊNH BIẾN THỂ
+  const variantMain = (isVariable && variantId) ? product.variants?.find((v) => (v.id == variantId)) : null;
 
-  const { mainPrice, oldPrice, maxPrice, minPrice, } = calculateItemPrice(product, variantSelected?.id);
+  // TỒN KHO CỦA SẢN PHẨM HOĂC BIẾN THỂ
+  const stock = isVariable ? (variantMain?.stockCount || 0) : product.stockCount;
 
-  // useEffect(() => {
-  //   console.log({ selectedOptions })
-  // }, [selectedOptions])
+  const itemInCart = cartItems.find((i) => ((i.id == product.id) && (i.variantId === variantId)));
+  const quantityInCart = (itemInCart?.quantity || 0);
+  const remainingStockAllowed = Math.max(0, (stock - quantityInCart));
 
-  // useEffect(() => {
-  //   console.log({ variantSelected })
-  // }, [variantSelected])
+  const { mainPrice, oldPrice, maxPrice, minPrice, } = calculateItemPrice(product, variantMain?.id);
 
-  const handleAddToCart_ = async (qty: number) => {
+  const handleAddToCart_ = async () => {
     // Fn thêm vào giỏ hàng
-    if (isVariable && !variantSelected) return alert('Vui lòng chọn biến thể sp');
-
-    // const mainPrice = isVariable
-    //   ? (variantSelected?.salePrice ?? variantSelected?.regualarPrice)
-    //   : (product.salePrice ?? product.regualarPrice)
+    if (isVariable && !variantMain) return alert('Vui lòng chọn biến thể sp');
 
     if ((mainPrice) == undefined) return alert('Giá không hợp lệ');
 
-    const mainStock = isVariable ? (variantSelected?.stockCount || 0) : product.stockCount;
+    const mainStock = isVariable ? (variantMain?.stockCount || 0) : product.stockCount;
 
     setIsLoading(true);
     // Simulate loading
@@ -75,16 +63,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
       name: product.name,
       image: product.image,
       price: mainPrice,
-      variantId: variantSelected?.id,
-      variantLabel: variantSelected?.options?.map((o: any) => o.value).join(' • ') || undefined,
+      variantId: variantMain?.id,
+      variantLabel: variantMain?.options?.map((o: any) => o.value).join(' • ') || undefined,
       stock: mainStock,
     }
 
-    for (let i = 0; i < qty; i++) {
+    for (let i = 0; i < quantity; i++) {
       addItem(item)
     }
 
-    setSelectedOptions({});
+    setVariantId(null);
     setIsLoading(false);
 
     toast.success(
@@ -97,7 +85,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           className="h-10 w-10 rounded-lg object-cover"
         />
         <div>
-          <p className="font-semibold">Đã thêm {qty} sp vào giỏ hàng</p>
+          <p className="font-semibold">Đã thêm {quantity} sp vào giỏ hàng</p>
           <p className="text-sm text-muted-foreground">{item.name} ({item.variantLabel})</p>
         </div>
       </div>
@@ -215,8 +203,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <div className='text-2xl flex gap-2 items-end'>
               <ProductPrice
                 product={product}
-                isVariable={isVariable}
-                variantId={variantSelected?.id}
+                // isVariable={isVariable}
+                variantId={variantId}
               />
             </div>
 
@@ -244,9 +232,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Options control */}
           <div className='relative'>
             <ProductVariantSelector
-              product={product}
-              options={selectedOptions}
-              onOptionsChange={setSelectedOptions}
+              // product={product}
+              variants={product.variants}
+              variantId={variantMain?.id}
+              onVariantChange={setVariantId}
+            // options={selectedOptions}
+            // onOptionsChange={setSelectedOptions}
             />
 
             <div className=' absolute top-0 right-0'>
@@ -260,14 +251,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Add to Cart */}
           <AddToCartButton
-            product={product}
-            isVariable={isVariable}
-            variantId={variantSelected?.id}
-            handleAddToCart={handleAddToCart_}
-            handleBuyNow={() => {
-              toast.info(`Buy now ${[product.id, variantSelected?.id].filter(Boolean).join(' / ')}`)
+            disabled={isLoading || remainingStockAllowed == 0}
+            maxQty={remainingStockAllowed}
+            // product={product}
+            quantity={quantity}
+            onQuantityChange={setQuantity}
+            // isVariable={isVariable}
+            // variantId={variantMain?.id}
+            onAddToCart={handleAddToCart_}
+            handleBuyNow={async () => {
+              toast.info(`Buy now ${[product.id, variantMain?.id].filter(Boolean).join(' / ')}`)
             }}
-            isLoading={isLoading}
+          // isLoading={isLoading}
           />
           <Separator />
 
